@@ -42,3 +42,5 @@ android/captures/
 *.iml
 .DS_Store
 Thumbs.db
+**tmp**
+**/tmp**
