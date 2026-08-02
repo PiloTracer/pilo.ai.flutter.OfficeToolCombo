@@ -1,0 +1,112 @@
+# Agent rules — OfficeToolCombo
+
+Operating contract for AI agents in this repository. Precedence: a human instruction in the current message > this file > project standards in `.work.flutter/standards/` > an approved SPEC > framework standards.
+
+---
+
+## Ground rules (all agents, all tasks)
+
+1. **Read before writing.** `.work.flutter/context/HANDOFF_FLUTTER.md` and `.work.flutter/plans/NEXT_FLUTTER.md` first.
+2. **Evidence or silence.** Never state a result you did not observe. Quote the command and its output.
+3. **Gates stop work.** An unmet prerequisite produces a blocked report naming what is missing and which skill provides it.
+4. **Never weaken a check.** No deleted or skipped tests, no lowered thresholds, no suppressions without a linked ADR.
+5. **Stay in scope.** Fix what the task names. Report everything else instead of fixing it.
+6. **Ask when a decision is the operator's.** Product behaviour, scope, risk acceptance and irreversible actions are never inferred.
+7. **Record what you did.** A HANDOFF entry per session; one active pointer in NEXT.
+
+---
+
+## Protected files
+
+Require explicit human approval **in the same message** before editing. Full list: `.work.flutter/standards/PROTECTED_SURFACES.json`.
+
+Typical: `pubspec.yaml` · `analysis_options.yaml` · `lib/main.dart` · `lib/bootstrap.dart` · `lib/core/di/**` · `lib/core/router/**` · native build files and manifests · signing configuration · CI workflows · anything under `**/migrations/**`.
+
+**Never committed under any circumstances:** keystores, `key.properties`, `.p12`, provisioning profiles, `.env` files, service-account JSON.
+
+---
+
+## Migration policy
+
+Local-store migrations are numbered, ordered, idempotent and forward-only. Verified by **running twice**, and tested from every shipped schema version. Destructive steps require explicit human approval; agents never execute them. A migration defect destroys user data on devices you do not control — this is the highest-consequence code in the repository.
+
+---
+
+## Test data
+
+Fixtures are real captured payloads, sanitised. No production data in the repo. Ad-hoc writes against a shared database require human approval.
+
+---
+
+## Git
+
+Agents never commit, push, merge, rebase, force-push, reset or tag unless asked in the current message. `--no-verify` is a human decision.
+
+Commit format: `FLT-<n>: imperative subject` (≤72 chars). No AI attribution, no tool co-author trailers.
+
+---
+
+# FLUTTER_AGENT_OS_BEGIN
+## Flutter Agent OS
+
+Framework: `/mnt/work/Projects/pilo.ai.flutter` · Project memory: `.work.flutter/` · Entry: `@flutter-director - <what you want>`
+
+### Placeholder map (resolve from repo root — never strip the prefix)
+
+| Placeholder | Path |
+|-------------|------|
+| `{FLUTTER_WORK_ROOT}` | `.work.flutter/` |
+| `{FLUTTER_HANDOFF}` | `.work.flutter/context/HANDOFF_FLUTTER.md` |
+| `{FLUTTER_NEXT}` | `.work.flutter/plans/NEXT_FLUTTER.md` |
+| `{FLUTTER_PLANS_ROOT}` | `.work.flutter/plans/` |
+| `{FLUTTER_MASTER_PLAN}` | `.work.flutter/plans/full/*-full-plan.md` (latest Approved) |
+| `{FLUTTER_SPEC_ROOT}` | `.work.flutter/features/` |
+| `{FLUTTER_STANDARDS_ROOT}` | `.work.flutter/standards/` |
+| `{FLUTTER_DECISIONS_ROOT}` | `.work.flutter/decisions/` |
+| `{FLUTTER_STACK_LOCK}` | `.work.flutter/STACK.md` |
+| `{APP_ROOT}` | `.` |
+
+### Project
+
+| Item | Value |
+|------|-------|
+| Project | `OfficeToolCombo` |
+| Flutter / Dart | `3.44.8` / `3.12.2` |
+| Platforms | `linux,macos,windows` (min iOS `n/a`, min Android SDK `n/a`) |
+| State / Navigation / DI | `riverpod` / `go_router` / `riverpod` |
+| Serialization / HTTP / Local store | `freezed+json_serializable` / `dio` / `drift` |
+| Test doubles | `mocktail` |
+| Coverage floor | `80`% |
+| Task ref prefix | `FLT` |
+
+Commands are canonical in `DOCS_FLUTTER_STACK.md`.
+
+### Operating rules
+
+1. **Read before writing.** Load `{FLUTTER_HANDOFF}` and `{FLUTTER_NEXT}` before acting on project work.
+2. **Gates are binding.** A skill whose prerequisite is unmet stops and emits a blocked report. Never proceed "to be helpful".
+3. **Never report an unobserved result.** Quote the command and its output. Toolchain missing → `toolchain unavailable`, never a pass.
+4. **Never weaken a check** to make something pass: no deleted tests, no `skip:`, no lowered thresholds, no `// ignore:` without a linked ADR.
+5. **Scope discipline.** Touch only what the current task names. Anything else is a finding to report, not to fix.
+6. **No secrets** in source, assets, build config or `--dart-define` (those ship in the binary).
+7. **Protected surfaces** (`{FLUTTER_STANDARDS_ROOT}/PROTECTED_SURFACES.json`) need explicit human approval in the same message.
+8. **Git is opt-in.** Never commit, push, merge, rebase or tag unless asked in the current message.
+9. **AI-assisted by default.** Agent sessions run FLS-06 before an iteration completes. Do not self-classify out of it.
+10. **Record after acting.** Append a HANDOFF entry; keep exactly one active pointer in `{FLUTTER_NEXT}`.
+11. **Cohabitation.** `.ai` and `.ai.ui` own their own work trees and skills. Never write into them; route non-Flutter work out.
+
+### Skills
+
+Orchestration: `@flutter-director` `@flutter-router`
+Setup and planning: `@flutter-bootstrap` `@flutter-stack` `@flutter-foundation` `@flutter-plan-master` `@flutter-feature-spec` `@flutter-plan-verify` `@flutter-plan-repair`
+Implementation: `@flutter-scaffold` `@flutter-implementation` `@flutter-data` `@flutter-platform` `@flutter-release`
+Verification: `@flutter-test` `@flutter-verify` `@flutter-perf` `@flutter-a11y` `@flutter-security`
+Repair: `@flutter-repair` `@flutter-doctor`
+Support: `@flutter-session` `@flutter-concept-run` `@flutter-docs` `@flutter-deploy`
+
+Registry and gates: `/mnt/work/Projects/pilo.ai.flutter/skills/SKILL_DEPENDENCIES.md`
+
+### Commit policy
+
+`FLT-<n>: imperative subject` (≤72 chars). No AI attribution lines, no tool co-author trailers.
+# FLUTTER_AGENT_OS_END
