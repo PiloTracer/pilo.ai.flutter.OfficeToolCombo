@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:office_tool_combo/core/widgets/state_panel.dart';
+import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_view.dart';
 import 'package:office_tool_combo/features/home/presentation/home/home_view.dart';
 import 'package:office_tool_combo/features/report_consolidator/presentation/consolidator/consolidator_view.dart';
 import 'package:office_tool_combo/features/shell/presentation/tool_placeholder_view.dart';
@@ -23,11 +24,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/tools/barcode-inventory',
         name: 'barcode_inventory',
-        builder: (context, state) => const ToolPlaceholderView(
-          title: 'Barcode inventory',
-          toolId: 'barcode_inventory',
-          icon: Icons.qr_code_scanner_outlined,
-        ),
+        builder: (context, state) => const InventoryView(),
       ),
       GoRoute(
         path: '/tools/document-factory',

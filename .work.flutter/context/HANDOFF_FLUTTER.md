@@ -23,6 +23,82 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## 2026-08-02 — F2 manual entry fix + F-L10N chronogram gate
+
+**Skills:** @flutter-director, @flutter-implementation, @flutter-plan-master
+**Scope:** Manual entry parity with dialog focus fixes; plan sequencing for bilingual support
+
+**Done**
+- FLT-9: Manual entry — scanner field **disabled** while dialogs open; `ManualEntryDialog` focus + printable ASCII input; widget tests (3)
+- FLT-9: Master plan **Revision 3** — §11.1 chronogram: **F-L10N blocks F3–F5**; FL10N-T1…T6 task table
+- FLT-9: `{FLUTTER_NEXT}` updated — F-L10N is next blocking milestone after F2 verify
+
+**Verified**
+- `flutter test test/features/barcode_inventory/presentation/inventory/manual_entry_dialog_test.dart` → 3/3 passed
+
+**Decisions**
+- Multi-language support (F0-T8/T10 never landed) must be implemented **before** document factory, price monitor, or scheduled backup — recorded in master plan §11.1
+
+**Next**
+- `@flutter-verify milestone - F2` · future session: `@flutter-implementation - F-L10N`
+
+## 2026-08-02 — F2 image scan: EAN-13 decode fix
+
+**Skills:** @flutter-implementation, @flutter-test
+**Scope:** User product photos failed with "no QR/bar code found"
+
+**Done**
+- FLT-9: Replaced QR-only `zxing2` decoder with `flutter_zxing` (EAN-13, UPC, Code128, QR)
+- FLT-9: `BarcodeImageDecoder` — grayscale luminance scan, contrast/invert retries, format priority (EAN over marketing QR URLs)
+- FLT-9: `barcode_identifier_selector.dart` — normalize EAN spacing (`7 453078 513034` → `7453078513034`)
+- FLT-9: Multi-barcode per image; repository `decodeBarcodesFromImagePath` returns `List<String>`
+- FLT-9: Fixture copies of user photos + selector/decoder tests
+
+**Verified**
+- `flutter test` → 47/47 passed
+- Decoder fixtures (with `flutter build linux`): `8054041617576`, `7453078513034` decoded from user photos
+
+**Decisions**
+- Prefer linear product barcodes (EAN/UPC) over QR URLs when both appear on packaging
+- Removed unused `zxing2` dependency
+
+**Next**
+- Rebuild/restart app (`flutter run`) so `libflutter_zxing.so` is bundled · retry **Scan from images** with same photos
+
+## 2026-08-02 — F2 Barcode inventory full implementation
+
+**Skills:** @flutter-session, @flutter-implementation
+**Scope:** F2-T1…T7 + expanded input (image QR decode, manual entry, CSV import/export, scan modes)
+
+**Done**
+- FLT-9: Drift `AppDatabase` — `inventory_items`, `scan_events`, `app_settings`; replaced `AppDatabaseStub`
+- FLT-9: Full `barcode_inventory/` feature — domain, data, presentation (ViewModel + widgets)
+- FLT-9: USB/BT HID wedge scan field with always-focused policy (`ScannerField`)
+- FLT-9: Scan modes Receive (+1), Ship (−1), Count (set qty); unknown identifier create flow
+- FLT-9: Manual entry, QR image upload decode (`zxing2`), stock search, edit/delete items
+- FLT-9: CSV import/export, recent scans panel, session summary chips
+- FLT-9: Router wired `/tools/barcode-inventory` → `InventoryView`
+- FLT-9: Tests — repository (5) + ViewModel (5)
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 38/38 passed
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+
+**Decisions**
+- Bluetooth scanners: HID keyboard wedge path (same as USB) — no BLE SDK in v1
+- Image decode: QR codes via `zxing2`; linear barcodes via wedge/manual (zxing2 0.2.4 is QR-only)
+- Operator waived plan/SPEC gates for this iteration — SPEC-002 still Review; amend recommended
+
+**Open / blocked**
+- SPEC-002 amend for image/manual/CSV/modes (operator approve SPEC)
+- F2-T5 integration test `integration_test/inventory_scan_test.dart` not added
+- en/es l10n (`inventory_*` ARB keys) not wired — UI hardcoded English
+- Master plan still Draft
+
+**Next**
+- `@flutter-verify milestone - F2` · approve/amend SPEC-002 · add integration test + l10n
+
 ## Latest action (@flutter-director)
 **Date:** 2026-08-02
 **Request:** "A history of the last 20 merges should be kept at all times... Open icon that selects the file in the file location."
