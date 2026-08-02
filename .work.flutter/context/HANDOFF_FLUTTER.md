@@ -23,6 +23,36 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## 2026-08-02 — Session close: fixtures, toolchain, row-count footer
+
+**Skills:** @flutter-session, @flutter-doctor
+**Scope:** consolidator sample corpus, Linux clang wrapper fix, WorkbookMerger footer
+
+**Done**
+- FLT-4: `.work.flutter/fixtures/report_consolidator/` + `tool/generate_consolidator_fixtures.dart`
+- FLT-5: `WorkbookMerger` appends `Row count` | `<data rows>` footer; tests updated
+- SDK fix (host): `/mnt/work/sdks/wrappers/clang{,++}` scripts + `env.sh` CC/CXX absolute paths (Flutter native_assets sibling-clang requirement)
+- Documented header-mismatch behaviour: non-matching headers fail-open into output sheet (fixture `header_mismatch.xlsx`); typed failure list still F1-T8 gap
+- `.gitignore`: ignore generated `consolidated_*.xlsx` and LibreOffice lock files under fixtures
+
+**Verified**
+- `flutter test test/features/report_consolidator/domain/services/workbook_merger_test.dart` → `+5: All tests passed!`
+- `flutter build linux --debug` (earlier) → `✓ Built build/linux/x64/debug/bundle/office_tool_combo`
+- Manual merge of fixture folder produced consolidated workbook with footer (operator screenshot)
+
+**Decisions**
+- Header mismatch keeps all rows (including foreign header) so data is not discarded; operator notices in sheet — recorded in this HANDOFF
+- Row-count footer counts data rows only (excludes primary header)
+
+**Open / blocked**
+- Master plan still `Draft` (Revision 2) — needs operator `Approved` — blocks implementation-ready
+- SPECs SPEC-000…006 still Review — need approve
+- F1 gaps: F1-T2 drift migration, F1-T7/T8 (output path + typed header-mismatch failure), widget/integration tests, NFR10 profile
+- Host: no apt sudo; Linux desktop build requires `source /mnt/work/sdks/env.sh`
+
+**Next**
+- Re-approve plan → approve SPECs → close F1 gaps → `@flutter-verify milestone - F1`
+
 ## 2026-08-02 — Session close: commercial plan revision + SPECs
 
 **Skills:** @flutter-session, @flutter-director, @flutter-plan-verify, @flutter-foundation, @flutter-plan-master, @flutter-feature-spec

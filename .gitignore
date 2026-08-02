@@ -44,3 +44,6 @@ android/captures/
 Thumbs.db
 **tmp**
 **/tmp**
+# Generated consolidator runs (keep seed fixtures only)
+.work.flutter/fixtures/**/consolidated_*.xlsx
+.work.flutter/fixtures/**/.~lock.*
