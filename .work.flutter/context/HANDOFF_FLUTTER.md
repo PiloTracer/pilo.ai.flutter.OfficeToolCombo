@@ -16,12 +16,115 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 | stack-locked | — | `@flutter-stack set` | |
 | foundation-complete | — | `@flutter-foundation status` | |
 | plan-ready | yes | `@flutter-foundation certify` | 2026-08-02 |
-| implementation-ready | yes | `@flutter-plan-master` (status Approved) | 2026-08-02 |
+| implementation-ready | no | master plan `status: Draft` after Revision 2 — needs re-approval | 2026-08-02 |
 | release-ready | — | `@flutter-release certify` | |
 
 ---
 
 <!-- New entries go directly below this line. -->
+
+## 2026-08-02 — Session close: commercial plan revision + SPECs
+
+**Skills:** @flutter-session, @flutter-director, @flutter-plan-verify, @flutter-foundation, @flutter-plan-master, @flutter-feature-spec
+**Scope:** Plan Revision 2, FT-00…FT-06 SPECs, bilingual/locale persist hard requirement
+
+**Done**
+- Foundation commercial bar + hard en/es locale persistence (docs 01, 02, 05; ASM-007/008)
+- Master plan Revision 2: FR10, NFR13, 53 tasks; status Draft pending re-approval
+- SPECs Review: SPEC-000…SPEC-006 under `.work.flutter/features/*/`
+- Plan probe ledger `.work.flutter/plans/full/PROBE_LEDGER.md`
+- Session close with commit + push (operator requested)
+
+**Verified**
+- `master-plan-verify.sh` → failures: 0 · PASS
+- `traceability-verify.sh` → failures: 0 · PASS
+- Commit/push evidence recorded in close report after git commands
+
+**Decisions**
+- Bilingual + locale restart never on cut list — plan §5 / doc 02 §5
+- `tmp/` not committed (local ideas transcript only)
+
+**Open / blocked**
+- Operator: re-approve master plan (`status: Approved`) — blocks implementation-ready
+- Operator: approve SPECs SPEC-000…006 — blocks SPEC-gated implementation
+- F1 code gaps vs expanded plan still open
+
+**Next**
+- Re-approve plan → `@flutter-feature-spec approve` × SPECs → close F1 gaps → `@flutter-verify milestone - F1`
+
+## Latest action (@flutter-director)
+**Date:** 2026-08-02
+**Request:** "Verify all plans generated, the plans should be completing gaps that are not included in the transcript for the 5 given functionalities.... it must provide full complete plans for each of them. THE GOAL IS: to generate applications that are actually useful, and able to generate interest in many companies to buy the software. Additionally, the application combo must be visible in spanish or english (support both languages). The language is set, and the setting must survive restarts of the application."
+**Classified bucket:** master-probe → foundation amend → plan revise → feature-spec
+**Routing confidence:** high
+**Executed:**
+1. `@flutter-plan-verify master` → pass (`master-plan-verify: PASS` failures: 0; then after revise still PASS with status Draft, 53 tasks)
+2. `@flutter-plan-verify coverage` → fail with gaps → routed to SPEC create (0 SPECs → 7 Review SPECs)
+3. `@flutter-foundation continue` → amended docs 01, 02, 05 + ASSUMPTIONS ASM-007/008
+4. `@flutter-plan-master probe` → plan PROBE_LEDGER 8/8 confirmed; challenge defensible with UNK-001…003
+5. `@flutter-plan-master revise` → Revision 2; status Draft; FR10 + NFR13; commercial tasks added
+6. `@flutter-feature-spec create` × 7 (FT-00…FT-06) → status Review
+7. `@flutter-plan-master integrity` → `master-plan-verify: PASS` · `traceability-verify: PASS`
+**Evidence:**
+- `bash scripts/master-plan-verify.sh …/20260802-full-plan.md` → failures: 0 · PASS (53 tasks, 10 FRs, 13 NFRs)
+- `bash scripts/traceability-verify.sh …` → failures: 0 · PASS
+- SPECs present under `.work.flutter/features/{home,report_consolidator,barcode_inventory,document_factory,price_monitor,scheduled_backup,settings}/20260802-SPEC.md`
+**User correction:** none
+**Blockers:**
+- Master plan re-approval required (Draft) — owner: operator
+- Seven SPECs at Review — need `@flutter-feature-spec approve` before implement
+- Prior F1 code gaps still open (migration 002, widget/integration tests, NFR10)
+**Next recommended:** Operator re-approve plan (`status: Approved`) → approve SPECs → close F1 gaps → `@flutter-verify milestone - F1`
+
+## 2026-08-02 — Commercial bar + bilingual plan revision
+
+**Skills:** @flutter-director, @flutter-plan-verify, @flutter-foundation, @flutter-plan-master, @flutter-feature-spec
+
+**Done**
+- Foundation: doc 01 §4b commercial bar; doc 02 hard en/es + locale persist; doc 05 acceptance lines; ASM-007/008
+- Master plan Revision 2: cut "ship en-only"; FR10; NFR13; tasks F0-T12, F1-T7/T8, F2-T6/T7, F3-T7/T8, F4-T6, F5-T6
+- SPECs Review: SPEC-000…SPEC-006 for FT-00…FT-06
+- Plan probe ledger: `.work.flutter/plans/full/PROBE_LEDGER.md`
+
+**Verified**
+- `master-plan-verify.sh` → failures: 0 · PASS
+- `traceability-verify.sh` → failures: 0 · PASS
+
+**Decisions**
+- Bilingual + locale restart persistence never on cut list — doc 02 §5 + plan §5
+- Commercial sellable extras are v1 must-ship — doc 01 §4b
+- Plan status Draft pending operator re-approval — plan §21 Revision 2
+
+**Open / blocked**
+- Operator must set plan `status: Approved` — blocks implementation-ready
+- SPECs Review until approve — blocks SPEC-gated implementation
+- F1 incomplete vs expanded plan (output path, typed failures, tests, NFR10)
+
+**Next**
+- Re-approve master plan, then `@flutter-feature-spec approve` for FT-00…FT-06 (or batch), then close F1 gaps
+
+## 2026-08-02 — F3/F4 feature SPECs (Review)
+
+**Skills:** @flutter-feature-spec
+
+**Done**
+- Authored `.work.flutter/features/document_factory/20260802-SPEC.md` — SPEC-003, FT-03, status Review; 16 sections; en/es UI strings; NFR12, FLS-04/08/06
+- Authored `.work.flutter/features/price_monitor/20260802-SPEC.md` — SPEC-004, FT-04, status Review; 16 sections; en/es UI strings; UNK-002 banner fallback; FLS-04/07/11/06
+- Updated `.work.flutter/features/README.md` index
+
+**Verified**
+- Both files contain `## 1` through `## 16` with non-empty content (authoring pass)
+
+**Decisions**
+- Document factory offline = normal mode (no offline badge on that tool); price monitor shows offline badge — recorded in respective SPECs §6/§10
+- Linux OS notification acceptance deferred to UNK-002; banner fallback mandatory pass (price monitor SPEC §9, A7, A12)
+
+**Open / blocked**
+- SPECs remain **Review** until operator approves — implementation requires Approved status per FEATURE_SPEC_STANDARD
+
+**Plan:** `.work.flutter/plans/full/20260802-full-plan.md` · **Milestones:** F3, F4
+**Next**
+- Operator review → set status Approved → `@flutter-implementation plan - F2` (or F3 after F2 per NEXT)
 
 ## 2026-08-02 — F1 Report consolidator MVP
 

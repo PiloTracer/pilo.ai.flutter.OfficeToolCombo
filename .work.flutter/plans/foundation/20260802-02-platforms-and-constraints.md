@@ -1,6 +1,6 @@
 # 02 — Platforms and constraints
 
-**Status:** Complete   **Phase:** P1   **Updated:** 2026-08-02
+**Status:** Complete   **Phase:** P1   **Updated:** 2026-08-02 (hard bilingual amendment)
 
 ---
 
@@ -53,11 +53,15 @@
 
 | Aspect | Decision |
 |--------|----------|
-| Locales at launch | English (`en`), Spanish (`es`) |
+| Locales at launch | English (`en`) **and** Spanish (`es`) — **both required to ship** |
+| Cut policy | Shipping en-only is **forbidden**. Locale completeness is not on the cut list. |
 | RTL required | No |
 | Date/number/currency formatting source | `intl` with locale from AppSettings; money uses `Decimal` |
-| Pseudo-localisation in CI | Yes — long-string pass on F6 before release |
-| User-visible strings | All in `.arb` files; no hardcoded copy in widgets |
+| Persistence | Selected locale stored in `AppSettings` (drift) and applied at cold start before first frame of home; survives quit/restart |
+| Bootstrap | Locale must be readable without waiting on network; default when unset: system locale if `en`/`es`, else `en` |
+| Pseudo-localisation in CI | Yes — long-string pass on F6 before release (blocking) |
+| User-visible strings | All in `.arb` files; no hardcoded copy in widgets; every string key present in both `app_en.arb` and `app_es.arb` |
+| Acceptance | Operator sets Spanish → quits app → relaunches → UI remains Spanish (and inverse for English) |
 
 ---
 

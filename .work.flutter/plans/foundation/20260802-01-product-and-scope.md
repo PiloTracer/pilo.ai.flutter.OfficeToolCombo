@@ -1,6 +1,6 @@
 # 01 — Product and scope
 
-**Status:** Complete   **Phase:** P0/P4   **Updated:** 2026-08-02
+**Status:** Complete   **Phase:** P0/P4   **Updated:** 2026-08-02 (commercial bar + bilingual amendment)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ## 2. Intent (one sentence)
 
-One desktop Flutter application that lets non-technical office staff run five paid operational jobs—consolidate Excel reports, track inventory with a barcode scanner, batch-generate PDF documents, monitor prices in the background, and schedule dated folder backups—without opening a terminal or installing separate tools.
+One desktop Flutter application that lets non-technical office staff run five **paid, buyer-ready** operational jobs—consolidate Excel reports, track inventory with a barcode scanner, batch-generate PDF documents, monitor prices in the background, and schedule dated folder backups—without opening a terminal or installing separate tools, in **English or Spanish**, with the language choice surviving restarts.
 
 ---
 
@@ -20,11 +20,11 @@ One desktop Flutter application that lets non-technical office staff run five pa
 
 | # | Persona | Job | Today's workaround | Success signal |
 |---|---------|-----|-------------------|----------------|
-| J1 | Office coordinator | Merge a folder of `.xlsx` reports into one clean workbook and see which files failed | Manual copy-paste in Excel or a one-off script someone else wrote | One output file plus a readable failure list; no terminal |
-| J2 | Stock clerk | Scan barcodes into inventory and look up stock on the floor | Spreadsheet or paper log; re-keying into Excel | Scanner field always ready; stock persisted locally |
-| J3 | Admin assistant | Turn Excel rows plus a template into personalized PDFs for many recipients | Mail merge in Word or manual PDF editing | Batch PDFs written to a chosen folder with per-row errors listed |
-| J4 | Buyer / ops | Watch a product price and get notified when it crosses a threshold | Bookmark + manual refresh or browser extension | Background poll with OS notification; clear offline state when network is down |
-| J5 | Office manager | Zip a working folder on a daily schedule with a dated archive name | Manual zip or cron job maintained by IT | Schedule runs unattended; archives named by date |
+| J1 | Office coordinator | Merge a folder of `.xlsx` reports into one clean workbook and see which files failed | Manual copy-paste in Excel or a one-off script someone else wrote | One output file on a chosen path plus a readable failure list for broken/mismatched files; no terminal; demoable in under 5 minutes |
+| J2 | Stock clerk | Scan barcodes into inventory and look up stock on the floor | Spreadsheet or paper log; re-keying into Excel | Scanner field always ready and cleared after each scan; unknown barcodes creatable; stock persists across restart |
+| J3 | Admin assistant | Turn Excel rows plus a **user-owned** template (logo/fields) into personalized PDFs | Mail merge in Word or manual PDF editing | Field mapping without code; batch PDFs + per-row errors; progress visible for multi-minute runs |
+| J4 | Buyer / ops | Watch product prices and get notified when they cross thresholds | Bookmark + manual refresh or browser extension | Multi-watch CRUD from UI; background poll; OS notification while app minimized; offline badge |
+| J5 | Office manager | Zip a working folder on a daily schedule with a dated archive name | Manual zip or cron job maintained by IT | Source/destination/hour from UI; manual run; last-run status; dated archives never overwrite yesterday |
 
 ---
 
@@ -41,6 +41,23 @@ One desktop Flutter application that lets non-technical office staff run five pa
 **Roles:** Single application shell; all personas see the same five tool entries on the home screen (F0). No role-based hiding in v1.
 
 **Explicit non-users:** Mobile field workers (no iOS/Android v1), developers expecting CLI workflows, users who need cloud sync or multi-device inventory.
+
+---
+
+## 4b. Commercial product bar (buyer-ready)
+
+Operator decision 2026-08-02: plans and SPECs must close **gaps beyond the ideas transcript** so each tool is something a company would pay for—not a demo of a technical gesture.
+
+| Rule | Meaning |
+|------|---------|
+| Zero terminal | Every paid job is completable with folder pickers, forms, and one primary action button |
+| One job done well | Each tool finishes a complete pain (not a half-script); failure modes are listed, not silent |
+| Trust surface | Partial failures, offline, and progress are always visible in the operator’s language |
+| Language | Full UI in `en` and `es`; chosen locale persists across process restarts (non-cuttable) |
+| Demoability | A stranger can complete the happy path of each tool in ≤ 5 minutes on a sample corpus |
+| Sellable extras (v1 must) | Consolidator: output path + failure trust · Inventory: always-ready focus + unknown-SKU create · Documents: user template + field mapping · Prices: multi-watch UI + OS alert · Backup: schedule UI + last-run status |
+
+**Not required for v1 commercial bar (remain P1):** cloud destinations, inventory CSV export, multi-template library, sub-daily cron, collaborative sync.
 
 ---
 
@@ -72,6 +89,8 @@ One desktop Flutter application that lets non-technical office staff run five pa
 | Backup reliability | n/a | Scheduled daily zip succeeds or surfaces actionable error | Integration test + manual soak |
 | Install size (compressed desktop artifact) | n/a | ≤ 80 MB | `flutter build` size analysis |
 | Accessibility on P0 screens | n/a | Keyboard + screen reader labels on all primary actions; usable at 200% text scale | `@flutter-a11y audit` |
+| Locale completeness | n/a | 100% of user-visible strings present in both `en` and `es` ARBs at release | Pseudo-l10n CI + manual spot check |
+| Locale persistence | n/a | Selected language still applied after quit and cold start | Integration test settings → restart |
 
 ---
 

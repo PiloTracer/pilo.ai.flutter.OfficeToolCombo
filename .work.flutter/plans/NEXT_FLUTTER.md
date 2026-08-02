@@ -1,5 +1,13 @@
 # NEXT — OfficeToolCombo
 
-**Active pointer:** `@flutter-verify milestone - F1`
+**Active pointer:** Re-approve master plan Revision 2 (`status: Approved` in `.work.flutter/plans/full/20260802-full-plan.md`)
 
-**Recommended next:** Close F1 gaps (drift migration 002, widget + integration tests, NFR10 profile), then `@flutter-implementation plan - F2`.
+**Recommended next:**
+1. Operator: set master plan front matter `status: Approved` (restores implementation-ready)
+2. `@flutter-feature-spec approve` for SPEC-000…SPEC-006 (or review first)
+3. Close F1 gaps against expanded plan + SPEC-001 (F1-T2, F1-T7/T8, widget/integration tests, NFR10)
+4. `@flutter-verify milestone - F1`
+
+## Intake queue
+
+- 2026-08-02 · cross-cutting · "buyer-ready five tools + hard en/es locale persist" → foundation continue + plan revise + SPECs (done this session)

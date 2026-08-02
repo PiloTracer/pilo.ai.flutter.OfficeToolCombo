@@ -16,6 +16,8 @@ An unrecorded assumption is indistinguishable from a fact until it fails — usu
 | ASM-004 | Solo/agent-assisted team accepts codegen workflow (`build_runner`, freezed) | ADR-001, HANDOFF 2026-08-02 | Slower iteration if codegen conflicts | Ongoing friction | First F0 codegen CI run | Operator | accepted |
 | ASM-005 | Users tolerate daily (not sub-hour) backup granularity | Product intent operator stand-in 2026-08-02 | Feature rejection by power users | Post-v1 cron enhancement | User feedback after F5 | Operator | open |
 | ASM-006 | Reference Linux dev machine (`/mnt/work/sdks/env.sh`) represents minimum user hardware | HANDOFF host notes | Performance NFRs fail on older PCs | NFR1/NFR10 miss | Profile on 4-core/8GB machine before F6 | Implementer | open |
+| ASM-007 | Buyer-ready v1 does not require cloud sync, multi-user accounts, or inventory CSV export | Operator 2026-08-02 commercial bar | Some prospects demand cloud before purchase | Post-v1 P1 backlog | Sales feedback after first demos | Operator | accepted |
+| ASM-008 | Dual locale en/es covers the LatAm + bilingual office buyers targeted for v1 | Operator 2026-08-02 | Need additional locales | F6+ localisation milestone | Market feedback | Operator | open |
 
 **Basis:** where it came from — a stakeholder statement, an industry norm, a previous project, or nothing but convenience. "Nothing but convenience" is a legitimate entry and a useful signal.
 

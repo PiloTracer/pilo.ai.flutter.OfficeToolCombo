@@ -1,6 +1,6 @@
 # 05 — Feature map and slices
 
-**Status:** Complete   **Phase:** P4/P6   **Updated:** 2026-08-02
+**Status:** Complete   **Phase:** P4/P6   **Updated:** 2026-08-02 (commercial acceptance amendment)
 
 ---
 
@@ -8,15 +8,15 @@
 
 | ID | Feature | Priority | Acceptance (one line) | Depends on | SPEC |
 |----|---------|----------|------------------------|------------|------|
-| FT-00 | Home shell & navigation | P0 | User lands on home with five labeled tool entries and can reach each tool and return | — | `.work.flutter/features/home/` (F0) |
-| FT-01 | Report consolidator | P0 | User selects a folder of `.xlsx` files and receives one merged `.xlsx` plus a list of files that failed | F0 | `.work.flutter/features/report_consolidator/` |
-| FT-02 | Barcode inventory | P0 | Scanner wedge input stays focused; scan updates stock in DB and shows current quantity | F0 | `.work.flutter/features/barcode_inventory/` |
-| FT-03 | Document factory | P0 | User picks template + data sheet and receives personalized PDFs with per-row errors listed | F0 | `.work.flutter/features/document_factory/` |
-| FT-04 | Price monitor | P0 | Enabled watch notifies via OS notification when price crosses threshold; offline state visible without network | F0 | `.work.flutter/features/price_monitor/` |
-| FT-05 | Scheduled backup | P0 | User configures daily zip of a folder with dated archive name; manual run works | F0 | `.work.flutter/features/scheduled_backup/` |
-| FT-06 | Settings & AppSettings | P0 | User changes locale, theme, poll interval, retention | F0 | `.work.flutter/features/settings/` |
-| FT-07 | Accessibility polish | P0 | All P0 screens pass keyboard/semantics/200% scale checks | F1–F5 | Cross-cutting F6 |
-| FT-08 | Release packaging | P0 | Installable desktop artifacts for linux/macos/windows within size budget | F0–F6 | Release runbook F6 |
+| FT-00 | Home shell & navigation | P0 | User lands on home with five labeled tool entries (en/es) and can reach each tool and return | — | `.work.flutter/features/home/` (F0) |
+| FT-01 | Report consolidator | P0 | User picks source folder + output path, merges `.xlsx` files into one workbook, sees per-file failures without crash, progress during merge | F0 | `.work.flutter/features/report_consolidator/` |
+| FT-02 | Barcode inventory | P0 | Scanner field always focused and cleared after scan; known barcodes update qty; unknown barcodes creatable; stock persists across restart | F0 | `.work.flutter/features/barcode_inventory/` |
+| FT-03 | Document factory | P0 | User supplies own template + data sheet, maps fields without code, gets personalized PDFs with per-row errors and visible progress | F0 | `.work.flutter/features/document_factory/` |
+| FT-04 | Price monitor | P0 | User manages multiple watches from UI; enabled watch notifies via OS when threshold crossed; offline badge without network | F0 | `.work.flutter/features/price_monitor/` |
+| FT-05 | Scheduled backup | P0 | User sets source, destination, daily hour; manual run and schedule produce dated zips; last-run status visible | F0 | `.work.flutter/features/scheduled_backup/` |
+| FT-06 | Settings & AppSettings | P0 | User changes locale (en/es), theme, poll interval, retention; **locale survives cold start** | F0 | `.work.flutter/features/settings/` |
+| FT-07 | Accessibility polish | P0 | All P0 screens pass keyboard/semantics/200% scale checks in both locales | F1–F5 | Cross-cutting F6 |
+| FT-08 | Release packaging | P0 | Installable desktop artifacts for linux/macos/windows within size budget; en/es complete | F0–F6 | Release runbook F6 |
 
 **P1 (post-v1 candidates — not in v1 milestones):** cloud backup destination, multi-template library UI, inventory CSV export, custom cron beyond daily.
 
@@ -27,12 +27,12 @@
 | Milestone | Theme | Features | Depends on | Demoable outcome |
 |-----------|-------|----------|------------|------------------|
 | **F0** | Skeleton | FT-00, FT-06 (minimal), DI, router, theme, drift bootstrap | — | App runs on Linux/macOS/Windows; home shows five tools; empty tool screens navigable; CI analyze+test green |
-| **F1** | Consolidator | FT-01 | F0 | Operator merges sample xlsx folder → one output + failure list |
-| **F2** | Inventory | FT-02 | F0 | Operator scans barcodes; quantities persist across restart |
-| **F3** | Document factory | FT-03 | F0 | Operator generates PDF batch from template + sheet |
-| **F4** | Price monitor | FT-04 | F0 | Operator adds watch; stubbed price triggers notification |
-| **F5** | Backup | FT-05 | F0 | Operator schedules daily zip; manual run produces dated archive |
-| **F6** | Polish / a11y / release | FT-07, FT-08 | F1–F5 | Accessibility audit clean; compressed artifact ≤ 80 MB; es/en complete |
+| **F1** | Consolidator | FT-01 | F0 | Operator picks folder + output, merges sample xlsx → one file + failure list; UI stays responsive |
+| **F2** | Inventory | FT-02 | F0 | Operator scans; unknown SKU creatable; quantities persist across restart; field always ready |
+| **F3** | Document factory | FT-03 | F0 | Operator maps template fields, generates PDF batch with per-row errors |
+| **F4** | Price monitor | FT-04 | F0 | Operator manages watches; stubbed price cross triggers OS notification or banner |
+| **F5** | Backup | FT-05 | F0 | Operator configures source/dest/hour; manual + scheduled dated zip; last-run status |
+| **F6** | Polish / a11y / release | FT-07, FT-08 | F1–F5 | A11y clean; ≤ 80 MB; **en and es 100% complete (blocking)** |
 
 ---
 
