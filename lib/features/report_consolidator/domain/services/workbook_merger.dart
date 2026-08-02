@@ -8,6 +8,9 @@ class WorkbookMerger {
   ///
   /// The first non-empty file keeps its header row. Subsequent files skip their
   /// first row when it matches the established header.
+  ///
+  /// When the merge produces at least one row, a footer row is appended with
+  /// the count of data rows (header excluded): `Row count` | `<n>`.
   WorkbookMergeOutcome merge(List<WorkbookFileInput> inputs) {
     if (inputs.isEmpty) {
       return const WorkbookMergeOutcome(
@@ -52,8 +55,25 @@ class WorkbookMerger {
       );
     }
 
+    if (mergedRows.isNotEmpty) {
+      mergedRows.add(_rowCountFooter(mergedRows: mergedRows, header: header));
+    }
+
     return WorkbookMergeOutcome(rows: mergedRows, fileResults: fileResults);
   }
+}
+
+/// Footer: label in column 0, data-row count in column 1 (header excluded).
+List<String?> _rowCountFooter({
+  required List<List<String?>> mergedRows,
+  required List<String?>? header,
+}) {
+  final dataCount = header == null ? mergedRows.length : mergedRows.length - 1;
+  final width = header?.length ?? mergedRows.first.length;
+  final footer = List<String?>.filled(width < 2 ? 2 : width, null);
+  footer[0] = 'Row count';
+  footer[1] = '$dataCount';
+  return footer;
 }
 
 class WorkbookFileInput {

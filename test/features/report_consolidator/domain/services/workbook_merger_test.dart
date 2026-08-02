@@ -29,6 +29,7 @@ void main() {
       expect(outcome.rows, [
         ['Name', 'Amount'],
         ['Alpha', '10'],
+        ['Row count', '1'],
       ]);
       expect(
         outcome.fileResults.first.parseStatus,
@@ -59,6 +60,7 @@ void main() {
         ['Name', 'Amount'],
         ['Alpha', '10'],
         ['Beta', '20'],
+        ['Row count', '2'],
       ]);
     });
 
@@ -72,10 +74,28 @@ void main() {
 
       expect(outcome.successCount, 0);
       expect(outcome.failureCount, 1);
+      expect(outcome.rows, isEmpty);
       expect(
         outcome.fileResults.single.parseStatus,
         SpreadsheetParseStatus.failed,
       );
+    });
+
+    test('footer counts only data rows when header-only file succeeds', () {
+      final outcome = merger.merge([
+        const WorkbookFileInput(
+          fileName: 'header_only.xlsx',
+          rows: [
+            ['Name', 'Amount'],
+          ],
+        ),
+      ]);
+
+      expect(outcome.successCount, 1);
+      expect(outcome.rows, [
+        ['Name', 'Amount'],
+        ['Row count', '0'],
+      ]);
     });
   });
 }
