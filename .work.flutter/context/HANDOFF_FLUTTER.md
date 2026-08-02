@@ -38,7 +38,8 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 **Verified**
 - `master-plan-verify.sh` → failures: 0 · PASS
 - `traceability-verify.sh` → failures: 0 · PASS
-- Commit/push evidence recorded in close report after git commands
+- `git commit` → `dc0dc63 FLT-1: deepen plans for buyer-ready tools and bilingual SPECs`
+- `git push` → `b5a84bd..dc0dc63  HEAD -> main` (pre-push: flutter not on PATH — tests NOT run)
 
 **Decisions**
 - Bilingual + locale restart never on cut list — plan §5 / doc 02 §5
