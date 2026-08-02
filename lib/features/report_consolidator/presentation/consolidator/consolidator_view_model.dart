@@ -15,6 +15,37 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
     return const ConsolidatorUiState();
   }
 
+  Future<void> loadInitialState() async {
+    final savedPath = await _repository.readSavedOutputFolderPath();
+    final history = await _repository.readMergeHistory();
+    state = state.copyWith(outputFolderPath: savedPath, mergeHistory: history);
+  }
+
+  Future<void> loadSavedOutputFolder() => loadInitialState();
+
+  Future<void> pickOutputFolder() async {
+    final pickResult = await _repository.pickOutputFolder();
+    pickResult.when(
+      success: (path) {
+        if (path == null || path.isEmpty) {
+          return;
+        }
+        state = state.copyWith(outputFolderPath: path);
+      },
+      failure: (failure) {
+        state = state.copyWith(
+          phase: ConsolidatorPhase.error,
+          errorMessage: failure.message,
+        );
+      },
+    );
+  }
+
+  Future<void> useSourceFolderForOutput() async {
+    await _repository.saveOutputFolderPath(null);
+    state = state.copyWith(outputFolderPath: null);
+  }
+
   Future<void> pickFolderAndMerge() async {
     final pickResult = await _repository.pickSourceFolder();
     await pickResult.when(
@@ -24,6 +55,19 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
         }
         await _mergeFolder(path);
       },
+      failure: (failure) {
+        state = state.copyWith(
+          phase: ConsolidatorPhase.error,
+          errorMessage: failure.message,
+        );
+      },
+    );
+  }
+
+  Future<void> openMergeOutput(String outputPath) async {
+    final result = await _repository.revealOutputFile(outputPath);
+    result.when(
+      success: (_) {},
       failure: (failure) {
         state = state.copyWith(
           phase: ConsolidatorPhase.error,
@@ -45,24 +89,27 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
 
     final result = await _repository.consolidateFolder(
       folderPath: folderPath,
+      outputFolderPath: state.outputFolderPath,
       onProgress: (value) {
         state = state.copyWith(progress: value);
       },
     );
 
-    result.when(
-      success: (batch) {
+    await result.when(
+      success: (batch) async {
+        final history = await _repository.readMergeHistory();
         state = state.copyWith(
           phase: _phaseForBatch(batch),
           progress: 1,
           lastBatch: batch,
           outputFileName: _basename(batch.outputPath),
+          mergeHistory: history,
           errorMessage: batch.status == WorkbookBatchStatus.failed
               ? 'All spreadsheets failed to merge'
               : null,
         );
       },
-      failure: (failure) {
+      failure: (failure) async {
         state = state.copyWith(
           phase: _phaseForFailure(failure),
           errorMessage: failure.message,

@@ -72,7 +72,7 @@ class ConsolidatorLocalSource {
   }
 
   Future<String> writeWorkbook({
-    required String folderPath,
+    required String outputFolderPath,
     required List<List<String?>> rows,
   }) async {
     final excel = Excel.createExcel();
@@ -103,7 +103,7 @@ class ConsolidatorLocalSource {
       throw ConsolidatorIoException('Failed to encode consolidated workbook');
     }
 
-    final outputPath = _outputPathFor(folderPath);
+    final outputPath = _outputPathFor(outputFolderPath);
     await File(outputPath).writeAsBytes(encoded, flush: true);
     return outputPath;
   }
@@ -128,12 +128,12 @@ class ConsolidatorLocalSource {
         .toList(growable: false);
   }
 
-  String _outputPathFor(String folderPath) {
+  String _outputPathFor(String outputFolderPath) {
     final timestamp = DateTime.now().toUtc().toIso8601String().replaceAll(
       ':',
       '-',
     );
-    return '$folderPath${Platform.pathSeparator}consolidated_$timestamp.xlsx';
+    return '$outputFolderPath${Platform.pathSeparator}consolidated_$timestamp.xlsx';
   }
 
   bool _isSpreadsheet(String path) {
@@ -173,9 +173,13 @@ class ConsolidatorIoException implements Exception {
 
 /// Serializable payload for isolate merge work.
 class ConsolidatorIsolateRequest {
-  const ConsolidatorIsolateRequest({required this.folderPath});
+  const ConsolidatorIsolateRequest({
+    required this.folderPath,
+    required this.outputFolderPath,
+  });
 
   final String folderPath;
+  final String outputFolderPath;
 }
 
 class ConsolidatorIsolateResponse {
@@ -217,7 +221,7 @@ Future<ConsolidatorIsolateResponse> runConsolidationIsolate(
     }
 
     final outputPath = await source.writeWorkbook(
-      folderPath: request.folderPath,
+      outputFolderPath: request.outputFolderPath,
       rows: data.rows,
     );
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:office_tool_combo/core/theme/app_spacing.dart';
+import 'package:office_tool_combo/core/widgets/state_panel.dart';
+import 'package:office_tool_combo/features/shell/presentation/tool_shell_scaffold.dart';
 
 /// F0 placeholder for a tool route. Product behaviour arrives in F1–F5.
 class ToolPlaceholderView extends StatelessWidget {
@@ -7,31 +9,34 @@ class ToolPlaceholderView extends StatelessWidget {
     super.key,
     required this.title,
     required this.toolId,
+    this.icon = Icons.construction_outlined,
   });
 
   final String title;
   final String toolId;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        leading: IconButton(
-          tooltip: 'Back to home',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-        ),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            '$title is not implemented yet.\n'
-            'Skeleton route for $toolId (milestone F0).',
-            textAlign: TextAlign.center,
+    final spacing = context.spacing;
+
+    return ToolShellScaffold(
+      title: title,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.headlineMedium),
+          spacing.gapLg,
+          Expanded(
+            child: StatePanel(
+              icon: icon,
+              title: 'Coming in the next milestone',
+              message:
+                  '$title is on the roadmap. The navigation shell is ready; '
+                  'full workflow for $toolId ships in a later release.',
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

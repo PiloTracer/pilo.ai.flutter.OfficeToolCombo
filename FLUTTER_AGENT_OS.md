@@ -1,7 +1,8 @@
 # Flutter Agent OS — installed (basic)
 
 **Source:** `/mnt/work/Projects/pilo.ai.flutter`
-**Version:** 1.0.1
+**Version:** 1.0.1+unreleased (source @ 9dc517d)
+**Updated:** 2026-08-02 — UI craft (UI_CRAFT_STANDARD, FLS-13, hygiene scans, verify D15)
 **Installed:** 2026-08-02
 **Mode:** basic (thin — skills read from source)
 

@@ -23,6 +23,133 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## Latest action (@flutter-director)
+**Date:** 2026-08-02
+**Request:** "A history of the last 20 merges should be kept at all times... Open icon that selects the file in the file location."
+**Classified bucket:** implementation (F1-T7 UX)
+**Routing confidence:** high
+**Executed:**
+1. `MergeHistoryEntry` + SharedPreferences persistence (max 20, newest first)
+2. `MergeHistoryList` widget with Scrollbar + Open action per row
+3. `DesktopFileReveal` — Linux/macOS/Windows file-manager select
+4. Repository records history on succeeded/partial merges; reloads on app start
+**Evidence:** `flutter analyze --fatal-infos` → pass · `flutter test` → 28/28 passed
+
+## Latest action (@flutter-director)
+**Date:** 2026-08-02
+**Request:** "The totalized row was generated for the complex excels merged... but didn't totalize for the previous simple one... determine amount or count columns... credit or debit..."
+**Classified bucket:** implementation / repair (F1-T8)
+**Routing confidence:** high
+**Executed:**
+1. Root cause: strict all-cells-numeric rule + header-mismatch rows (Spanish header as data) blocked Quantity/Amount totals on simple corpus
+2. Added `workbook_numeric_parser.dart` — header-aware column classification, currency/CR/DR parsing, duplicate-header row exclusion
+3. Credit/debit: separate columns sum magnitudes; Type/DR/CR column signs amount totals; signed values and `(credit)` syntax supported
+4. Tests: simple 6-col layout, header-mismatch mix, ledger DR/CR, returns with negatives
+**Evidence:**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 25/25 passed
+**Next recommended:** Re-merge simple corpus `.work.flutter/fixtures/report_consolidator` — expect Quantity + Amount totals in footer
+
+## Latest action (@flutter-director)
+**Date:** 2026-08-02
+**Request:** "create a new set of sample excel files, with more complex structure, add 1 more line with all totalizeable columns totalized, additional to the already existing count total. The user must have the option to choose the output folder, and keep that folder saved across sessions..."
+**Classified bucket:** implementation (F1-T7/T8 partial)
+**Routing confidence:** high
+**Executed:**
+1. Extended `WorkbookMerger` with `Totals` footer row summing numeric columns (F1-T8 partial)
+2. Added `complex/` fixture corpus (10 xlsx) + regenerated basic corpus via `tool/generate_consolidator_fixtures.dart`
+3. Implemented output folder picker + `SharedPreferences` persistence (F1-T7); default = source folder when unset
+4. UI: output folder card on consolidator screen; tests for merger totals + repository output path
+**Evidence:**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 18/18 passed
+- `dart run tool/generate_consolidator_fixtures.dart` → 12 basic + 10 complex xlsx
+**User correction:** none
+**Blockers:** Master plan Draft; SPECs Review; F1-T2 migration; F1-T8 typed header-mismatch failures still open
+**Next recommended:** Operator re-approve plan → approve SPECs → `@flutter-verify milestone - F1`
+
+## 2026-08-02 — F1 column totals, complex fixtures, output folder persist
+
+**Skills:** @flutter-director, @flutter-implementation
+**Scope:** F1-T7 output path, footer totals, fixture corpus
+
+**Done**
+- FLT-8: `WorkbookMerger` appends `Totals` row after `Row count`; sums numeric columns (Qty, Amount, etc.)
+- FLT-8: `.work.flutter/fixtures/report_consolidator/complex/` — 10 wide-sheet xlsx (10 columns incl. discounts/returns)
+- FLT-7: `ConsolidatorPreferencesStore` + `SharedPreferences`; pick/reset output folder; persists across restarts
+- FLT-7: `ConsolidatorView` output folder card; default output = source folder when no saved path
+- Tests: merger totals, repository writes to saved/explicit output dir
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 18/18 passed
+- `dart run tool/generate_consolidator_fixtures.dart` → Wrote 12 + 10 xlsx files
+
+**Decisions**
+- Numeric column detection: all non-empty cells in column must parse as numbers; decimals preserved in totals when inputs used decimal strings
+- Output path key: `consolidator_output_folder_path` in SharedPreferences
+
+**Open / blocked**
+- Plan Draft + SPECs Review (operator)
+- F1-T2 drift migration; F1-T8 typed header-mismatch failure type; widget/integration tests; NFR10
+
+**Next**
+- Re-approve plan → approve SPECs → close remaining F1 gaps → `@flutter-verify milestone - F1`
+
+## Latest action (@flutter-director)
+**Date:** 2026-08-02
+**Request:** "review all the codebase and implement all the UI improvements you recommend. Make the app look great with the new skills added to the OS framework. verify all changes, complete all tasks unattended and autonomously."
+**Classified bucket:** implementation + a11y (UI craft / FLS-13)
+**Routing confidence:** high
+**Executed:**
+1. UI craft audit (FLS-13 / UI_CRAFT_STANDARD + THEMING_STANDARD) → theme token system + screen polish
+2. Implemented professional theme (`lib/core/theme/*`), shared widgets (`StatePanel`, `ToolShellScaffold`, `ToolCard`)
+3. Redesigned `HomeView`, `ConsolidatorView`, `ToolPlaceholderView`, router error page, `FailureList`
+4. `@flutter-verify` mechanical checks → analyze, test, build, hygiene scan
+**Evidence:**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 15/15 passed
+- `flutter build linux --debug` → `✓ Built build/linux/x64/debug/bundle/office_tool_combo`
+- `dart-hygiene-check.sh lib` → findings: 1 (MINOR bounded ListView — acceptable)
+**User correction:** none
+**Blockers:**
+- Master plan still Draft — operator re-approval still required for implementation-ready
+- SPECs SPEC-000…006 still Review
+- F1 functional gaps unchanged (F1-T2/T7/T8, integration/widget tests, NFR10)
+**Next recommended:** Operator re-approve plan → approve SPECs → close F1 gaps → `@flutter-verify milestone - F1`
+
+## 2026-08-02 — UI craft polish (FLS-13 / theme tokens)
+
+**Skills:** @flutter-director, @flutter-a11y (audit patterns), FLS-13 ui-craft
+**Scope:** cross-cutting presentation — theme system, home shell, consolidator, placeholders
+
+**Done**
+- FLT-7: Theme token system per THEMING_STANDARD — `app_colors`, `app_color_scheme`, `app_typography`, `AppSpacing`/`AppRadii`/`AppDurations` extensions, `app_component_themes`, `app_status_tone`
+- FLT-7: Shared UI — `StatePanel`, `ToolShellScaffold`, `ToolCard` with icon containers and neutral palette
+- FLT-7: `HomeView` — displaySmall hero hierarchy, tool cards with per-tool icons, max-width layout
+- FLT-7: `ConsolidatorView` — headline hierarchy, accent on primary CTA only, linear progress, plain-language error/empty states, success/warning cards
+- FLT-7: `ToolPlaceholderView` + router error page polished; placeholder routes pass tool icons
+- FLT-7: Widget tests — 200% text-scale overflow check; theme extension smoke test
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 15/15 passed
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+- `dart-hygiene-check.sh lib` → 1 MINOR (bounded ListView in success body)
+
+**Decisions**
+- Brand seed `#1E3A5F` (deep slate blue) replaces factory teal `fromSeed` — recorded in `app_colors.dart`
+- Accent colour appears only on primary FilledButton per UI_CRAFT §4
+- Home dominant element: `displaySmall` app title; consolidator dominant: `headlineMedium` task title + primary CTA
+
+**Open / blocked**
+- Plan Draft + SPECs Review unchanged (operator gates)
+- F1 functional gaps unchanged
+- Project `.work.flutter/standards/` still lacks copied UI_CRAFT/THEMING templates (framework has them; copy on next standards pass)
+
+**Next**
+- Re-approve plan → approve SPECs → close F1 gaps → `@flutter-verify milestone - F1`
+
 ## 2026-08-02 — Session close: fixtures, toolchain, row-count footer
 
 **Skills:** @flutter-session, @flutter-doctor
