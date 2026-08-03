@@ -18,6 +18,10 @@ List<String> selectInventoryIdentifiers(List<DetectedBarcode> detected) {
     }
   }
 
+  if (normalized.isEmpty) {
+    return const [];
+  }
+
   final linear =
       normalized.values
           .where((item) => item.priority >= 100)

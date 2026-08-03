@@ -72,7 +72,10 @@ void main() {
   testWidgets('import confirmation dialog localizes to Spanish', (
     tester,
   ) async {
-    final readResult = await pumpAndOpenDialog(tester, locale: const Locale('es'));
+    final readResult = await pumpAndOpenDialog(
+      tester,
+      locale: const Locale('es'),
+    );
     expect(find.text('¿Reemplazar el inventario actual?'), findsOneWidget);
 
     await tester.tap(find.text('Importar'));
@@ -81,42 +84,43 @@ void main() {
     expect(readResult(), isTrue);
   });
 
-  testWidgets('InventoryView import menu asks for confirmation; cancel aborts', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1200, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'InventoryView import menu asks for confirmation; cancel aborts',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final db = AppDatabase.inMemory();
-    addTearDown(db.close);
+      final db = AppDatabase.inMemory();
+      addTearDown(db.close);
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: buildL10nTestApp(
-          theme: AppTheme.dark(),
-          home: const InventoryView(),
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [appDatabaseProvider.overrideWithValue(db)],
+          child: buildL10nTestApp(
+            theme: AppTheme.dark(),
+            home: const InventoryView(),
+          ),
         ),
-      ),
-    );
-    await tester.pump();
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+      );
+      await tester.pump();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
-    // Open the overflow menu and choose Import CSV.
-    await tester.tap(find.byType(PopupMenuButton<String>));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Import CSV'));
-    await tester.pumpAndSettle();
+      // Open the overflow menu and choose Import CSV.
+      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Import CSV'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Replace current inventory?'), findsOneWidget);
+      expect(find.text('Replace current inventory?'), findsOneWidget);
 
-    // Cancel: dialog closes, nothing imported, no error surfaces.
-    await tester.tap(find.text('Cancel'));
-    await tester.pumpAndSettle();
+      // Cancel: dialog closes, nothing imported, no error surfaces.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Replace current inventory?'), findsNothing);
-    expect(find.text('Could not load inventory'), findsNothing);
-  });
+      expect(find.text('Replace current inventory?'), findsNothing);
+      expect(find.text('Could not load inventory'), findsNothing);
+    },
+  );
 }

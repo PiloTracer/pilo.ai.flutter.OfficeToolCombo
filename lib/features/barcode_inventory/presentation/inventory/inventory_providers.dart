@@ -20,8 +20,7 @@ final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
 final inventoryLocalizationsProvider = Provider<AppLocalizations>((ref) {
   final override = ref.watch(localeControllerProvider);
   final languageCode =
-      override?.languageCode ??
-      PlatformDispatcher.instance.locale.languageCode;
+      override?.languageCode ?? PlatformDispatcher.instance.locale.languageCode;
   return switch (languageCode) {
     'es' => AppLocalizationsEs(),
     _ => AppLocalizationsEn(),

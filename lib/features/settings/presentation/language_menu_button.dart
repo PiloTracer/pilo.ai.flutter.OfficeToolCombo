@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/settings/application/locale_controller.dart';
 import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
@@ -16,6 +17,7 @@ class LanguageMenuButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final current = ref.watch(localeControllerProvider);
+    final spacing = context.spacing;
 
     return PopupMenuButton<String>(
       tooltip: l10n.languageMenuLabel,
@@ -27,14 +29,34 @@ class LanguageMenuButton extends ConsumerWidget {
         );
       },
       itemBuilder: (context) => [
-        _localeItem(_systemValue, l10n.languageSystem, current == null),
-        _localeItem('en', l10n.languageEnglish, current?.languageCode == 'en'),
-        _localeItem('es', l10n.languageSpanish, current?.languageCode == 'es'),
+        _localeItem(
+          spacing,
+          _systemValue,
+          l10n.languageSystem,
+          current == null,
+        ),
+        _localeItem(
+          spacing,
+          'en',
+          l10n.languageEnglish,
+          current?.languageCode == 'en',
+        ),
+        _localeItem(
+          spacing,
+          'es',
+          l10n.languageSpanish,
+          current?.languageCode == 'es',
+        ),
       ],
     );
   }
 
-  PopupMenuItem<String> _localeItem(String value, String label, bool selected) {
+  PopupMenuItem<String> _localeItem(
+    AppSpacing spacing,
+    String value,
+    String label,
+    bool selected,
+  ) {
     return PopupMenuItem<String>(
       value: value,
       child: Row(
@@ -43,7 +65,7 @@ class LanguageMenuButton extends ConsumerWidget {
             selected ? Icons.radio_button_checked : Icons.radio_button_off,
             size: 18,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: spacing.md),
           Expanded(child: Text(label, overflow: TextOverflow.ellipsis)),
         ],
       ),

@@ -232,5 +232,27 @@ void main() {
       expect(history.first.sourceFolderPath, tempDir.path);
       expect(File(history.first.outputPath).existsSync(), isTrue);
     });
+
+    test('missing source folder returns unreadableFolder failure', () async {
+      final missing = '${tempDir.path}${Platform.pathSeparator}does_not_exist';
+
+      final result = await repository.consolidateFolder(folderPath: missing);
+
+      expect(result, isA<Err<WorkbookBatch>>());
+      final failure = (result as Err<WorkbookBatch>).failure;
+      expect(failure.message, startsWith('Could not read folder:'));
+    });
+
+    test('revealOutputFile fails when the merged file is gone', () async {
+      final missing = '${tempDir.path}${Platform.pathSeparator}gone.xlsx';
+
+      final result = await repository.revealOutputFile(missing);
+
+      expect(result, isA<Err<void>>());
+      expect(
+        (result as Err<void>).failure.message,
+        'That merged file no longer exists on disk.',
+      );
+    });
   });
 }

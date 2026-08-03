@@ -51,9 +51,7 @@ class IsolateRunner {
     }
   }
 
-  static Future<void> _isolateEntry<M, R, P>(
-    _IsolateArgs<M, R, P> args,
-  ) async {
+  static Future<void> _isolateEntry<M, R, P>(_IsolateArgs<M, R, P> args) async {
     try {
       final result = await args.callback(
         args.message,

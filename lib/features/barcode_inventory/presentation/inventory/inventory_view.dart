@@ -312,6 +312,7 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
       title: l10n.inventoryTitle,
       actions: [
         PopupMenuButton<String>(
+          tooltip: l10n.inventoryMoreActionsTooltip,
           onSelected: (value) async {
             switch (value) {
               case 'import':
@@ -450,7 +451,7 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                 child: Center(
                   child: Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: spacing.screenPadding,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -528,13 +529,14 @@ class _InventoryBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final spacing = context.spacing;
     return switch (state.phase) {
       InventoryPhase.loading => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const CircularProgressIndicator(),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             Text(l10n.inventoryLoading),
           ],
         ),
@@ -556,7 +558,7 @@ class _InventoryBody extends StatelessWidget {
         children: [
           if (state.phase == InventoryPhase.empty && state.searchQuery.isEmpty)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(bottom: spacing.md),
               child: StatePanel(
                 icon: Icons.qr_code_2_outlined,
                 title: l10n.inventoryEmptyTitle,
@@ -565,10 +567,13 @@ class _InventoryBody extends StatelessWidget {
             ),
           if (state.phase == InventoryPhase.partial)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: EdgeInsets.only(bottom: spacing.sm),
               child: MaterialBanner(
-                content: Text(
-                  l10n.inventoryImportSkippedBanner(state.skippedRowCount),
+                content: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.inventoryImportSkippedBanner(state.skippedRowCount),
+                  ),
                 ),
                 actions: [
                   TextButton(
@@ -589,7 +594,7 @@ class _InventoryBody extends StatelessWidget {
                   : l10n.inventoryNoMatchingItems,
             ),
           ),
-          const SizedBox(height: 12),
+          spacing.gapMd,
           Expanded(
             flex: 2,
             child: RecentScansList(

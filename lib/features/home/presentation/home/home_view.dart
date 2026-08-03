@@ -8,8 +8,15 @@ class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   static List<
-    ({String title, String subtitle, String route, IconData icon, bool available})
-  > _tools(AppLocalizations l10n) => [
+    ({
+      String title,
+      String subtitle,
+      String route,
+      IconData icon,
+      bool available,
+    })
+  >
+  _tools(AppLocalizations l10n) => [
     (
       title: l10n.toolReportConsolidatorTitle,
       subtitle: l10n.toolReportConsolidatorSubtitle,

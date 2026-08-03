@@ -233,25 +233,31 @@ class _LoadingBody extends StatelessWidget {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LinearProgressIndicator(value: progress > 0 ? progress : null),
-            spacing.gapMd,
-            Text(
-              progress > 0
-                  ? l10n.consolidatorMergingProgress(percent)
-                  : l10n.consolidatorPreparing,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            spacing.gapSm,
-            Text(
-              l10n.consolidatorMergingHint,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
+        child: Semantics(
+          liveRegion: true,
+          label: progress > 0
+              ? l10n.consolidatorMergeProgressSemantics(percent)
+              : l10n.consolidatorPreparing,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: progress > 0 ? progress : null),
+              spacing.gapMd,
+              Text(
+                progress > 0
+                    ? l10n.consolidatorMergingProgress(percent)
+                    : l10n.consolidatorPreparing,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+              spacing.gapSm,
+              Text(
+                l10n.consolidatorMergingHint,
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

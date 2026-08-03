@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
 import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
@@ -18,9 +19,10 @@ class RecentScansList extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final spacing = context.spacing;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: spacing.cardPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -28,7 +30,7 @@ class RecentScansList extends StatelessWidget {
               AppLocalizations.of(context).inventoryRecentScans,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
+            spacing.gapSm,
             ...events.take(8).map((event) {
               final name = event.itemId == null
                   ? event.barcode

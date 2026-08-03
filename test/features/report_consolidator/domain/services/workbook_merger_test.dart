@@ -167,28 +167,28 @@ void main() {
       ]);
 
       // The variant header must not land in the output as a data row.
-      expect(
-        outcome.rows.where((row) => row.first == ' NAME ').length,
-        isZero,
-      );
+      expect(outcome.rows.where((row) => row.first == ' NAME ').length, isZero);
       expect(outcome.rows.last, ['Totals', '30.00']);
     });
 
-    test('data rows wider than the header still get totals for extra columns', () {
-      final outcome = merger.merge([
-        const WorkbookFileInput(
-          fileName: 'report_a.xlsx',
-          rows: [
-            ['Name', 'Qty'],
-            ['Alpha', '10', '5'],
-            ['Beta', '20', '7'],
-          ],
-        ),
-      ]);
+    test(
+      'data rows wider than the header still get totals for extra columns',
+      () {
+        final outcome = merger.merge([
+          const WorkbookFileInput(
+            fileName: 'report_a.xlsx',
+            rows: [
+              ['Name', 'Qty'],
+              ['Alpha', '10', '5'],
+              ['Beta', '20', '7'],
+            ],
+          ),
+        ]);
 
-      // Headerless extra column classifies as amount → two decimals.
-      expect(outcome.rows.last, ['Totals', '30', '12.00']);
-    });
+        // Headerless extra column classifies as amount → two decimals.
+        expect(outcome.rows.last, ['Totals', '30', '12.00']);
+      },
+    );
 
     test('totals row sums every numeric column in wide sheets', () {
       final outcome = merger.merge([

@@ -29,7 +29,9 @@ class ToolCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: available ? title : l10n.toolComingSoonSemantics(title),
+      label: available
+          ? l10n.toolRowSemantics(title, subtitle)
+          : l10n.toolComingSoonSemantics(title),
       enabled: available,
       child: Material(
         color: scheme.surfaceContainerHighest,

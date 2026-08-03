@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/widgets/quantity_stepper_field.dart';
 import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
@@ -96,6 +97,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final spacing = context.spacing;
     return AlertDialog(
       title: Semantics(
         label: l10n.inventoryNewItemSemantics,
@@ -113,7 +115,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
                 helperText: widget.barcode,
               ),
             ),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             TextField(
               controller: _nameController,
               focusNode: _nameFocusNode,
@@ -124,7 +126,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
               textInputAction: TextInputAction.next,
               onSubmitted: (_) => _qtyFocusNode.requestFocus(),
             ),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             QuantityStepperField(
               controller: _qtyController,
               focusNode: _qtyFocusNode,
@@ -133,7 +135,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
               errorText: _qtyError,
               onEnter: () => _descriptionFocusNode.requestFocus(),
             ),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             TextField(
               controller: _descriptionController,
               focusNode: _descriptionFocusNode,
@@ -147,7 +149,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
               textInputAction: TextInputAction.newline,
             ),
             if (widget.errorMessage != null) ...[
-              const SizedBox(height: 12),
+              spacing.gapMd,
               Text(
                 widget.errorMessage!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -223,6 +225,7 @@ class _CountQuantityDialogState extends State<CountQuantityDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final spacing = context.spacing;
     return AlertDialog(
       title: Text(l10n.inventoryCountQuantityTitle),
       content: Column(
@@ -230,7 +233,7 @@ class _CountQuantityDialogState extends State<CountQuantityDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(l10n.inventoryIdentifierLine(widget.barcode)),
-          const SizedBox(height: 12),
+          spacing.gapMd,
           QuantityStepperField(
             controller: _qtyController,
             focusNode: _qtyFocusNode,
@@ -322,6 +325,7 @@ class _EditItemDialogState extends State<EditItemDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final spacing = context.spacing;
     return AlertDialog(
       title: Text(l10n.inventoryEditItem),
       content: SingleChildScrollView(
@@ -337,7 +341,7 @@ class _EditItemDialogState extends State<EditItemDialog> {
               textInputAction: TextInputAction.next,
               onSubmitted: (_) => _descriptionFocusNode.requestFocus(),
             ),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             TextField(
               controller: _descriptionController,
               focusNode: _descriptionFocusNode,
@@ -350,7 +354,7 @@ class _EditItemDialogState extends State<EditItemDialog> {
               textInputAction: TextInputAction.next,
               onSubmitted: (_) => _qtyFocusNode.requestFocus(),
             ),
-            const SizedBox(height: 12),
+            spacing.gapMd,
             QuantityStepperField(
               controller: _qtyController,
               focusNode: _qtyFocusNode,

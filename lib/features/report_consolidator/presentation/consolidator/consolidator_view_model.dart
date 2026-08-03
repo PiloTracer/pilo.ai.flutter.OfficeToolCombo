@@ -113,8 +113,7 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
           lastBatch: batch,
           outputFileName: _basename(batch.outputPath),
           mergeHistory: history,
-          errorMessage:
-              batch.status == WorkbookBatchStatus.failed
+          errorMessage: batch.status == WorkbookBatchStatus.failed
               ? batch.errorMessage
               : null,
         );

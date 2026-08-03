@@ -23,6 +23,93 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## 2026-08-02 — @flutter-verify milestone pass (F1–F5 + F6 partial) — verdict: pass with gaps
+
+**Skills:** @flutter-director, @flutter-verify (milestone), @flutter-repair, @flutter-test, @flutter-a11y
+**Scope:** "make a verification pass and make sure all is complete... proceed unattended and autonomously" → full gate + 15-dimension audit + repairs
+
+**Gate (Q1–Q8, all observed)**
+- Q1 `flutter pub get` → 0 · Q2 `dart format --set-exit-if-changed .` → 0 (57 files reformatted on first pass) · Q3 `flutter analyze --fatal-infos` → No issues found! · Q4 codegen current (no diff) · Q5 `flutter test` → **387/387 passed** (+4 decoder skips without native lib; benchmark tag run separately) · Q6 coverage **85.0%** (4839/5692 lines, excl. generated) ≥ 80 floor · Q7 hygiene → **0 BLOCKERs** · Q8 `flutter pub outdated` → report-only, no resolution conflicts
+- `tool/pseudo_l10n_check.sh` → PASS · `tool/test_integration.sh` → **4/4 journeys pass** (per-file invocation; upstream flutter_tools bug flutter/flutter#101031 breaks directory-wide desktop runs)
+- `master-plan-verify.sh` + `traceability-verify.sh` → PASS
+- `flutter build linux --release` → ✓; bundle compresses to **41 MB** ≤ 80 MB (NFR4)
+
+**Repairs during the pass**
+- FLS-03: 6 hygiene BLOCKERs — presentation importing `/data/`·`/services/` → moved abstractions to domain ports (`domain/connectivity`, `domain/alerting`, `domain/fetch`, `domain/polling`, `domain/validation`, `domain/scheduling`); `PriceWatchIdGenerator` → domain repository; impls re-export from data
+- UI_CRAFT: 15 raw spacing literals → theme tokens (inventory, settings)
+- Real bug: `selectInventoryIdentifiers` crashed (`Bad state: No element`) when all detections normalize to empty → guard + regression test
+- F6-T3: AppLogger crash sink — fatal errors persist to rotating log file, `$HOME` redacted; 3 tests
+- NFR benchmarks: `tool/benchmark_consolidator.dart` (**NFR10: 100 files / 449 ms PASS**), `test/benchmarks/nfr11_scan_benchmark_test.dart` (**NFR11: p95 2.2 ms quiet / ≤75 ms loaded, best-of-3, PASS**, tagged `benchmark` — excluded from coverage runs to avoid load flakes)
+- Coverage repair: +125 tests (consolidator 38, inventory 87) — F1 deferred widget tests closed (view 0.5%→97.8%, VM 0%→96.2%)
+- Journeys: F1-T6, F2-T5, F3-T6 `integration_test/` files — real boots, real stores, simulated restarts
+- F6-T1 mechanical a11y pass (agent): localized tooltips, live regions, 200%-scale tests
+- SPEC-003/004/005 **amendment-01** authored + front-matter pointers (SharedPreferences persistence, HTML templates, notification channels) — **operator ratification pending**
+
+**Verdict: pass with gaps** — no blocking dimension fails; gaps below are manual/operator-owned.
+
+| Dim | Result | Note |
+|-----|--------|------|
+| D1 requirements | pass with gaps | FR1–FR6 implemented; manual acceptance items open (below) |
+| D2 SPEC conformance | pass with gaps | amendment-01 deltas pending operator ratification |
+| D3 six UI states | pass | states + tests on all tool screens |
+| D4 architecture | pass | FLS-03 repaired; 0 BLOCKERs |
+| D5 state management | pass | Riverpod idioms; mounted guards |
+| D6 error handling | pass | typed failures + codes → localized surfaces |
+| D7 data integrity | pass with gaps | drift migration F1-T2 superseded path (SharedPreferences) awaiting ratification |
+| D8 test coverage | pass | 85.0% ≥ 80; six states tested |
+| D9 mechanical gate | pass | Q1–Q8 above |
+| D10 scope discipline | pass | diff ⊆ F3–F5 + verify repairs |
+| D11 security/privacy | pass | no secrets; path redaction; no PII in logs |
+| D12 accessibility | pass with gaps | mechanical P0/P1 fixed; screen-reader pass is manual |
+| D13 performance | pass | NFR10/NFR11/NFR12/NFR4 all measured PASS; NFR3 startup unmeasured (headless host) |
+| D14 FLS-06 | pass | this audit + recorded protected-surface approvals |
+| D15 visual craft | pass | theme tokens enforced; hygiene clean |
+
+**Open / blocked (owners named)**
+- ~~Operator: ratify SPEC-003/004/005 amendment-01~~ → **RATIFIED 2026-08-02**
+- ~~F1-T2 drift migration~~ → **closed as superseded 2026-08-02** (plan Revision 4)
+- Deferred to operator (explicit, 2026-08-02): F6-T6 signing ("a few days"), manual acceptance, NFR3 startup
+- Code follow-ups (non-blocking): docx template support; F3 dirty-mapping discard prompt (needs PopScope in shell); pdf WinAnsi font limit for CJK
+
+**Next**
+- `@flutter-release certify` once operator items land · commit this batch (FLT-13) on operator request
+
+## 2026-08-02 — F3 Document factory + F4 Price monitor + F5 Scheduled backup (all five tools shipped)
+
+**Skills:** @flutter-director, @flutter-implementation ×3, @flutter-test
+**Scope:** "PROCEED WITH FULL/COMPLETE/AWESOME IMPLEMENTATION OF ALL REMAINING TOOLS" — protected-surface edits (pubspec deps, router routes) covered by this in-message directive
+
+**Done**
+- FLT-12: **F3 Document factory** (SPEC-003) — HTML templates with `{{Token}}` placeholders (h1–h3/p/b/i/br/ul/li/img; logo `<img>` renders into PDF, A10); .xlsx data sheets with typed cell decode + duplicate-header error; mapping editor with per-template-path persistence (R6, A3); batch in isolate with per-row progress (`IsolateRunner.runWithProgress`); per-row skip/failure rules (R3/R5, A1/A2); interrupted-job detection (§4.4); `tool/benchmark_document_factory.dart` (A8)
+- FLT-12: **F4 Price monitor** (SPEC-004) — multi-watch CRUD + enable/disable (A1–A4); Decimal thresholds (R2); dio fetch + pure `PriceParser` (JSON keys → HTML currency fallback); baseline/cross/re-arm detection (R3–R5); 10-min poll coordinator with fake-clock tests (A10); connectivity service + offline badge (R7); OS notification via `notify-send`/`osascript` with mandatory in-app banner fallback (R10, A7)
+- FLT-12: **F5 Scheduled backup** (SPEC-005) — single-job config (source/dest/hour/enabled, save-on-change); dated zip naming `OfficeToolCombo-backup-YYYY-MM-DD[-HHmmss].zip` (R2/R3, A2); zip in isolate with progress + sentinel-file cancel; partial-zip cleanup (F6); daily scheduler with injectable clock (A5); run validation per §9 (A3/A4/R4); recent archives cap 10 (R7/R8, A6)
+- Deps added (pubspec, in-message approval): `pdf` 3.12.0, `archive` 3.6.1
+- All three routes wired in `app_router.dart`; `ToolPlaceholderView` no longer used by any route
+- Tests: +149 (F3 45, F4 64, F5 40)
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 244/244 passed, 0 skipped · `flutter test integration_test/` → 1/1
+- `tool/pseudo_l10n_check.sh` → PASS
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+- `dart run tool/benchmark_document_factory.dart` → 22,813 PDFs/min (NFR12 ≥ 50/min: PASS)
+
+**Decisions**
+- Template format v1 = HTML (SPEC-003 leaves formats to implementation); **docx deferred** — follow-up
+- Persistence for F3/F4/F5 = SharedPreferences feature stores (drift `lib/core/storage` protected; no schema change without explicit approval); SPEC drift wording superseded — SPEC amendments recommended
+- OS notifications: Linux `notify-send`, macOS `osascript`, Windows unsupported → banner fallback (sanctioned by SPEC-004 A7/A12 pending UNK-002)
+- Backup cancel via sentinel file polled by the isolate (cross-isolate safe, test-friendly)
+- Price first-sample = baseline, notify on transition only (R5); cross-back re-arms
+
+**Open / blocked**
+- Manual-only acceptance: F3 A5/A6/A9, F4 A6/A12 (UNK-002 Linux DE matrix), F5 a11y sweep — need human runs
+- SPEC-003/004/005 amendments for HTML-template + SharedPreferences decisions (operator)
+- F1 residuals unchanged: F1-T2 migration (protected), F1-T8 typed failures, NFR10 profile
+- Follow-ups reported by implementers: docx template support; F3 dirty-mapping discard prompt needs shell-level PopScope change; `fake_async` used via transitive dep (protected pubspec); pdf default font = WinAnsi (CJK needs bundled TTF)
+
+**Next**
+- `@flutter-verify milestone - F3`, `F4`, `F5` → `@flutter-concept-run FLS-06` → F6 polish/release (`@flutter-release`)
+
 ## 2026-08-02 — Plan/SPEC approvals, router l10n, FL10N-T3/T6, LOW audit fixes
 
 **Skills:** @flutter-director, @flutter-feature-spec (approve), @flutter-implementation, @flutter-test

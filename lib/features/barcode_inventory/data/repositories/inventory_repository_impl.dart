@@ -82,7 +82,8 @@ class InventoryRepositoryImpl implements InventoryRepository {
             mapInventoryFailure(
               const InventoryValidationFailure(
                 code: InventoryFailureCodes.validationUnknownItem,
-                message: 'Unknown item — create it first or switch to Receive mode',
+                message:
+                    'Unknown item — create it first or switch to Receive mode',
               ),
             ),
           );
@@ -456,9 +457,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
       var skippedCount = 0;
       var duplicateCount = 0;
       for (final row in rows.skip(1)) {
-        final isBlankRow = row.every(
-          (cell) => cell.toString().trim().isEmpty,
-        );
+        final isBlankRow = row.every((cell) => cell.toString().trim().isEmpty);
         if (isBlankRow) {
           continue;
         }

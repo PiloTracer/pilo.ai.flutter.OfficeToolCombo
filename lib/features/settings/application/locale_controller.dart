@@ -31,9 +31,7 @@ class LocaleController extends Notifier<Locale?> {
 
   Future<void> setLocale(Locale? locale) async {
     state = locale;
-    await ref
-        .read(settingsStoreProvider)
-        .writeLocaleCode(locale?.languageCode);
+    await ref.read(settingsStoreProvider).writeLocaleCode(locale?.languageCode);
   }
 }
 

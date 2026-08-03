@@ -91,7 +91,9 @@ class ConsolidatorLocalSource {
                   rowIndex: rowIndex,
                 ),
               )
-              .value = _cellValueFor(value);
+              .value = _cellValueFor(
+            value,
+          );
         }
       }
     }

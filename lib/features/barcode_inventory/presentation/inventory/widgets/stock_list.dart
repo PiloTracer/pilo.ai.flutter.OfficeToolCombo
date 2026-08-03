@@ -55,8 +55,13 @@ class StockList extends StatelessWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Chip(label: Text(l10n.inventoryQuantityChip(item.quantityOnHand))),
+                  Chip(
+                    label: Text(
+                      l10n.inventoryQuantityChip(item.quantityOnHand),
+                    ),
+                  ),
                   PopupMenuButton<String>(
+                    tooltip: l10n.inventoryItemActionsTooltip(item.name),
                     onSelected: (value) {
                       if (value == 'edit') {
                         onEdit(item);

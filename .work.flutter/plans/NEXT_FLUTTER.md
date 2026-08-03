@@ -1,19 +1,26 @@
 # NEXT — OfficeToolCombo
 
-**Active pointer:** `@flutter-verify milestone - F2` → **`@flutter-implementation - F3`** (document factory)
+**Active pointer:** nothing blocking on the agent side — awaiting operator's deferred items; `@flutter-release certify` when signing lands
 
-**Session closed:** 2026-08-02 — plan + SPECs Approved (implementation-ready), router l10n wired, FL10N-T3/T6 landed, LOW audit fixes (isolate progress, footer width, stepper focus). Verified: analyze clean, 95/95 tests + 1/1 integration, pseudo-l10n PASS, linux build green.
+**Session closed:** 2026-08-02 — operator decisions recorded (plan Revision 4): SPEC-003/004/005 amendment-01 **ratified**; **F1-T2 closed as superseded**; F6-T6 signing, manual acceptance, and NFR3 startup **deferred to operator**. Plan + traceability verify still PASS.
 
-**Recommended next (in order):**
-1. `@flutter-verify milestone - F2` — F2 gaps: on-device integration test F2-T5, coverage vs 80% floor
-2. `@flutter-implementation - F3` — document factory (SPEC-003 Approved; F-L10N gate satisfied)
-3. F1 residuals when touching consolidator: F1-T2 drift migration (protected — needs in-message approval), F1-T8 typed header-mismatch failure, NFR10 profile
+**All agent-resolvable work is complete.** Gate: 387/387 tests · coverage 85.0% ≥ 80 · hygiene 0 BLOCKERs · pseudo-l10n PASS · 4/4 journeys · release 41 MB ≤ 80 MB · NFR10/11/12 measured PASS.
 
-**F1 deferred:** F1-T2 migration (protected), F1-T8 typed failures, F1-T6 integration test, NFR10
+**Operator's deferred queue (their words, 2026-08-02):**
+1. F6-T6 signed release artifacts — "I will work on this in a few days" (macOS/Windows hosts + signing keys)
+2. Manual acceptance — "later": UNK-002 Linux DE matrix, macOS/Windows notification pass, screen-reader pass
+3. NFR3 startup ≤ 2500 ms — "later": needs reference desktop with display
+
+**Non-blocking code follow-ups (any future session):**
+- docx template support for document factory
+- F3 dirty-mapping discard prompt (needs PopScope in ToolShellScaffold)
+- CJK template text → bundle a TTF for package:pdf (WinAnsi-only default)
+
+**Verification commands (canonical for CI):**
+- `flutter test --exclude-tags benchmark` (suite) · `flutter test --tags benchmark` (NFR timing, quiet host)
+- `tool/test_integration.sh` (journeys — per-file; upstream flutter_tools bug #101031)
+- `tool/pseudo_l10n_check.sh` · `dart run tool/benchmark_consolidator.dart` · `dart run tool/benchmark_document_factory.dart`
 
 ## Intake queue
 
-- 2026-08-02 · **F-L10N** · bilingual foundation → **done (T1–T6 all landed)**
-- 2026-08-02 · operator approvals → **done** (plan Rev 2–3 Approved; SPEC-000…006 Approved)
-- 2026-08-02 · audit LOW → done: footer width, isolate progress, stepper focus · reported-only: drift upsertItem id re-key
-- 2026-08-02 · hygiene · stray `thresholds_new.pnm` at repo root (debug artifact — delete if unwanted)
+- (empty — all intake resolved; awaiting operator's deferred items above)

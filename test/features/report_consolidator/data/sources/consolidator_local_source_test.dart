@@ -29,8 +29,9 @@ void main() {
         final value = rows[r][c];
         if (value != null) {
           sheet
-              .cell(CellIndex.indexByColumnRow(columnIndex: c, rowIndex: r))
-              .value = value;
+                  .cell(CellIndex.indexByColumnRow(columnIndex: c, rowIndex: r))
+                  .value =
+              value;
         }
       }
     }
@@ -75,33 +76,33 @@ void main() {
   });
 
   group('ConsolidatorLocalSource write', () {
-    test('writes plain numbers as numeric cells, keeps identifiers as text', () async {
-      const source = ConsolidatorLocalSource();
-      final outputPath = await source.writeWorkbook(
-        outputFolderPath: tempDir.path,
-        rows: [
-          ['Sku', 'Qty', 'Price', 'Note'],
-          ['007', '42', '19.99', '1e5'],
-          ['Totals', '42', '19.99', null],
-        ],
-      );
+    test(
+      'writes plain numbers as numeric cells, keeps identifiers as text',
+      () async {
+        const source = ConsolidatorLocalSource();
+        final outputPath = await source.writeWorkbook(
+          outputFolderPath: tempDir.path,
+          rows: [
+            ['Sku', 'Qty', 'Price', 'Note'],
+            ['007', '42', '19.99', '1e5'],
+            ['Totals', '42', '19.99', null],
+          ],
+        );
 
-      final decoded = Excel.decodeBytes(
-        await File(outputPath).readAsBytes(),
-      );
-      final sheet = decoded.tables.values.first;
+        final decoded = Excel.decodeBytes(await File(outputPath).readAsBytes());
+        final sheet = decoded.tables.values.first;
 
-      CellValue? cellAt(int row, int col) =>
-          sheet.rows[row][col]?.value;
+        CellValue? cellAt(int row, int col) => sheet.rows[row][col]?.value;
 
-      expect(cellAt(1, 0), isA<TextCellValue>()); // '007' stays text
-      expect((cellAt(1, 0) as TextCellValue).toString(), '007');
-      expect(cellAt(1, 1), isA<IntCellValue>());
-      expect((cellAt(1, 1) as IntCellValue).value, 42);
-      expect(cellAt(1, 2), isA<DoubleCellValue>());
-      expect((cellAt(1, 2) as DoubleCellValue).value, 19.99);
-      expect(cellAt(1, 3), isA<TextCellValue>()); // '1e5' stays text
-      expect(cellAt(2, 1), isA<IntCellValue>()); // totals row numeric
-    });
+        expect(cellAt(1, 0), isA<TextCellValue>()); // '007' stays text
+        expect((cellAt(1, 0) as TextCellValue).toString(), '007');
+        expect(cellAt(1, 1), isA<IntCellValue>());
+        expect((cellAt(1, 1) as IntCellValue).value, 42);
+        expect(cellAt(1, 2), isA<DoubleCellValue>());
+        expect((cellAt(1, 2) as DoubleCellValue).value, 19.99);
+        expect(cellAt(1, 3), isA<TextCellValue>()); // '1e5' stays text
+        expect(cellAt(2, 1), isA<IntCellValue>()); // totals row numeric
+      },
+    );
   });
 }

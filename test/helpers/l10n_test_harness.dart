@@ -27,6 +27,8 @@ extension L10nTestHarness on WidgetTester {
     Locale locale = const Locale('en'),
     ThemeData? theme,
   }) {
-    return pumpWidget(buildL10nTestApp(home: home, locale: locale, theme: theme));
+    return pumpWidget(
+      buildL10nTestApp(home: home, locale: locale, theme: theme),
+    );
   }
 }

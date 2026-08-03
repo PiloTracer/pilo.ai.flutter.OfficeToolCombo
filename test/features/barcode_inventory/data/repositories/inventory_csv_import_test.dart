@@ -28,8 +28,9 @@ void main() {
   });
 
   Future<File> writeCsv(String name, String content) {
-    return File('${tempDir.path}${Platform.pathSeparator}$name')
-        .writeAsString(content);
+    return File(
+      '${tempDir.path}${Platform.pathSeparator}$name',
+    ).writeAsString(content);
   }
 
   Future<List<InventoryItem>> loadItems() async {
@@ -81,7 +82,7 @@ void main() {
     final file = await writeCsv(
       'bom.csv',
       '\uFEFFbarcode,name,description,sku,quantity_on_hand,updated_at\n'
-      'BOM-1,Excel item,,BOM-1,3,\n',
+          'BOM-1,Excel item,,BOM-1,3,\n',
     );
 
     final result = await repository.importInventoryCsv(file.path);
@@ -116,12 +117,12 @@ void main() {
     final file = await writeCsv(
       'invalid_qty.csv',
       'barcode,name,quantity_on_hand\n'
-      'OK-1,Good,5\n'
-      'BAD-1,Not a number,abc\n'
-      'BAD-2,Empty,\n'
-      'BAD-3,Negative,-2\n'
-      'BAD-4,Too big,1000000\n'
-      'OK-2,Also good,0\n',
+          'OK-1,Good,5\n'
+          'BAD-1,Not a number,abc\n'
+          'BAD-2,Empty,\n'
+          'BAD-3,Negative,-2\n'
+          'BAD-4,Too big,1000000\n'
+          'OK-2,Also good,0\n',
     );
 
     final result = await repository.importInventoryCsv(file.path);
@@ -133,34 +134,43 @@ void main() {
     expect(summary.duplicateCount, 0);
 
     final items = await loadItems();
-    expect(items.map((item) => item.barcode), unorderedEquals(['OK-1', 'OK-2']));
-    // Zero is a legitimate quantity and must be kept, not treated as invalid.
-    expect(items.firstWhere((item) => item.barcode == 'OK-2').quantityOnHand, 0);
-  });
-
-  test('duplicate barcodes: last row wins and duplicates are counted', () async {
-    final file = await writeCsv(
-      'dupes.csv',
-      'barcode,name,quantity_on_hand\n'
-      'DUP-1,First version,1\n'
-      'KEEP-1,Other item,2\n'
-      'DUP-1,Last version,9\n',
+    expect(
+      items.map((item) => item.barcode),
+      unorderedEquals(['OK-1', 'OK-2']),
     );
-
-    final result = await repository.importInventoryCsv(file.path);
-
-    expect(result, isA<Success<CsvImportSummary>>());
-    final summary = (result as Success<CsvImportSummary>).data;
-    expect(summary.importedCount, 2);
-    expect(summary.duplicateCount, 1);
-    expect(summary.skippedCount, 0);
-
-    final items = await loadItems();
-    expect(items, hasLength(2));
-    final dup = items.firstWhere((item) => item.barcode == 'DUP-1');
-    expect(dup.name, 'Last version');
-    expect(dup.quantityOnHand, 9);
+    // Zero is a legitimate quantity and must be kept, not treated as invalid.
+    expect(
+      items.firstWhere((item) => item.barcode == 'OK-2').quantityOnHand,
+      0,
+    );
   });
+
+  test(
+    'duplicate barcodes: last row wins and duplicates are counted',
+    () async {
+      final file = await writeCsv(
+        'dupes.csv',
+        'barcode,name,quantity_on_hand\n'
+            'DUP-1,First version,1\n'
+            'KEEP-1,Other item,2\n'
+            'DUP-1,Last version,9\n',
+      );
+
+      final result = await repository.importInventoryCsv(file.path);
+
+      expect(result, isA<Success<CsvImportSummary>>());
+      final summary = (result as Success<CsvImportSummary>).data;
+      expect(summary.importedCount, 2);
+      expect(summary.duplicateCount, 1);
+      expect(summary.skippedCount, 0);
+
+      final items = await loadItems();
+      expect(items, hasLength(2));
+      final dup = items.firstWhere((item) => item.barcode == 'DUP-1');
+      expect(dup.name, 'Last version');
+      expect(dup.quantityOnHand, 9);
+    },
+  );
 
   test('import replaces all existing items (replaceAllItems)', () async {
     await repository.createItem(
@@ -181,20 +191,23 @@ void main() {
     expect(items.single.barcode, 'NEW-1');
   });
 
-  test('CSV with only invalid rows fails with importNoValidRows code', () async {
-    final file = await writeCsv(
-      'all_bad.csv',
-      'barcode,name,quantity_on_hand\nBAD-1,Nope,xyz\n',
-    );
+  test(
+    'CSV with only invalid rows fails with importNoValidRows code',
+    () async {
+      final file = await writeCsv(
+        'all_bad.csv',
+        'barcode,name,quantity_on_hand\nBAD-1,Nope,xyz\n',
+      );
 
-    final result = await repository.importInventoryCsv(file.path);
+      final result = await repository.importInventoryCsv(file.path);
 
-    expect(result, isA<Err<CsvImportSummary>>());
-    expect(
-      (result as Err<CsvImportSummary>).failure.message,
-      InventoryFailureCodes.importNoValidRows,
-    );
-  });
+      expect(result, isA<Err<CsvImportSummary>>());
+      expect(
+        (result as Err<CsvImportSummary>).failure.message,
+        InventoryFailureCodes.importNoValidRows,
+      );
+    },
+  );
 
   test('empty CSV fails with importEmpty code', () async {
     final file = await writeCsv('empty.csv', '');
