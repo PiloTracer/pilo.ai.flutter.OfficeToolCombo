@@ -630,5 +630,119 @@
   "backupErrorPathTooLong": "Path is too long for this system. Choose a shorter destination.",
   "@backupErrorPathTooLong": {},
   "backupErrorGeneric": "Backup failed. Try again or check the folders.",
-  "@backupErrorGeneric": {}
+  "@backupErrorGeneric": {},
+  "backupJobsSection": "Backup jobs",
+  "@backupJobsSection": {},
+  "backupAddJob": "Add backup",
+  "@backupAddJob": {},
+  "backupNoJobsYet": "No backup jobs yet",
+  "@backupNoJobsYet": {},
+  "backupNoJobsHelper": "Add a backup job to protect a folder.",
+  "@backupNoJobsHelper": {},
+  "backupEditJobTooltip": "Edit",
+  "@backupEditJobTooltip": {},
+  "backupDeleteJobTooltip": "Delete",
+  "@backupDeleteJobTooltip": {},
+  "backupDeleteJobTitle": "Delete backup job?",
+  "@backupDeleteJobTitle": {},
+  "backupDeleteJobMessage": "Delete “{label}”? Existing archives are kept.",
+  "@backupDeleteJobMessage": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "backupDeleteConfirm": "Delete",
+  "@backupDeleteConfirm": {},
+  "backupCancel": "Cancel",
+  "@backupCancel": {},
+  "backupSave": "Save",
+  "@backupSave": {},
+  "backupJobDialogTitleNew": "New backup job",
+  "@backupJobDialogTitleNew": {},
+  "backupJobDialogTitleEdit": "Edit backup job",
+  "@backupJobDialogTitleEdit": {},
+  "backupJobLabelField": "Label",
+  "@backupJobLabelField": {},
+  "backupJobLabelInvalid": "Enter a label (up to 120 characters).",
+  "@backupJobLabelInvalid": {},
+  "backupEnabledLabel": "Enabled",
+  "@backupEnabledLabel": {},
+  "backupScheduleKindLabel": "Schedule",
+  "@backupScheduleKindLabel": {},
+  "backupScheduleHourly": "Hourly",
+  "@backupScheduleHourly": {},
+  "backupScheduleDaily": "Daily",
+  "@backupScheduleDaily": {},
+  "backupScheduleWeekly": "Weekly",
+  "@backupScheduleWeekly": {},
+  "backupScheduleMonthly": "Monthly",
+  "@backupScheduleMonthly": {},
+  "backupScheduleEveryHours": "Every {hours} hours",
+  "@backupScheduleEveryHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "backupScheduleDailyAt": "Daily at {time}",
+  "@backupScheduleDailyAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "backupScheduleWeeklyAt": "Weekly on {weekday} at {time}",
+  "@backupScheduleWeeklyAt": {
+    "placeholders": {
+      "weekday": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "backupScheduleMonthlyAt": "Monthly on day {day} at {time}",
+  "@backupScheduleMonthlyAt": {
+    "placeholders": {
+      "day": { "type": "int" },
+      "time": { "type": "String" }
+    }
+  },
+  "backupIntervalLabel": "Interval",
+  "@backupIntervalLabel": {},
+  "backupHourLabel": "Hour",
+  "@backupHourLabel": {},
+  "backupWeekdayLabel": "Weekday",
+  "@backupWeekdayLabel": {},
+  "backupDayOfMonthLabel": "Day of month",
+  "@backupDayOfMonthLabel": {},
+  "backupWeekdayMon": "Monday",
+  "@backupWeekdayMon": {},
+  "backupWeekdayTue": "Tuesday",
+  "@backupWeekdayTue": {},
+  "backupWeekdayWed": "Wednesday",
+  "@backupWeekdayWed": {},
+  "backupWeekdayThu": "Thursday",
+  "@backupWeekdayThu": {},
+  "backupWeekdayFri": "Friday",
+  "@backupWeekdayFri": {},
+  "backupWeekdaySat": "Saturday",
+  "@backupWeekdaySat": {},
+  "backupWeekdaySun": "Sunday",
+  "@backupWeekdaySun": {},
+  "backupRunLogSection": "Run log",
+  "@backupRunLogSection": {},
+  "backupNoRunsYet": "No runs yet",
+  "@backupNoRunsYet": {},
+  "backupNoRunsHelper": "Run a backup to see history here.",
+  "@backupNoRunsHelper": {},
+  "backupRunStatusSucceeded": "Succeeded",
+  "@backupRunStatusSucceeded": {},
+  "backupRunStatusFailed": "Failed",
+  "@backupRunStatusFailed": {},
+  "backupRunStatusCancelled": "Cancelled",
+  "@backupRunStatusCancelled": {},
+  "backupRunLogRowSemantics": "{label}, {status}, {date}",
+  "@backupRunLogRowSemantics": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "status": { "type": "String" },
+      "date": { "type": "String" }
+    }
+  }
 }

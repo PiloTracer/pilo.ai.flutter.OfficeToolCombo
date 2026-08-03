@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:office_tool_combo/core/logging/app_logger.dart';
+import 'package:office_tool_combo/core/result/result.dart';
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_job.dart';
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_run.dart';
 import 'package:office_tool_combo/features/scheduled_backup/domain/repositories/backup_repository.dart';
@@ -21,10 +22,10 @@ class BackupViewModel extends Notifier<BackupUiState> {
     // Captured up front: Riverpod 3 forbids ref.read inside onDispose.
     final repository = _repository;
     _scheduler = BackupScheduler(
-      readJob: () async => state.job,
-      readLastRunAt: () async => (await repository.readLastRun())?.timestamp,
+      readJobs: () async => state.jobs,
+      readLastRunAt: repository.lastRunAt,
       isRunInProgress: () => state.isRunning || repository.isRunInProgress,
-      startRun: () => _runBackup(BackupTrigger.scheduled),
+      startRun: (job) => _runBackup(job, BackupTrigger.scheduled),
       log: _logger.info,
     );
     ref.onDispose(() {
@@ -38,29 +39,28 @@ class BackupViewModel extends Notifier<BackupUiState> {
   }
 
   Future<void> loadInitialState() async {
-    final loaded = await _repository.loadJob();
+    final loaded = await _repository.loadJobs();
     if (!ref.mounted) return;
     await loaded.when(
-      success: (job) async {
-        final lastRun = await _repository.readLastRun();
-        final archives = await _repository.readArchives();
+      success: (jobs) async {
+        final runLog = await _repository.readRunLog();
         final online = await ref
             .read(backupConnectivityServiceProvider)
             .isOnline();
         if (!ref.mounted) return;
         // A killed process may have left partial archives behind (F6).
-        final destination = job.destinationFolder;
-        if (destination != null) {
-          unawaited(_repository.cleanupStalePartials(destination));
+        for (final job in jobs) {
+          final destination = job.destinationFolder;
+          if (destination != null) {
+            unawaited(_repository.cleanupStalePartials(destination));
+          }
         }
         state = state.copyWith(
           status: BackupScreenStatus.ready,
-          job: job,
-          lastRun: lastRun,
-          archives: archives,
+          jobs: jobs,
+          runLog: runLog,
           isOffline: !online,
           clearError: true,
-          clearLastRun: lastRun == null,
         );
         _scheduler.start();
       },
@@ -82,68 +82,79 @@ class BackupViewModel extends Notifier<BackupUiState> {
     await loadInitialState();
   }
 
-  Future<void> chooseSourceFolder() => _chooseFolder(isSource: true);
+  /// Unique id for a job created from the editor dialog.
+  String newJobId() => 'job-${DateTime.now().microsecondsSinceEpoch}';
 
-  Future<void> chooseDestinationFolder() => _chooseFolder(isSource: false);
+  /// Create or update a job from the editor dialog.
+  Future<Result<void>> saveJob(BackupJob job) async {
+    final result = await _repository.saveJob(job);
+    if (!ref.mounted) return result;
+    await result.when(
+      success: (_) async {
+        final jobs = await _repository.loadJobs();
+        if (!ref.mounted) return;
+        jobs.when(
+          success: (list) => state = state.copyWith(jobs: list),
+          failure: (_) {},
+        );
+      },
+      failure: (_) async {},
+    );
+    return result;
+  }
 
-  Future<void> _chooseFolder({required bool isSource}) async {
+  Future<void> deleteJob(String jobId) async {
+    final result = await _repository.deleteJob(jobId);
+    if (!ref.mounted) return;
+    result.when(
+      success: (_) {
+        state = state.copyWith(
+          jobs: state.jobs.where((job) => job.id != jobId).toList(),
+        );
+      },
+      failure: (_) {},
+    );
+  }
+
+  Future<void> setJobEnabled(BackupJob job, bool enabled) async {
+    await saveJob(job.copyWith(enabled: enabled));
+  }
+
+  Future<void> runNow(BackupJob job) => _runBackup(job, BackupTrigger.manual);
+
+  /// OS folder picker for the editor dialog; `Success(null)` on cancel
+  /// (SPEC §11 — hint dismisses after 3 s).
+  Future<String?> pickFolder({required bool isSource}) async {
     final result = await _repository.pickFolder(
       dialogTitle: isSource
           ? 'Select source folder'
           : 'Select destination folder',
     );
-    if (!ref.mounted) return;
-    result.when(
+    if (!ref.mounted) return null;
+    return result.when(
       success: (path) {
         if (path == null) {
-          // SPEC §11 — cancelled picker keeps the stored path; hint
-          // dismisses after 3 s.
           _showNotice(BackupNotice.pickerCancelled, autoDismiss: true);
-          return;
         }
-        final updated = isSource
-            ? state.job.copyWith(sourceFolder: path)
-            : state.job.copyWith(destinationFolder: path);
-        unawaited(_saveJob(updated));
+        return path;
       },
-      failure: (_) {},
+      failure: (_) => null,
     );
   }
 
-  Future<void> setDailyRunHour(int hour) {
-    return _saveJob(state.job.copyWith(dailyRunHour: hour));
-  }
-
-  Future<void> setScheduleEnabled(bool enabled) {
-    return _saveJob(state.job.copyWith(scheduleEnabled: enabled));
-  }
-
-  /// F1 — configuration is saved per-field on change; no Save button.
-  Future<void> _saveJob(BackupJob job) async {
-    final result = await _repository.saveJob(job);
-    if (!ref.mounted) return;
-    result.when(
-      success: (_) {
-        state = state.copyWith(job: job);
-      },
-      failure: (_) {},
-    );
-  }
-
-  Future<void> runNow() => _runBackup(BackupTrigger.manual);
-
-  Future<void> _runBackup(BackupTrigger trigger) async {
+  Future<void> _runBackup(BackupJob job, BackupTrigger trigger) async {
     if (state.isRunning) {
       return;
     }
     _noticeTimer?.cancel();
     state = state.copyWith(
       isRunning: true,
+      runningJobId: job.id,
       clearProgress: true,
       clearNotice: true,
     );
     final result = await _repository.runBackup(
-      job: state.job,
+      job: job,
       trigger: trigger,
       onProgress: (progress) {
         if (ref.mounted) {
@@ -152,24 +163,23 @@ class BackupViewModel extends Notifier<BackupUiState> {
       },
     );
     if (!ref.mounted) return;
-    final lastRun = await _repository.readLastRun();
-    final archives = await _repository.readArchives();
+    final runLog = await _repository.readRunLog();
     if (!ref.mounted) return;
     result.when(
       success: (_) {
         state = state.copyWith(
           isRunning: false,
-          lastRun: lastRun,
-          archives: archives,
+          clearRunningJob: true,
+          runLog: runLog,
           notice: BackupNotice.complete,
         );
       },
       failure: (_) {
-        // Failure detail surfaces through the last-run record (SPEC §9).
+        // Failure detail surfaces through the run log entry (SPEC §9).
         state = state.copyWith(
           isRunning: false,
-          lastRun: lastRun,
-          archives: archives,
+          clearRunningJob: true,
+          runLog: runLog,
         );
       },
     );

@@ -59,7 +59,9 @@ Future<void> main() async {
       'Files merged: ${data.successCount} ok / ${data.failureCount} failed '
       '· rows: ${data.rows.length} · output: ${outputPath.split(Platform.pathSeparator).last}',
     );
-    stdout.writeln('Elapsed: ${stopwatch.elapsedMilliseconds} ms for 100 files');
+    stdout.writeln(
+      'Elapsed: ${stopwatch.elapsedMilliseconds} ms for 100 files',
+    );
     stdout.writeln(
       'NFR10 check (100-file profile completes, no failure): '
       '${data.failureCount == 0 ? 'PASS' : 'FAIL'}',

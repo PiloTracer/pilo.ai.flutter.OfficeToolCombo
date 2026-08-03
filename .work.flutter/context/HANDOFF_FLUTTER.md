@@ -23,6 +23,33 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## 2026-08-02 — F5 upgrade: multi-job labeled backups + rich schedules + unified run log
+
+**Skills:** @flutter-director, @flutter-implementation, @flutter-test
+**Scope:** Operator request — "User requires to define multiple backups each with its own label; Hourly/Daily/Weekly/Monthly schedules; a log with the backup label and a reveal icon like the consolidator"
+
+**Done**
+- FLT-14: `BackupJob` v2 — id + label (≤120) + source/destination + `BackupSchedule` + enabled; full CRUD (jobs list + editor dialog, delete confirm)
+- FLT-14: Schedules — hourly (every N∈{1,2,3,4,6,8,12}), daily (hour), weekly (weekday+hour), monthly (day+hour, clamped to month end); pure due-functions (`isDueHourly/Daily/Weekly/Monthly`, `isDueFor`) with injectable clock; one run at a time globally; no backfill (R6 extended)
+- FLT-14: Unified run log (newest first, cap 50) — **label on every entry**, outcome, archive basename + size or failure code, reveal-in-folder icon via `DesktopFileReveal` (success rows)
+- FLT-14: v1→v2 migration — old single config becomes job #1 "Default backup", archives/last-run folded into log, legacy keys cleaned
+- FLT-14: SPEC-005 **amendment-02** authored (multi-job + sub-daily schedules were out of scope / ASM-005) — **operator ratification pending**
+- Tests: 71 in scheduled_backup (due-logic incl. 31→Feb 28 clamp, migration, log cap/labels, widget CRUD/log/reveal, a11y migrated)
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test --exclude-tags benchmark` → 416/416 passed · `flutter test --tags benchmark` → NFR11 PASS
+- `tool/pseudo_l10n_check.sh` → PASS · hygiene → 0 BLOCKERs · `tool/test_integration.sh` → 4/4
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+
+**Decisions (operator was offered correction pre-implementation)**
+- "Hourly (multiple hours)" = every N hours interval (not multi-picked clock hours)
+- Label lives in the log, NOT in archive filenames (naming unchanged)
+- Obsolete v1 ARB keys left in place (harmless)
+
+**Open**
+- ~~Operator: ratify SPEC-005 amendment-02~~ → **RATIFIED 2026-08-02** · commit batch FLT-14 on request
+
 ## 2026-08-02 — @flutter-verify milestone pass (F1–F5 + F6 partial) — verdict: pass with gaps
 
 **Skills:** @flutter-director, @flutter-verify (milestone), @flutter-repair, @flutter-test, @flutter-a11y

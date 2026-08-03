@@ -3,17 +3,20 @@ import 'package:office_tool_combo/features/scheduled_backup/domain/entities/back
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_run.dart';
 
 abstract class BackupRepository {
-  /// Loads the single job configuration; defaults (hour 2, schedule on,
-  /// folders unset) when none was stored yet.
-  Future<Result<BackupJob>> loadJob();
+  /// Loads all configured backup jobs; empty when none were stored yet.
+  Future<Result<List<BackupJob>>> loadJobs();
 
-  /// Per-field save (F1 — no Save button; called on each change).
+  /// Creates or updates a job (upsert by [BackupJob.id]).
   Future<Result<void>> saveJob(BackupJob job);
 
-  Future<BackupRunRecord?> readLastRun();
+  /// Removes a job; archives on disk are never deleted.
+  Future<Result<void>> deleteJob(String jobId);
 
-  /// Up to 10 recent successful archives, newest first (R8).
-  Future<List<BackupArchiveEntry>> readArchives();
+  /// Unified run log across all jobs, newest first, capped at 50 entries.
+  Future<List<BackupRunLogEntry>> readRunLog();
+
+  /// Latest run timestamp for [jobId] (any status) — scheduler due-ness.
+  Future<DateTime?> lastRunAt(String jobId);
 
   /// OS folder picker; `Success(null)` when the user cancels (SPEC §11 —
   /// stored path unchanged).
@@ -22,9 +25,10 @@ abstract class BackupRepository {
   bool get isRunInProgress;
 
   /// Validates, then zips the whole source tree into the destination in an
-  /// isolate (R1). Failed runs update the last-run record but never add an
-  /// archive entry (R7); the partial zip is removed (SPEC §9).
-  Future<Result<BackupRunRecord>> runBackup({
+  /// isolate (R1). Every run — success, failure, or cancellation — appends
+  /// one entry to the unified run log; only successes carry an archive name
+  /// (R7); the partial zip is removed on failure (SPEC §9).
+  Future<Result<BackupRunLogEntry>> runBackup({
     required BackupJob job,
     required BackupTrigger trigger,
     void Function(BackupRunProgress progress)? onProgress,

@@ -1,23 +1,127 @@
-/// Single backup job configuration (SPEC §7 — v1 supports exactly one job).
+/// Schedule kinds supported per backup job.
+enum BackupScheduleKind { hourly, daily, weekly, monthly }
+
+/// When a backup job fires automatically.
 ///
-/// Persisted per-field on change; no Save button (F1).
-class BackupJob {
-  const BackupJob({
-    this.sourceFolder,
-    this.destinationFolder,
-    this.dailyRunHour = defaultDailyRunHour,
-    this.scheduleEnabled = true,
+/// Field usage per kind:
+/// - hourly: [everyHours] (one of 1, 2, 3, 4, 6, 8, 12).
+/// - daily: [hour] (0–23, local).
+/// - weekly: [weekday] (1 = Monday … 7 = Sunday, matching
+///   [DateTime.weekday]) + [hour].
+/// - monthly: [dayOfMonth] (1–31, clamped to the last day of short months)
+///   + [hour].
+class BackupSchedule {
+  const BackupSchedule._({
+    required this.kind,
+    this.everyHours = defaultEveryHours,
+    this.hour = defaultDailyRunHour,
+    this.weekday = DateTime.monday,
+    this.dayOfMonth = 1,
   });
 
-  /// SPEC §4 F1 — default daily run hour is 2 (02:00 local).
+  const BackupSchedule.hourly({int everyHours = defaultEveryHours})
+    : this._(kind: BackupScheduleKind.hourly, everyHours: everyHours);
+
+  const BackupSchedule.daily({int hour = defaultDailyRunHour})
+    : this._(kind: BackupScheduleKind.daily, hour: hour);
+
+  const BackupSchedule.weekly({
+    int weekday = DateTime.monday,
+    int hour = defaultDailyRunHour,
+  }) : this._(kind: BackupScheduleKind.weekly, weekday: weekday, hour: hour);
+
+  const BackupSchedule.monthly({
+    int dayOfMonth = 1,
+    int hour = defaultDailyRunHour,
+  }) : this._(
+         kind: BackupScheduleKind.monthly,
+         dayOfMonth: dayOfMonth,
+         hour: hour,
+       );
+
+  /// Default daily run hour is 2 (02:00 local).
   static const defaultDailyRunHour = 2;
 
+  /// Default hourly interval.
+  static const defaultEveryHours = 4;
+
+  /// Selectable hourly intervals.
+  static const hourlyOptions = <int>[1, 2, 3, 4, 6, 8, 12];
+
+  final BackupScheduleKind kind;
+  final int everyHours;
+  final int hour;
+  final int weekday;
+  final int dayOfMonth;
+
+  BackupSchedule copyWith({
+    BackupScheduleKind? kind,
+    int? everyHours,
+    int? hour,
+    int? weekday,
+    int? dayOfMonth,
+  }) {
+    return BackupSchedule._(
+      kind: kind ?? this.kind,
+      everyHours: everyHours ?? this.everyHours,
+      hour: hour ?? this.hour,
+      weekday: weekday ?? this.weekday,
+      dayOfMonth: dayOfMonth ?? this.dayOfMonth,
+    );
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'kind': kind.name,
+    'everyHours': everyHours,
+    'hour': hour,
+    'weekday': weekday,
+    'dayOfMonth': dayOfMonth,
+  };
+
+  static BackupSchedule fromJson(Map<String, dynamic> json) {
+    final kind =
+        BackupScheduleKind.values.asNameMap()[json['kind']] ??
+        BackupScheduleKind.daily;
+    final hour = json['hour'];
+    final everyHours = json['everyHours'];
+    final weekday = json['weekday'];
+    final dayOfMonth = json['dayOfMonth'];
+    return BackupSchedule._(
+      kind: kind,
+      everyHours: everyHours is int && hourlyOptions.contains(everyHours)
+          ? everyHours
+          : defaultEveryHours,
+      hour: hour is int && hour >= 0 && hour <= 23 ? hour : defaultDailyRunHour,
+      weekday: weekday is int && weekday >= 1 && weekday <= 7
+          ? weekday
+          : DateTime.monday,
+      dayOfMonth: dayOfMonth is int && dayOfMonth >= 1 && dayOfMonth <= 31
+          ? dayOfMonth
+          : 1,
+    );
+  }
+}
+
+/// One labeled backup job: source → destination on a schedule.
+class BackupJob {
+  const BackupJob({
+    required this.id,
+    required this.label,
+    this.sourceFolder,
+    this.destinationFolder,
+    this.schedule = const BackupSchedule.daily(),
+    this.enabled = true,
+  });
+
+  /// Label is required and capped at 120 characters.
+  static const maxLabelLength = 120;
+
+  final String id;
+  final String label;
   final String? sourceFolder;
   final String? destinationFolder;
-
-  /// Local hour of day 0–23 for the automatic run.
-  final int dailyRunHour;
-  final bool scheduleEnabled;
+  final BackupSchedule schedule;
+  final bool enabled;
 
   bool get hasSource => sourceFolder != null && sourceFolder!.isNotEmpty;
 
@@ -26,36 +130,49 @@ class BackupJob {
 
   bool get isConfigured => hasSource && hasDestination;
 
+  /// Trimmed, non-empty, within the length cap.
+  static bool isValidLabel(String label) {
+    final trimmed = label.trim();
+    return trimmed.isNotEmpty && trimmed.length <= maxLabelLength;
+  }
+
   BackupJob copyWith({
+    String? id,
+    String? label,
     String? sourceFolder,
     String? destinationFolder,
-    int? dailyRunHour,
-    bool? scheduleEnabled,
+    BackupSchedule? schedule,
+    bool? enabled,
   }) {
     return BackupJob(
+      id: id ?? this.id,
+      label: label ?? this.label,
       sourceFolder: sourceFolder ?? this.sourceFolder,
       destinationFolder: destinationFolder ?? this.destinationFolder,
-      dailyRunHour: dailyRunHour ?? this.dailyRunHour,
-      scheduleEnabled: scheduleEnabled ?? this.scheduleEnabled,
+      schedule: schedule ?? this.schedule,
+      enabled: enabled ?? this.enabled,
     );
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+    'id': id,
+    'label': label,
     'sourceFolder': sourceFolder,
     'destinationFolder': destinationFolder,
-    'dailyRunHour': dailyRunHour,
-    'scheduleEnabled': scheduleEnabled,
+    'schedule': schedule.toJson(),
+    'enabled': enabled,
   };
 
   static BackupJob fromJson(Map<String, dynamic> json) {
-    final hour = json['dailyRunHour'];
     return BackupJob(
+      id: json['id'] as String? ?? '',
+      label: json['label'] as String? ?? '',
       sourceFolder: json['sourceFolder'] as String?,
       destinationFolder: json['destinationFolder'] as String?,
-      dailyRunHour: hour is int && hour >= 0 && hour <= 23
-          ? hour
-          : defaultDailyRunHour,
-      scheduleEnabled: json['scheduleEnabled'] as bool? ?? true,
+      schedule: json['schedule'] is Map<String, dynamic>
+          ? BackupSchedule.fromJson(json['schedule'] as Map<String, dynamic>)
+          : const BackupSchedule.daily(),
+      enabled: json['enabled'] as bool? ?? true,
     );
   }
 }

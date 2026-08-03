@@ -5,6 +5,7 @@ import 'package:office_tool_combo/core/theme/app_theme.dart';
 import 'package:office_tool_combo/features/price_monitor/data/services/connectivity_service.dart';
 import 'package:office_tool_combo/features/scheduled_backup/data/repositories/backup_repository_impl.dart';
 import 'package:office_tool_combo/features/scheduled_backup/data/sources/backup_store.dart';
+import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_job.dart';
 import 'package:office_tool_combo/features/scheduled_backup/presentation/scheduled_backup/backup_providers.dart';
 import 'package:office_tool_combo/features/scheduled_backup/presentation/scheduled_backup/backup_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,23 +66,38 @@ void main() {
     return container;
   }
 
-  testWidgets('backup config renders without overflow at 200% text scale', (
+  testWidgets('backup screen renders without overflow at 200% text scale', (
     tester,
   ) async {
+    store.jobs = const [
+      BackupJob(
+        id: 'job-a',
+        label: 'Docs backup',
+        sourceFolder: '/src',
+        destinationFolder: '/dst',
+        schedule: BackupSchedule.weekly(weekday: DateTime.monday, hour: 2),
+        enabled: false,
+      ),
+    ];
     final container = await pumpView(tester, textScale: 2);
 
     expect(tester.takeException(), isNull);
+    expect(find.text('Add backup'), findsOneWidget);
     expect(find.text('Back up now'), findsOneWidget);
-    expect(find.text('Enable daily schedule'), findsOneWidget);
     container.dispose();
   });
 
-  testWidgets('schedule toggle and hour dropdown are keyboard-reachable', (
+  testWidgets('job editor exposes schedule controls, keyboard-reachable', (
     tester,
   ) async {
     final container = await pumpView(tester);
 
+    await tester.tap(find.text('Add backup'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
     expect(find.byType(Switch), findsOneWidget);
+    expect(find.byType(DropdownButton<BackupScheduleKind>), findsOneWidget);
     expect(find.byType(DropdownButton<int>), findsOneWidget);
     container.dispose();
   });

@@ -1139,4 +1139,149 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get backupErrorGeneric =>
       'La copia de seguridad falló. Inténtelo de nuevo o compruebe las carpetas.';
+
+  @override
+  String get backupJobsSection => 'Trabajos de copia de seguridad';
+
+  @override
+  String get backupAddJob => 'Añadir copia de seguridad';
+
+  @override
+  String get backupNoJobsYet => 'Aún no hay trabajos de copia de seguridad';
+
+  @override
+  String get backupNoJobsHelper =>
+      'Añada un trabajo de copia de seguridad para proteger una carpeta.';
+
+  @override
+  String get backupEditJobTooltip => 'Editar';
+
+  @override
+  String get backupDeleteJobTooltip => 'Eliminar';
+
+  @override
+  String get backupDeleteJobTitle =>
+      '¿Eliminar el trabajo de copia de seguridad?';
+
+  @override
+  String backupDeleteJobMessage(String label) {
+    return '¿Eliminar «$label»? Los archivos existentes se conservan.';
+  }
+
+  @override
+  String get backupDeleteConfirm => 'Eliminar';
+
+  @override
+  String get backupCancel => 'Cancelar';
+
+  @override
+  String get backupSave => 'Guardar';
+
+  @override
+  String get backupJobDialogTitleNew => 'Nuevo trabajo de copia de seguridad';
+
+  @override
+  String get backupJobDialogTitleEdit => 'Editar trabajo de copia de seguridad';
+
+  @override
+  String get backupJobLabelField => 'Etiqueta';
+
+  @override
+  String get backupJobLabelInvalid =>
+      'Escriba una etiqueta (hasta 120 caracteres).';
+
+  @override
+  String get backupEnabledLabel => 'Activado';
+
+  @override
+  String get backupScheduleKindLabel => 'Programación';
+
+  @override
+  String get backupScheduleHourly => 'Por horas';
+
+  @override
+  String get backupScheduleDaily => 'Diaria';
+
+  @override
+  String get backupScheduleWeekly => 'Semanal';
+
+  @override
+  String get backupScheduleMonthly => 'Mensual';
+
+  @override
+  String backupScheduleEveryHours(int hours) {
+    return 'Cada $hours horas';
+  }
+
+  @override
+  String backupScheduleDailyAt(String time) {
+    return 'Diariamente a las $time';
+  }
+
+  @override
+  String backupScheduleWeeklyAt(String weekday, String time) {
+    return 'Semanalmente el $weekday a las $time';
+  }
+
+  @override
+  String backupScheduleMonthlyAt(int day, String time) {
+    return 'Mensualmente el día $day a las $time';
+  }
+
+  @override
+  String get backupIntervalLabel => 'Intervalo';
+
+  @override
+  String get backupHourLabel => 'Hora';
+
+  @override
+  String get backupWeekdayLabel => 'Día de la semana';
+
+  @override
+  String get backupDayOfMonthLabel => 'Día del mes';
+
+  @override
+  String get backupWeekdayMon => 'lunes';
+
+  @override
+  String get backupWeekdayTue => 'martes';
+
+  @override
+  String get backupWeekdayWed => 'miércoles';
+
+  @override
+  String get backupWeekdayThu => 'jueves';
+
+  @override
+  String get backupWeekdayFri => 'viernes';
+
+  @override
+  String get backupWeekdaySat => 'sábado';
+
+  @override
+  String get backupWeekdaySun => 'domingo';
+
+  @override
+  String get backupRunLogSection => 'Registro de ejecuciones';
+
+  @override
+  String get backupNoRunsYet => 'Aún no hay ejecuciones';
+
+  @override
+  String get backupNoRunsHelper =>
+      'Ejecute una copia de seguridad para ver el historial aquí.';
+
+  @override
+  String get backupRunStatusSucceeded => 'Correcta';
+
+  @override
+  String get backupRunStatusFailed => 'Fallida';
+
+  @override
+  String get backupRunStatusCancelled => 'Cancelada';
+
+  @override
+  String backupRunLogRowSemantics(String label, String status, String date) {
+    return '$label, $status, $date';
+  }
 }

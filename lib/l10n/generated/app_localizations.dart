@@ -1826,6 +1826,264 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Backup failed. Try again or check the folders.'**
   String get backupErrorGeneric;
+
+  /// No description provided for @backupJobsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup jobs'**
+  String get backupJobsSection;
+
+  /// No description provided for @backupAddJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Add backup'**
+  String get backupAddJob;
+
+  /// No description provided for @backupNoJobsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup jobs yet'**
+  String get backupNoJobsYet;
+
+  /// No description provided for @backupNoJobsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a backup job to protect a folder.'**
+  String get backupNoJobsHelper;
+
+  /// No description provided for @backupEditJobTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get backupEditJobTooltip;
+
+  /// No description provided for @backupDeleteJobTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get backupDeleteJobTooltip;
+
+  /// No description provided for @backupDeleteJobTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete backup job?'**
+  String get backupDeleteJobTitle;
+
+  /// No description provided for @backupDeleteJobMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{label}”? Existing archives are kept.'**
+  String backupDeleteJobMessage(String label);
+
+  /// No description provided for @backupDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get backupDeleteConfirm;
+
+  /// No description provided for @backupCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get backupCancel;
+
+  /// No description provided for @backupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get backupSave;
+
+  /// No description provided for @backupJobDialogTitleNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New backup job'**
+  String get backupJobDialogTitleNew;
+
+  /// No description provided for @backupJobDialogTitleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit backup job'**
+  String get backupJobDialogTitleEdit;
+
+  /// No description provided for @backupJobLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get backupJobLabelField;
+
+  /// No description provided for @backupJobLabelInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a label (up to 120 characters).'**
+  String get backupJobLabelInvalid;
+
+  /// No description provided for @backupEnabledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get backupEnabledLabel;
+
+  /// No description provided for @backupScheduleKindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get backupScheduleKindLabel;
+
+  /// No description provided for @backupScheduleHourly.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly'**
+  String get backupScheduleHourly;
+
+  /// No description provided for @backupScheduleDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get backupScheduleDaily;
+
+  /// No description provided for @backupScheduleWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get backupScheduleWeekly;
+
+  /// No description provided for @backupScheduleMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get backupScheduleMonthly;
+
+  /// No description provided for @backupScheduleEveryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {hours} hours'**
+  String backupScheduleEveryHours(int hours);
+
+  /// No description provided for @backupScheduleDailyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily at {time}'**
+  String backupScheduleDailyAt(String time);
+
+  /// No description provided for @backupScheduleWeeklyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly on {weekday} at {time}'**
+  String backupScheduleWeeklyAt(String weekday, String time);
+
+  /// No description provided for @backupScheduleMonthlyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly on day {day} at {time}'**
+  String backupScheduleMonthlyAt(int day, String time);
+
+  /// No description provided for @backupIntervalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval'**
+  String get backupIntervalLabel;
+
+  /// No description provided for @backupHourLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hour'**
+  String get backupHourLabel;
+
+  /// No description provided for @backupWeekdayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekday'**
+  String get backupWeekdayLabel;
+
+  /// No description provided for @backupDayOfMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of month'**
+  String get backupDayOfMonthLabel;
+
+  /// No description provided for @backupWeekdayMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get backupWeekdayMon;
+
+  /// No description provided for @backupWeekdayTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get backupWeekdayTue;
+
+  /// No description provided for @backupWeekdayWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get backupWeekdayWed;
+
+  /// No description provided for @backupWeekdayThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get backupWeekdayThu;
+
+  /// No description provided for @backupWeekdayFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get backupWeekdayFri;
+
+  /// No description provided for @backupWeekdaySat.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get backupWeekdaySat;
+
+  /// No description provided for @backupWeekdaySun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get backupWeekdaySun;
+
+  /// No description provided for @backupRunLogSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Run log'**
+  String get backupRunLogSection;
+
+  /// No description provided for @backupNoRunsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No runs yet'**
+  String get backupNoRunsYet;
+
+  /// No description provided for @backupNoRunsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Run a backup to see history here.'**
+  String get backupNoRunsHelper;
+
+  /// No description provided for @backupRunStatusSucceeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Succeeded'**
+  String get backupRunStatusSucceeded;
+
+  /// No description provided for @backupRunStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get backupRunStatusFailed;
+
+  /// No description provided for @backupRunStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get backupRunStatusCancelled;
+
+  /// No description provided for @backupRunLogRowSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {status}, {date}'**
+  String backupRunLogRowSemantics(String label, String status, String date);
 }
 
 class _AppLocalizationsDelegate

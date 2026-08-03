@@ -4,73 +4,62 @@ enum BackupTrigger { manual, scheduled }
 /// Terminal state of a backup run (SPEC §7).
 enum BackupRunStatus { succeeded, failed, cancelled }
 
-/// Last-run bookkeeping (R7/R8): one record, overwritten by each run.
+/// One entry of the unified run log across all jobs (max 50, newest first).
 ///
-/// [messageCode] is a stable BackupFailureCodes value for failed runs and
-/// empty for successful ones; the presentation layer maps it to a localized
-/// message. Timestamps are stored UTC and displayed local.
-class BackupRunRecord {
-  const BackupRunRecord({
-    required this.status,
-    required this.messageCode,
-    required this.timestamp,
-  });
-
-  final BackupRunStatus status;
-  final String messageCode;
-  final DateTime timestamp;
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    'status': status.name,
-    'messageCode': messageCode,
-    'timestamp': timestamp.toIso8601String(),
-  };
-
-  static BackupRunRecord fromJson(Map<String, dynamic> json) {
-    return BackupRunRecord(
-      status:
-          BackupRunStatus.values.asNameMap()[json['status']] ??
-          BackupRunStatus.failed,
-      messageCode: json['messageCode'] as String? ?? '',
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String? ?? '')?.toUtc() ??
-          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-    );
-  }
-}
-
-/// One entry of the recent archives list (R8 — max 10, newest first).
-///
-/// [path] is stored internally and never shown verbatim to the user (NFR8);
-/// the UI displays [name] only.
-class BackupArchiveEntry {
-  const BackupArchiveEntry({
-    required this.name,
-    required this.path,
-    required this.bytes,
+/// [messageCode] is a stable BackupFailureCodes value for failed/cancelled
+/// runs and empty for successful ones; the presentation layer maps it to a
+/// localized message. [archivePath] is stored internally and never shown
+/// verbatim to the user (NFR8); the UI displays [archiveName] only.
+/// Timestamps are stored UTC and displayed local.
+class BackupRunLogEntry {
+  const BackupRunLogEntry({
+    required this.jobId,
+    required this.jobLabel,
     required this.finishedAt,
+    required this.status,
+    this.archiveName,
+    this.archiveBytes,
+    this.archivePath,
+    this.messageCode = '',
   });
 
-  final String name;
-  final String path;
-  final int bytes;
+  final String jobId;
+  final String jobLabel;
   final DateTime finishedAt;
+  final BackupRunStatus status;
+
+  /// Archive basename, byte size and full path — set on success only.
+  final String? archiveName;
+  final int? archiveBytes;
+  final String? archivePath;
+
+  final String messageCode;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'name': name,
-    'path': path,
-    'bytes': bytes,
+    'jobId': jobId,
+    'jobLabel': jobLabel,
     'finishedAt': finishedAt.toIso8601String(),
+    'status': status.name,
+    'archiveName': archiveName,
+    'archiveBytes': archiveBytes,
+    'archivePath': archivePath,
+    'messageCode': messageCode,
   };
 
-  static BackupArchiveEntry fromJson(Map<String, dynamic> json) {
-    return BackupArchiveEntry(
-      name: json['name'] as String? ?? '',
-      path: json['path'] as String? ?? '',
-      bytes: json['bytes'] as int? ?? 0,
+  static BackupRunLogEntry fromJson(Map<String, dynamic> json) {
+    return BackupRunLogEntry(
+      jobId: json['jobId'] as String? ?? '',
+      jobLabel: json['jobLabel'] as String? ?? '',
       finishedAt:
           DateTime.tryParse(json['finishedAt'] as String? ?? '')?.toUtc() ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      status:
+          BackupRunStatus.values.asNameMap()[json['status']] ??
+          BackupRunStatus.failed,
+      archiveName: json['archiveName'] as String?,
+      archiveBytes: json['archiveBytes'] as int?,
+      archivePath: json['archivePath'] as String?,
+      messageCode: json['messageCode'] as String? ?? '',
     );
   }
 }

@@ -1114,4 +1114,145 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get backupErrorGeneric =>
       'Backup failed. Try again or check the folders.';
+
+  @override
+  String get backupJobsSection => 'Backup jobs';
+
+  @override
+  String get backupAddJob => 'Add backup';
+
+  @override
+  String get backupNoJobsYet => 'No backup jobs yet';
+
+  @override
+  String get backupNoJobsHelper => 'Add a backup job to protect a folder.';
+
+  @override
+  String get backupEditJobTooltip => 'Edit';
+
+  @override
+  String get backupDeleteJobTooltip => 'Delete';
+
+  @override
+  String get backupDeleteJobTitle => 'Delete backup job?';
+
+  @override
+  String backupDeleteJobMessage(String label) {
+    return 'Delete “$label”? Existing archives are kept.';
+  }
+
+  @override
+  String get backupDeleteConfirm => 'Delete';
+
+  @override
+  String get backupCancel => 'Cancel';
+
+  @override
+  String get backupSave => 'Save';
+
+  @override
+  String get backupJobDialogTitleNew => 'New backup job';
+
+  @override
+  String get backupJobDialogTitleEdit => 'Edit backup job';
+
+  @override
+  String get backupJobLabelField => 'Label';
+
+  @override
+  String get backupJobLabelInvalid => 'Enter a label (up to 120 characters).';
+
+  @override
+  String get backupEnabledLabel => 'Enabled';
+
+  @override
+  String get backupScheduleKindLabel => 'Schedule';
+
+  @override
+  String get backupScheduleHourly => 'Hourly';
+
+  @override
+  String get backupScheduleDaily => 'Daily';
+
+  @override
+  String get backupScheduleWeekly => 'Weekly';
+
+  @override
+  String get backupScheduleMonthly => 'Monthly';
+
+  @override
+  String backupScheduleEveryHours(int hours) {
+    return 'Every $hours hours';
+  }
+
+  @override
+  String backupScheduleDailyAt(String time) {
+    return 'Daily at $time';
+  }
+
+  @override
+  String backupScheduleWeeklyAt(String weekday, String time) {
+    return 'Weekly on $weekday at $time';
+  }
+
+  @override
+  String backupScheduleMonthlyAt(int day, String time) {
+    return 'Monthly on day $day at $time';
+  }
+
+  @override
+  String get backupIntervalLabel => 'Interval';
+
+  @override
+  String get backupHourLabel => 'Hour';
+
+  @override
+  String get backupWeekdayLabel => 'Weekday';
+
+  @override
+  String get backupDayOfMonthLabel => 'Day of month';
+
+  @override
+  String get backupWeekdayMon => 'Monday';
+
+  @override
+  String get backupWeekdayTue => 'Tuesday';
+
+  @override
+  String get backupWeekdayWed => 'Wednesday';
+
+  @override
+  String get backupWeekdayThu => 'Thursday';
+
+  @override
+  String get backupWeekdayFri => 'Friday';
+
+  @override
+  String get backupWeekdaySat => 'Saturday';
+
+  @override
+  String get backupWeekdaySun => 'Sunday';
+
+  @override
+  String get backupRunLogSection => 'Run log';
+
+  @override
+  String get backupNoRunsYet => 'No runs yet';
+
+  @override
+  String get backupNoRunsHelper => 'Run a backup to see history here.';
+
+  @override
+  String get backupRunStatusSucceeded => 'Succeeded';
+
+  @override
+  String get backupRunStatusFailed => 'Failed';
+
+  @override
+  String get backupRunStatusCancelled => 'Cancelled';
+
+  @override
+  String backupRunLogRowSemantics(String label, String status, String date) {
+    return '$label, $status, $date';
+  }
 }

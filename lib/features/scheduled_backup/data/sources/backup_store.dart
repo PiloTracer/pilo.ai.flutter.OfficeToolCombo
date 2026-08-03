@@ -1,49 +1,37 @@
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_job.dart';
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_run.dart';
 
-/// Persists the backup job config, last-run record, and recent archives
-/// across app restarts (SPEC §7 — SharedPreferences-backed store for F5).
+/// Persists the backup job list and the unified run log across app restarts
+/// (SharedPreferences-backed store for F5, v2: multiple labeled jobs).
 abstract class BackupStore {
-  Future<BackupJob?> readJob();
+  Future<List<BackupJob>> readJobs();
 
-  Future<void> writeJob(BackupJob job);
+  Future<void> writeJobs(List<BackupJob> jobs);
 
-  Future<BackupRunRecord?> readLastRun();
+  /// Unified run log across all jobs, newest first.
+  Future<List<BackupRunLogEntry>> readRunLog();
 
-  Future<void> writeLastRun(BackupRunRecord record);
-
-  Future<List<BackupArchiveEntry>> readArchives();
-
-  Future<void> writeArchives(List<BackupArchiveEntry> archives);
+  Future<void> writeRunLog(List<BackupRunLogEntry> entries);
 }
 
 class InMemoryBackupStore implements BackupStore {
-  BackupJob? job;
-  BackupRunRecord? lastRun;
-  List<BackupArchiveEntry> archives = <BackupArchiveEntry>[];
+  List<BackupJob> jobs = <BackupJob>[];
+  List<BackupRunLogEntry> runLog = <BackupRunLogEntry>[];
 
   @override
-  Future<BackupJob?> readJob() async => job;
+  Future<List<BackupJob>> readJobs() async => List<BackupJob>.from(jobs);
 
   @override
-  Future<void> writeJob(BackupJob job) async {
-    this.job = job;
+  Future<void> writeJobs(List<BackupJob> jobs) async {
+    this.jobs = List<BackupJob>.from(jobs);
   }
 
   @override
-  Future<BackupRunRecord?> readLastRun() async => lastRun;
+  Future<List<BackupRunLogEntry>> readRunLog() async =>
+      List<BackupRunLogEntry>.from(runLog);
 
   @override
-  Future<void> writeLastRun(BackupRunRecord record) async {
-    lastRun = record;
-  }
-
-  @override
-  Future<List<BackupArchiveEntry>> readArchives() async =>
-      List<BackupArchiveEntry>.from(archives);
-
-  @override
-  Future<void> writeArchives(List<BackupArchiveEntry> archives) async {
-    this.archives = List<BackupArchiveEntry>.from(archives);
+  Future<void> writeRunLog(List<BackupRunLogEntry> entries) async {
+    runLog = List<BackupRunLogEntry>.from(entries);
   }
 }

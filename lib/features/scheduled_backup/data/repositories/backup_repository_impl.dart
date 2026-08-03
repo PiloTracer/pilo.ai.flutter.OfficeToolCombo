@@ -17,7 +17,8 @@ import 'package:office_tool_combo/features/scheduled_backup/domain/services/arch
 
 /// Store-backed implementation. Run validation (A3/A4, R4) happens here,
 /// before the zip isolate starts, so manual and scheduled triggers get the
-/// same guarantees (R5 — one run at a time).
+/// same guarantees (R5 — one run at a time). Every run is recorded in the
+/// unified run log with the job's id and label.
 class BackupRepositoryImpl implements BackupRepository {
   BackupRepositoryImpl({
     BackupStore? store,
@@ -29,8 +30,8 @@ class BackupRepositoryImpl implements BackupRepository {
        _now = now ?? DateTime.now,
        _logger = logger ?? AppLogger();
 
-  /// SPEC §8 R8 — recent archives list is capped at 10 entries.
-  static const maxArchiveEntries = 10;
+  /// The unified run log keeps at most 50 entries across all jobs.
+  static const maxRunLogEntries = 50;
 
   final BackupStore _store;
   final IsolateRunner _isolateRunner;
@@ -39,24 +40,32 @@ class BackupRepositoryImpl implements BackupRepository {
 
   var _runInProgress = false;
   String? _activeCancelPath;
+  BackupJob? _activeJob;
 
   @override
   bool get isRunInProgress => _runInProgress;
 
   @override
-  Future<Result<BackupJob>> loadJob() async {
+  Future<Result<List<BackupJob>>> loadJobs() async {
     try {
-      return Success<BackupJob>(await _store.readJob() ?? const BackupJob());
+      return Success<List<BackupJob>>(await _store.readJobs());
     } on Object catch (error, stack) {
       _logger.error('backup.load_failed', error, stack);
-      return Err<BackupJob>(_asFailure(const BackupConfigLoadFailure()));
+      return Err<List<BackupJob>>(_asFailure(const BackupConfigLoadFailure()));
     }
   }
 
   @override
   Future<Result<void>> saveJob(BackupJob job) async {
     try {
-      await _store.writeJob(job);
+      final jobs = await _store.readJobs();
+      final index = jobs.indexWhere((existing) => existing.id == job.id);
+      if (index >= 0) {
+        jobs[index] = job;
+      } else {
+        jobs.add(job);
+      }
+      await _store.writeJobs(jobs);
       return const Success<void>(null);
     } on Object catch (error, stack) {
       _logger.error('backup.save_failed', error, stack);
@@ -65,13 +74,33 @@ class BackupRepositoryImpl implements BackupRepository {
   }
 
   @override
-  Future<BackupRunRecord?> readLastRun() => _store.readLastRun();
+  Future<Result<void>> deleteJob(String jobId) async {
+    try {
+      final jobs = await _store.readJobs()
+        ..removeWhere((job) => job.id == jobId);
+      await _store.writeJobs(jobs);
+      return const Success<void>(null);
+    } on Object catch (error, stack) {
+      _logger.error('backup.save_failed', error, stack);
+      return Err<void>(_asFailure(const BackupConfigSaveFailure()));
+    }
+  }
 
   @override
-  Future<List<BackupArchiveEntry>> readArchives() async {
-    final archives = await _store.readArchives();
-    // R8 — the recent archives list shows at most 10 entries.
-    return archives.take(maxArchiveEntries).toList(growable: false);
+  Future<List<BackupRunLogEntry>> readRunLog() async {
+    final entries = await _store.readRunLog();
+    return entries.take(maxRunLogEntries).toList(growable: false);
+  }
+
+  @override
+  Future<DateTime?> lastRunAt(String jobId) async {
+    final entries = await _store.readRunLog();
+    for (final entry in entries) {
+      if (entry.jobId == jobId) {
+        return entry.finishedAt;
+      }
+    }
+    return null;
   }
 
   @override
@@ -85,14 +114,14 @@ class BackupRepositoryImpl implements BackupRepository {
   }
 
   @override
-  Future<Result<BackupRunRecord>> runBackup({
+  Future<Result<BackupRunLogEntry>> runBackup({
     required BackupJob job,
     required BackupTrigger trigger,
     void Function(BackupRunProgress progress)? onProgress,
   }) async {
     // R5 — at most one run at a time; the caller skips and logs.
     if (_runInProgress) {
-      return Err<BackupRunRecord>(
+      return Err<BackupRunLogEntry>(
         _asFailure(
           const BackupRunFailure(
             code: BackupFailureCodes.busy,
@@ -107,6 +136,7 @@ class BackupRepositoryImpl implements BackupRepository {
     final source = job.sourceFolder;
     if (source == null || source.isEmpty || !Directory(source).existsSync()) {
       return _failRun(
+        job,
         BackupFailureCodes.sourceMissing,
         'Source folder missing at run',
       );
@@ -114,6 +144,7 @@ class BackupRepositoryImpl implements BackupRepository {
     final destination = job.destinationFolder;
     if (destination == null || destination.isEmpty) {
       return _failRun(
+        job,
         BackupFailureCodes.destinationNotWritable,
         'Destination not writable',
       );
@@ -121,18 +152,21 @@ class BackupRepositoryImpl implements BackupRepository {
     // R4 — pure path check first, before any filesystem probe.
     if (_normalizePath(source) == _normalizePath(destination)) {
       return _failRun(
+        job,
         BackupFailureCodes.sameFolders,
         'Source and destination are the same folder',
       );
     }
     if (!await _probeWritable(destination)) {
       return _failRun(
+        job,
         BackupFailureCodes.destinationNotWritable,
         'Destination not writable',
       );
     }
 
     _runInProgress = true;
+    _activeJob = job;
     final startedAt = _now();
     final archiveName = ArchiveNamer.resolveName(
       startedAt,
@@ -145,7 +179,7 @@ class BackupRepositoryImpl implements BackupRepository {
     final cancelPath = '$partialPath.cancel';
     _activeCancelPath = cancelPath;
 
-    _logger.info('backup_run_started trigger=${trigger.name} jobId=single');
+    _logger.info('backup_run_started trigger=${trigger.name} jobId=${job.id}');
     final stopwatch = Stopwatch()..start();
 
     BackupZipResponse response;
@@ -169,14 +203,21 @@ class BackupRepositoryImpl implements BackupRepository {
       _logger.error('backup.run_isolate_failed', error, stack);
       await _deletePartial(partialPath);
       _runInProgress = false;
-      return _failRun(BackupFailureCodes.run, 'Zip isolate failed: $error');
+      _activeJob = null;
+      return _failRun(
+        job,
+        BackupFailureCodes.run,
+        'Zip isolate failed: $error',
+      );
     } finally {
       _activeCancelPath = null;
     }
 
     if (response.cancelled) {
       _runInProgress = false;
+      _activeJob = null;
       return _failRun(
+        job,
         BackupFailureCodes.interrupted,
         'Run cancelled; partial archive removed',
         status: BackupRunStatus.cancelled,
@@ -185,40 +226,30 @@ class BackupRepositoryImpl implements BackupRepository {
     final errorCode = response.errorCode;
     if (errorCode != null) {
       _runInProgress = false;
-      return _failRun(errorCode, 'Zip run failed: $errorCode');
+      _activeJob = null;
+      return _failRun(job, errorCode, 'Zip run failed: $errorCode');
     }
 
     final finishedAt = _now().toUtc();
-    final entry = BackupArchiveEntry(
-      name: archiveName,
-      path: '$destination${Platform.pathSeparator}$archiveName',
-      bytes: response.bytesWritten,
+    final entry = BackupRunLogEntry(
+      jobId: job.id,
+      jobLabel: job.label,
       finishedAt: finishedAt,
-    );
-    // R7/R8 — only successful runs add an entry; keep the 10 newest.
-    try {
-      final archives = await _store.readArchives();
-      archives.insert(0, entry);
-      await _store.writeArchives(
-        archives.take(maxArchiveEntries).toList(growable: false),
-      );
-    } on Object catch (error, stack) {
-      _logger.error('backup.archives_save_failed', error, stack);
-    }
-
-    final record = BackupRunRecord(
       status: BackupRunStatus.succeeded,
-      messageCode: '',
-      timestamp: finishedAt,
+      archiveName: archiveName,
+      archiveBytes: response.bytesWritten,
+      archivePath: '$destination${Platform.pathSeparator}$archiveName',
     );
-    await _writeLastRun(record);
+    // R7/R8 — only successful runs carry an archive; keep the 50 newest.
+    await _appendLogEntry(entry);
     _runInProgress = false;
+    _activeJob = null;
     _logger.info(
-      'backup_run_finished jobId=single status=succeeded '
+      'backup_run_finished jobId=${job.id} status=succeeded '
       'durationMs=${stopwatch.elapsedMilliseconds} '
       'bytesWritten=${response.bytesWritten}',
     );
-    return Success<BackupRunRecord>(record);
+    return Success<BackupRunLogEntry>(entry);
   }
 
   @override
@@ -236,13 +267,18 @@ class BackupRepositoryImpl implements BackupRepository {
     }
     // Record the interruption immediately — on app close nobody is left to
     // await the run future (F6, SPEC §9).
-    await _writeLastRun(
-      BackupRunRecord(
-        status: BackupRunStatus.failed,
-        messageCode: BackupFailureCodes.interrupted,
-        timestamp: _now().toUtc(),
-      ),
-    );
+    final job = _activeJob;
+    if (job != null) {
+      await _appendLogEntry(
+        BackupRunLogEntry(
+          jobId: job.id,
+          jobLabel: job.label,
+          finishedAt: _now().toUtc(),
+          status: BackupRunStatus.failed,
+          messageCode: BackupFailureCodes.interrupted,
+        ),
+      );
+    }
   }
 
   @override
@@ -272,31 +308,38 @@ class BackupRepositoryImpl implements BackupRepository {
     return const Success<void>(null);
   }
 
-  /// Records a failed run (R7 — never adds an archive entry) and returns the
-  /// matching [Err].
-  Future<Result<BackupRunRecord>> _failRun(
+  /// Records a failed run (R7 — no archive name) in the unified log and
+  /// returns the matching [Err].
+  Future<Result<BackupRunLogEntry>> _failRun(
+    BackupJob job,
     String code,
     String logMessage, {
     BackupRunStatus status = BackupRunStatus.failed,
   }) async {
     _logger.info(
-      'backup_run_finished jobId=single status=${status.name} '
+      'backup_run_finished jobId=${job.id} status=${status.name} '
       'failureType=$code',
     );
-    final record = BackupRunRecord(
+    final entry = BackupRunLogEntry(
+      jobId: job.id,
+      jobLabel: job.label,
+      finishedAt: _now().toUtc(),
       status: status,
       messageCode: code,
-      timestamp: _now().toUtc(),
     );
-    await _writeLastRun(record);
-    return Err<BackupRunRecord>(
+    await _appendLogEntry(entry);
+    return Err<BackupRunLogEntry>(
       _asFailure(BackupRunFailure(code: code, message: logMessage)),
     );
   }
 
-  Future<void> _writeLastRun(BackupRunRecord record) async {
+  Future<void> _appendLogEntry(BackupRunLogEntry entry) async {
     try {
-      await _store.writeLastRun(record);
+      final entries = await _store.readRunLog();
+      entries.insert(0, entry);
+      await _store.writeRunLog(
+        entries.take(maxRunLogEntries).toList(growable: false),
+      );
     } on Object {
       // Bookkeeping must not fail the run itself.
     }

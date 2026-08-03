@@ -7,6 +7,7 @@ import 'package:office_tool_combo/core/theme/app_radii.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/core/theme/app_status_tone.dart';
 import 'package:office_tool_combo/core/widgets/state_panel.dart';
+import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_job.dart';
 import 'package:office_tool_combo/features/scheduled_backup/domain/entities/backup_run.dart';
 import 'package:office_tool_combo/features/scheduled_backup/presentation/scheduled_backup/backup_l10n.dart';
 import 'package:office_tool_combo/features/scheduled_backup/presentation/scheduled_backup/backup_ui_state.dart';
@@ -78,10 +79,8 @@ class _ReadyBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.read(backupViewModelProvider.notifier);
     final spacing = context.spacing;
     final l10n = AppLocalizations.of(context);
-    final job = state.job;
 
     return ListView(
       children: [
@@ -91,84 +90,67 @@ class _ReadyBody extends ConsumerWidget {
           spacing.gapMd,
         ],
         Text(
-          l10n.backupSettingsSection,
+          l10n.backupJobsSection,
           style: Theme.of(context).textTheme.titleMedium,
         ),
         spacing.gapSm,
-        _FolderRow(
-          label: l10n.backupSourceFolderLabel,
-          path: job.sourceFolder,
-          placeholder: l10n.backupNoSourceSelected,
-          chooseLabel: l10n.backupChooseSource,
-          onChoose: viewModel.chooseSourceFolder,
-        ),
-        spacing.gapSm,
-        _FolderRow(
-          label: l10n.backupDestinationFolderLabel,
-          path: job.destinationFolder,
-          placeholder: l10n.backupNoDestinationSelected,
-          chooseLabel: l10n.backupChooseDestination,
-          onChoose: viewModel.chooseDestinationFolder,
-        ),
-        spacing.gapSm,
-        _DailyHourRow(
-          hour: job.dailyRunHour,
-          onChanged: viewModel.setDailyRunHour,
-        ),
-        Row(
-          children: [
-            Expanded(child: Text(l10n.backupEnableSchedule)),
-            Switch(
-              value: job.scheduleEnabled,
-              onChanged: viewModel.setScheduleEnabled,
-            ),
-          ],
-        ),
-        spacing.gapLg,
-        _PrimaryAction(state: state),
-        if (state.isRunning) ...[
-          spacing.gapSm,
-          LinearProgressIndicator(value: state.progress?.fraction),
-          spacing.gapXs,
-          if (state.progress != null)
-            Text(
-              l10n.backupProgressFiles(
-                state.progress!.processedFiles,
-                state.progress!.totalFiles,
-              ),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-        ],
-        spacing.gapLg,
-        Text(
-          l10n.backupLastRunSection,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        spacing.gapSm,
-        _LastRunPanel(state: state),
-        spacing.gapLg,
-        Text(
-          l10n.backupArchivesSection,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        spacing.gapSm,
-        if (state.lastRun != null &&
-            state.lastRun!.status != BackupRunStatus.succeeded &&
-            state.archives.isNotEmpty) ...[
-          _FailureBanner(messageCode: state.lastRun!.messageCode),
-          spacing.gapSm,
-        ],
-        if (state.archives.isEmpty)
+        if (state.jobs.isEmpty)
           StatePanel(
-            icon: Icons.archive_outlined,
-            title: l10n.backupNoArchivesYet,
-            message: l10n.backupNoArchivesHelper,
+            icon: Icons.backup_outlined,
+            title: l10n.backupNoJobsYet,
+            message: l10n.backupNoJobsHelper,
           )
         else
-          ...state.archives.map(
+          ...state.jobs.map(
+            (job) => Padding(
+              padding: EdgeInsets.only(bottom: spacing.sm),
+              child: _JobRow(job: job, state: state),
+            ),
+          ),
+        spacing.gapSm,
+        // Dominant primary action: create a new labeled backup job.
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton.icon(
+            onPressed: state.isRunning
+                ? null
+                : () => _openJobEditor(context, ref, null),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.backupAddJob),
+          ),
+        ),
+        if (state.isRunning) ...[
+          spacing.gapMd,
+          LinearProgressIndicator(value: state.progress?.fraction),
+          spacing.gapXs,
+          Text(
+            state.progress != null
+                ? l10n.backupProgressFiles(
+                    state.progress!.processedFiles,
+                    state.progress!.totalFiles,
+                  )
+                : l10n.backupRunning,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+        spacing.gapLg,
+        Text(
+          l10n.backupRunLogSection,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        spacing.gapSm,
+        if (state.runLog.isEmpty)
+          StatePanel(
+            icon: Icons.history,
+            title: l10n.backupNoRunsYet,
+            message: l10n.backupNoRunsHelper,
+          )
+        else
+          ...state.runLog.map(
             (entry) => Padding(
               padding: EdgeInsets.only(bottom: spacing.sm),
-              child: _ArchiveRow(entry: entry),
+              child: _RunLogRow(entry: entry),
             ),
           ),
         spacing.gapLg,
@@ -177,89 +159,86 @@ class _ReadyBody extends ConsumerWidget {
   }
 }
 
-class _PrimaryAction extends ConsumerWidget {
-  const _PrimaryAction({required this.state});
+class _JobRow extends ConsumerWidget {
+  const _JobRow({required this.job, required this.state});
 
+  final BackupJob job;
   final BackupUiState state;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModel = ref.read(backupViewModelProvider.notifier);
-    final l10n = AppLocalizations.of(context);
-    final canRun = !state.isRunning && state.job.isConfigured;
-
-    // A9 — dominant full-width primary action, minimum 48 logical px.
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: FilledButton.icon(
-        onPressed: canRun ? viewModel.runNow : null,
-        icon: state.isRunning
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.backup_outlined),
-        label: Text(state.isRunning ? l10n.backupRunning : l10n.backupRunNow),
-      ),
-    );
-  }
-}
-
-class _FolderRow extends StatelessWidget {
-  const _FolderRow({
-    required this.label,
-    required this.path,
-    required this.placeholder,
-    required this.chooseLabel,
-    required this.onChoose,
-  });
-
-  final String label;
-  final String? path;
-  final String placeholder;
-  final String chooseLabel;
-  final VoidCallback onChoose;
-
-  @override
-  Widget build(BuildContext context) {
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
-    final hasPath = path != null && path!.isNotEmpty;
+    final l10n = AppLocalizations.of(context);
+    final isThisJobRunning = state.isRunning && state.runningJobId == job.id;
 
     return Card(
       child: Padding(
         padding: spacing.cardPadding,
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: Theme.of(context).textTheme.labelLarge),
-                  spacing.gapXs,
-                  Text(
-                    hasPath ? _displayName(path!) : placeholder,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: hasPath ? null : scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (hasPath && _parentName(path!) != null)
-                    Text(
-                      _parentName(path!)!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        job.label,
+                        style: Theme.of(context).textTheme.titleSmall,
                       ),
-                    ),
-                ],
-              ),
+                      spacing.gapXs,
+                      Text(
+                        l10n.backupScheduleSummary(job.schedule),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.backupEditJobTooltip,
+                  icon: const Icon(Icons.edit_outlined),
+                  onPressed: state.isRunning
+                      ? null
+                      : () => _openJobEditor(context, ref, job),
+                ),
+                IconButton(
+                  tooltip: l10n.backupDeleteJobTooltip,
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: state.isRunning
+                      ? null
+                      : () => _confirmDelete(context, ref, job),
+                ),
+                Switch(
+                  value: job.enabled,
+                  onChanged: state.isRunning
+                      ? null
+                      : (enabled) => viewModel.setJobEnabled(job, enabled),
+                ),
+              ],
             ),
             spacing.gapSm,
-            OutlinedButton.icon(
-              onPressed: onChoose,
-              icon: const Icon(Icons.folder_open_outlined, size: 18),
-              label: Text(chooseLabel),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.tonalIcon(
+                onPressed: state.isRunning || !job.isConfigured
+                    ? null
+                    : () => viewModel.runNow(job),
+                icon: isThisJobRunning
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.backup_outlined, size: 18),
+                label: Text(
+                  isThisJobRunning ? l10n.backupRunning : l10n.backupRunNow,
+                ),
+              ),
             ),
           ],
         ),
@@ -268,114 +247,10 @@ class _FolderRow extends StatelessWidget {
   }
 }
 
-class _DailyHourRow extends StatelessWidget {
-  const _DailyHourRow({required this.hour, required this.onChanged});
+class _RunLogRow extends ConsumerWidget {
+  const _RunLogRow({required this.entry});
 
-  final int hour;
-  final ValueChanged<int> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-
-    return Row(
-      children: [
-        Expanded(child: Text(l10n.backupDailyRunHour)),
-        DropdownButton<int>(
-          value: hour,
-          items: [
-            for (var value = 0; value < 24; value++)
-              DropdownMenuItem<int>(
-                value: value,
-                child: Text(_hourLabel(value)),
-              ),
-          ],
-          onChanged: (value) {
-            if (value != null) {
-              onChanged(value);
-            }
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _LastRunPanel extends ConsumerWidget {
-  const _LastRunPanel({required this.state});
-
-  final BackupUiState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final spacing = context.spacing;
-    final scheme = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context);
-    final locale = Localizations.localeOf(context).toString();
-    final record = state.lastRun;
-
-    if (record == null) {
-      // Empty vs Partial (SPEC §6): nothing ran yet vs record missing while
-      // config or archives exist.
-      final text = state.archives.isEmpty && !state.job.isConfigured
-          ? l10n.backupNoBackupsYet
-          : l10n.backupLastRunUnknown;
-      return Text(
-        text,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-      );
-    }
-
-    final succeeded = record.status == BackupRunStatus.succeeded;
-    final statusText = succeeded
-        ? l10n.backupLastRunSucceeded
-        : l10n.backupLastRunFailed;
-    final statusColor = succeeded
-        ? AppStatusTone.successForegroundOf(context)
-        : AppStatusTone.errorForegroundOf(context);
-    final timestamp = DateFormat.yMd(
-      locale,
-    ).add_jm().format(record.timestamp.toLocal());
-
-    return Semantics(
-      liveRegion: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            statusText,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: statusColor),
-          ),
-          spacing.gapXs,
-          Text(
-            timestamp,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-          ),
-          if (!succeeded && record.messageCode.isNotEmpty) ...[
-            spacing.gapXs,
-            Text(
-              l10n.backupFailureMessage(record.messageCode),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppStatusTone.errorForegroundOf(context),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ArchiveRow extends ConsumerWidget {
-  const _ArchiveRow({required this.entry});
-
-  final BackupArchiveEntry entry;
+  final BackupRunLogEntry entry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -384,21 +259,29 @@ class _ArchiveRow extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context).toString();
+    final succeeded = entry.status == BackupRunStatus.succeeded;
     final date = DateFormat.yMd(
       locale,
     ).add_jm().format(entry.finishedAt.toLocal());
-    final size = _formatBytes(entry.bytes);
+    final statusText = switch (entry.status) {
+      BackupRunStatus.succeeded => l10n.backupRunStatusSucceeded,
+      BackupRunStatus.failed => l10n.backupRunStatusFailed,
+      BackupRunStatus.cancelled => l10n.backupRunStatusCancelled,
+    };
+    final statusColor = succeeded
+        ? AppStatusTone.successForegroundOf(context)
+        : AppStatusTone.errorForegroundOf(context);
 
     return Semantics(
-      label: l10n.backupArchiveRowSemantics(entry.name, date, size),
+      label: l10n.backupRunLogRowSemantics(entry.jobLabel, statusText, date),
       child: Card(
         child: Padding(
           padding: spacing.cardPadding,
           child: Row(
             children: [
               Icon(
-                Icons.archive_outlined,
-                color: scheme.onSurfaceVariant,
+                succeeded ? Icons.archive_outlined : Icons.error_outline,
+                color: succeeded ? scheme.onSurfaceVariant : statusColor,
                 semanticLabel: '',
               ),
               spacing.gapMd,
@@ -407,23 +290,39 @@ class _ArchiveRow extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      entry.name,
+                      entry.jobLabel,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Text(
-                      '$date · $size',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      '$statusText · $date',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: statusColor),
                     ),
+                    // NFR8 — archive basename only, never the full path.
+                    if (succeeded && entry.archiveName != null)
+                      Text(
+                        '${entry.archiveName} · ${_formatBytes(entry.archiveBytes ?? 0)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    if (!succeeded && entry.messageCode.isNotEmpty)
+                      Text(
+                        l10n.backupFailureMessage(entry.messageCode),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.copyWith(color: statusColor),
+                      ),
                   ],
                 ),
               ),
-              IconButton(
-                tooltip: l10n.backupShowInFolder,
-                icon: const Icon(Icons.folder_open_outlined),
-                onPressed: () => viewModel.revealArchive(entry.path),
-              ),
+              if (succeeded && entry.archivePath != null)
+                IconButton(
+                  tooltip: l10n.backupShowInFolder,
+                  icon: const Icon(Icons.folder_open_outlined),
+                  onPressed: () => viewModel.revealArchive(entry.archivePath!),
+                ),
             ],
           ),
         ),
@@ -528,46 +427,377 @@ class _NoticeBanner extends ConsumerWidget {
   }
 }
 
-class _FailureBanner extends StatelessWidget {
-  const _FailureBanner({required this.messageCode});
+Future<void> _openJobEditor(
+  BuildContext context,
+  WidgetRef ref,
+  BackupJob? existing,
+) async {
+  final viewModel = ref.read(backupViewModelProvider.notifier);
+  final edited = await showDialog<BackupJob>(
+    context: context,
+    builder: (dialogContext) => _JobEditorDialog(
+      existing: existing,
+      newJobId: viewModel.newJobId,
+      onPickFolder: (isSource) => viewModel.pickFolder(isSource: isSource),
+    ),
+  );
+  if (edited != null) {
+    await viewModel.saveJob(edited);
+  }
+}
 
-  final String messageCode;
+Future<void> _confirmDelete(
+  BuildContext context,
+  WidgetRef ref,
+  BackupJob job,
+) async {
+  final viewModel = ref.read(backupViewModelProvider.notifier);
+  final l10n = AppLocalizations.of(context);
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(l10n.backupDeleteJobTitle),
+      content: Text(l10n.backupDeleteJobMessage(job.label)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.backupCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(l10n.backupDeleteConfirm),
+        ),
+      ],
+    ),
+  );
+  if (confirmed ?? false) {
+    await viewModel.deleteJob(job.id);
+  }
+}
+
+/// Create/edit dialog for one labeled backup job.
+class _JobEditorDialog extends StatefulWidget {
+  const _JobEditorDialog({
+    required this.existing,
+    required this.newJobId,
+    required this.onPickFolder,
+  });
+
+  final BackupJob? existing;
+  final String Function() newJobId;
+  final Future<String?> Function(bool isSource) onPickFolder;
+
+  @override
+  State<_JobEditorDialog> createState() => _JobEditorDialogState();
+}
+
+class _JobEditorDialogState extends State<_JobEditorDialog> {
+  late final TextEditingController _labelController;
+  late String? _sourceFolder;
+  late String? _destinationFolder;
+  late BackupScheduleKind _kind;
+  late int _everyHours;
+  late int _hour;
+  late int _weekday;
+  late int _dayOfMonth;
+  late bool _enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.existing;
+    _labelController = TextEditingController(text: existing?.label ?? '');
+    _sourceFolder = existing?.sourceFolder;
+    _destinationFolder = existing?.destinationFolder;
+    _kind = existing?.schedule.kind ?? BackupScheduleKind.daily;
+    _everyHours =
+        existing?.schedule.everyHours ?? BackupSchedule.defaultEveryHours;
+    _hour = existing?.schedule.hour ?? BackupSchedule.defaultDailyRunHour;
+    _weekday = existing?.schedule.weekday ?? DateTime.monday;
+    _dayOfMonth = existing?.schedule.dayOfMonth ?? 1;
+    _enabled = existing?.enabled ?? true;
+    _labelController.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _labelController.dispose();
+    super.dispose();
+  }
+
+  bool get _labelValid => BackupJob.isValidLabel(_labelController.text);
+
+  BackupSchedule get _schedule => switch (_kind) {
+    BackupScheduleKind.hourly => BackupSchedule.hourly(everyHours: _everyHours),
+    BackupScheduleKind.daily => BackupSchedule.daily(hour: _hour),
+    BackupScheduleKind.weekly => BackupSchedule.weekly(
+      weekday: _weekday,
+      hour: _hour,
+    ),
+    BackupScheduleKind.monthly => BackupSchedule.monthly(
+      dayOfMonth: _dayOfMonth,
+      hour: _hour,
+    ),
+  };
 
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
-    final radii = context.radii;
+    final scheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final isNew = widget.existing == null;
 
-    return Semantics(
-      liveRegion: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppStatusTone.errorBackgroundOf(context),
-          borderRadius: radii.smAll,
-        ),
-        child: Padding(
-          padding: spacing.cardPadding,
-          child: Row(
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: AppStatusTone.errorForegroundOf(context),
-                semanticLabel: '',
+    return AlertDialog(
+      scrollable: true,
+      title: Text(
+        isNew ? l10n.backupJobDialogTitleNew : l10n.backupJobDialogTitleEdit,
+      ),
+      content: SizedBox(
+        width: 480,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _labelController,
+              maxLength: BackupJob.maxLabelLength,
+              decoration: InputDecoration(
+                labelText: l10n.backupJobLabelField,
+                errorText: _labelValid ? null : l10n.backupJobLabelInvalid,
               ),
-              spacing.gapMd,
-              Expanded(
-                child: Text(
-                  l10n.backupFailureMessage(messageCode),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppStatusTone.errorForegroundOf(context),
+            ),
+            spacing.gapSm,
+            _DialogFolderRow(
+              label: l10n.backupSourceFolderLabel,
+              path: _sourceFolder,
+              placeholder: l10n.backupNoSourceSelected,
+              chooseLabel: l10n.backupChooseSource,
+              onChoose: () async {
+                final path = await widget.onPickFolder(true);
+                if (path != null) {
+                  setState(() => _sourceFolder = path);
+                }
+              },
+            ),
+            spacing.gapSm,
+            _DialogFolderRow(
+              label: l10n.backupDestinationFolderLabel,
+              path: _destinationFolder,
+              placeholder: l10n.backupNoDestinationSelected,
+              chooseLabel: l10n.backupChooseDestination,
+              onChoose: () async {
+                final path = await widget.onPickFolder(false);
+                if (path != null) {
+                  setState(() => _destinationFolder = path);
+                }
+              },
+            ),
+            spacing.gapMd,
+            Row(
+              children: [
+                Expanded(child: Text(l10n.backupScheduleKindLabel)),
+                DropdownButton<BackupScheduleKind>(
+                  value: _kind,
+                  items: [
+                    DropdownMenuItem(
+                      value: BackupScheduleKind.hourly,
+                      child: Text(l10n.backupScheduleHourly),
+                    ),
+                    DropdownMenuItem(
+                      value: BackupScheduleKind.daily,
+                      child: Text(l10n.backupScheduleDaily),
+                    ),
+                    DropdownMenuItem(
+                      value: BackupScheduleKind.weekly,
+                      child: Text(l10n.backupScheduleWeekly),
+                    ),
+                    DropdownMenuItem(
+                      value: BackupScheduleKind.monthly,
+                      child: Text(l10n.backupScheduleMonthly),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _kind = value);
+                    }
+                  },
+                ),
+              ],
+            ),
+            if (_kind == BackupScheduleKind.hourly)
+              Row(
+                children: [
+                  Expanded(child: Text(l10n.backupIntervalLabel)),
+                  DropdownButton<int>(
+                    value: _everyHours,
+                    items: [
+                      for (final option in BackupSchedule.hourlyOptions)
+                        DropdownMenuItem<int>(
+                          value: option,
+                          child: Text(l10n.backupScheduleEveryHours(option)),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _everyHours = value);
+                      }
+                    },
                   ),
+                ],
+              ),
+            if (_kind == BackupScheduleKind.weekly)
+              Row(
+                children: [
+                  Expanded(child: Text(l10n.backupWeekdayLabel)),
+                  DropdownButton<int>(
+                    value: _weekday,
+                    items: [
+                      for (
+                        var day = DateTime.monday;
+                        day <= DateTime.sunday;
+                        day++
+                      )
+                        DropdownMenuItem<int>(
+                          value: day,
+                          child: Text(l10n.backupWeekdayName(day)),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _weekday = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            if (_kind == BackupScheduleKind.monthly)
+              Row(
+                children: [
+                  Expanded(child: Text(l10n.backupDayOfMonthLabel)),
+                  DropdownButton<int>(
+                    value: _dayOfMonth,
+                    items: [
+                      for (var day = 1; day <= 31; day++)
+                        DropdownMenuItem<int>(
+                          value: day,
+                          child: Text(day.toString()),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _dayOfMonth = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            if (_kind != BackupScheduleKind.hourly)
+              Row(
+                children: [
+                  Expanded(child: Text(l10n.backupHourLabel)),
+                  DropdownButton<int>(
+                    value: _hour,
+                    items: [
+                      for (var value = 0; value < 24; value++)
+                        DropdownMenuItem<int>(
+                          value: value,
+                          child: Text(_hourLabel(value)),
+                        ),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _hour = value);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            Row(
+              children: [
+                Expanded(child: Text(l10n.backupEnabledLabel)),
+                Switch(
+                  value: _enabled,
+                  onChanged: (value) => setState(() => _enabled = value),
+                ),
+              ],
+            ),
+            if (!_labelValid)
+              Text(
+                l10n.backupJobLabelInvalid,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: scheme.error),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.backupCancel),
+        ),
+        FilledButton(
+          onPressed: _labelValid
+              ? () => Navigator.of(context).pop(
+                  BackupJob(
+                    id: widget.existing?.id ?? widget.newJobId(),
+                    label: _labelController.text.trim(),
+                    sourceFolder: _sourceFolder,
+                    destinationFolder: _destinationFolder,
+                    schedule: _schedule,
+                    enabled: _enabled,
+                  ),
+                )
+              : null,
+          child: Text(l10n.backupSave),
+        ),
+      ],
+    );
+  }
+}
+
+class _DialogFolderRow extends StatelessWidget {
+  const _DialogFolderRow({
+    required this.label,
+    required this.path,
+    required this.placeholder,
+    required this.chooseLabel,
+    required this.onChoose,
+  });
+
+  final String label;
+  final String? path;
+  final String placeholder;
+  final String chooseLabel;
+  final VoidCallback onChoose;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final hasPath = path != null && path!.isNotEmpty;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                hasPath ? _displayName(path!) : placeholder,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: hasPath ? null : scheme.onSurfaceVariant,
                 ),
               ),
             ],
           ),
         ),
-      ),
+        OutlinedButton.icon(
+          onPressed: onChoose,
+          icon: const Icon(Icons.folder_open_outlined, size: 18),
+          label: Text(chooseLabel),
+        ),
+      ],
     );
   }
 }
@@ -580,15 +810,6 @@ String _displayName(String path) {
 }
 
 String _hourLabel(int hour) => '${hour.toString().padLeft(2, '0')}:00';
-
-String? _parentName(String path) {
-  final segments = path.split(RegExp('[\\/]'))
-    ..removeWhere((segment) => segment.isEmpty);
-  if (segments.length < 2) {
-    return null;
-  }
-  return segments[segments.length - 2];
-}
 
 String _formatBytes(int bytes) {
   if (bytes < 1024) {

@@ -18,10 +18,11 @@ void main() {
   late InMemoryBackupStore store;
   late BackupRepositoryImpl repository;
 
-  BackupJob job({int hour = 2}) => BackupJob(
+  BackupJob job({String id = 'job-a', String label = 'Job A'}) => BackupJob(
+    id: id,
+    label: label,
     sourceFolder: source.path,
     destinationFolder: destination.path,
-    dailyRunHour: hour,
   );
 
   String todayStamp() {
@@ -53,11 +54,42 @@ void main() {
     }
   });
 
+  group('job CRUD', () {
+    test('saveJob creates then updates; deleteJob removes', () async {
+      final created = job();
+      await repository.saveJob(created);
+      await repository.saveJob(
+        job(id: 'job-b', label: 'Job B').copyWith(enabled: false),
+      );
+      var jobs = (await repository.loadJobs() as Success<List<BackupJob>>).data;
+      expect(jobs, hasLength(2));
+
+      await repository.saveJob(created.copyWith(label: 'Renamed'));
+      jobs = (await repository.loadJobs() as Success<List<BackupJob>>).data;
+      expect(jobs, hasLength(2));
+      expect(jobs.firstWhere((j) => j.id == 'job-a').label, 'Renamed');
+      expect(jobs.firstWhere((j) => j.id == 'job-b').enabled, isFalse);
+
+      await repository.deleteJob('job-a');
+      jobs = (await repository.loadJobs() as Success<List<BackupJob>>).data;
+      expect(jobs.single.id, 'job-b');
+    });
+
+    test('label validation: required and capped at 120 chars', () {
+      expect(BackupJob.isValidLabel(''), isFalse);
+      expect(BackupJob.isValidLabel('   '), isFalse);
+      expect(BackupJob.isValidLabel('x' * 120), isTrue);
+      expect(BackupJob.isValidLabel('x' * 121), isFalse);
+    });
+  });
+
   group('run validation', () {
     test(
-      'A4: missing source fails with sourceMissing and no archive entry',
+      'A4: missing source fails with sourceMissing and a log entry',
       () async {
         final missing = BackupJob(
+          id: 'job-a',
+          label: 'Job A',
           sourceFolder: '${temp.path}/gone',
           destinationFolder: destination.path,
         );
@@ -66,25 +98,30 @@ void main() {
           trigger: BackupTrigger.manual,
         );
 
-        expect(result, isA<Err<BackupRunRecord>>());
+        expect(result, isA<Err<BackupRunLogEntry>>());
         expect(
-          (result as Err<BackupRunRecord>).failure.message,
+          (result as Err<BackupRunLogEntry>).failure.message,
           BackupFailureCodes.sourceMissing,
         );
-        final lastRun = await store.readLastRun();
-        expect(lastRun!.status, BackupRunStatus.failed);
-        expect(lastRun.messageCode, BackupFailureCodes.sourceMissing);
-        expect(await store.readArchives(), isEmpty);
+        final log = await store.readRunLog();
+        expect(log, hasLength(1));
+        expect(log.single.status, BackupRunStatus.failed);
+        expect(log.single.messageCode, BackupFailureCodes.sourceMissing);
+        expect(log.single.archiveName, isNull);
       },
     );
 
     test('unset source fails with sourceMissing', () async {
       final result = await repository.runBackup(
-        job: BackupJob(destinationFolder: destination.path),
+        job: BackupJob(
+          id: 'job-a',
+          label: 'Job A',
+          destinationFolder: destination.path,
+        ),
         trigger: BackupTrigger.manual,
       );
       expect(
-        (result as Err<BackupRunRecord>).failure.message,
+        (result as Err<BackupRunLogEntry>).failure.message,
         BackupFailureCodes.sourceMissing,
       );
     });
@@ -93,6 +130,8 @@ void main() {
       'A3: unwritable destination fails with destinationNotWritable',
       () async {
         final badDest = BackupJob(
+          id: 'job-a',
+          label: 'Job A',
           sourceFolder: source.path,
           destinationFolder: '${temp.path}/no/such/folder',
         );
@@ -102,24 +141,31 @@ void main() {
         );
 
         expect(
-          (result as Err<BackupRunRecord>).failure.message,
+          (result as Err<BackupRunLogEntry>).failure.message,
           BackupFailureCodes.destinationNotWritable,
         );
-        final lastRun = await store.readLastRun();
-        expect(lastRun!.status, BackupRunStatus.failed);
-        expect(lastRun.messageCode, BackupFailureCodes.destinationNotWritable);
-        expect(await store.readArchives(), isEmpty);
+        final log = await store.readRunLog();
+        expect(log.single.status, BackupRunStatus.failed);
+        expect(
+          log.single.messageCode,
+          BackupFailureCodes.destinationNotWritable,
+        );
       },
     );
 
     test('destination pointing at a file is not writable', () async {
       final file = File('${temp.path}/a-file')..writeAsStringSync('x');
       final result = await repository.runBackup(
-        job: BackupJob(sourceFolder: source.path, destinationFolder: file.path),
+        job: BackupJob(
+          id: 'job-a',
+          label: 'Job A',
+          sourceFolder: source.path,
+          destinationFolder: file.path,
+        ),
         trigger: BackupTrigger.manual,
       );
       expect(
-        (result as Err<BackupRunRecord>).failure.message,
+        (result as Err<BackupRunLogEntry>).failure.message,
         BackupFailureCodes.destinationNotWritable,
       );
     });
@@ -127,6 +173,8 @@ void main() {
     test('R4: identical source and destination is blocked', () async {
       final result = await repository.runBackup(
         job: BackupJob(
+          id: 'job-a',
+          label: 'Job A',
           sourceFolder: source.path,
           destinationFolder: source.path,
         ),
@@ -134,7 +182,7 @@ void main() {
       );
 
       expect(
-        (result as Err<BackupRunRecord>).failure.message,
+        (result as Err<BackupRunLogEntry>).failure.message,
         BackupFailureCodes.sameFolders,
       );
       expect(zipsInDestination(), isEmpty);
@@ -143,13 +191,15 @@ void main() {
     test('R4: trailing slashes do not defeat the same-folder check', () async {
       final result = await repository.runBackup(
         job: BackupJob(
+          id: 'job-a',
+          label: 'Job A',
           sourceFolder: '${source.path}/',
           destinationFolder: source.path,
         ),
         trigger: BackupTrigger.manual,
       );
       expect(
-        (result as Err<BackupRunRecord>).failure.message,
+        (result as Err<BackupRunLogEntry>).failure.message,
         BackupFailureCodes.sameFolders,
       );
     });
@@ -170,28 +220,29 @@ void main() {
           trigger: BackupTrigger.manual,
         );
 
-        expect(result, isA<Success<BackupRunRecord>>());
-        final record = (result as Success<BackupRunRecord>).data;
-        expect(record.status, BackupRunStatus.succeeded);
+        expect(result, isA<Success<BackupRunLogEntry>>());
+        final entry = (result as Success<BackupRunLogEntry>).data;
+        expect(entry.status, BackupRunStatus.succeeded);
+        expect(entry.jobLabel, 'Job A');
 
         final zips = zipsInDestination();
         expect(zips, hasLength(1));
         final name = zips.single.uri.pathSegments.last;
         expect(name, contains(todayStamp()));
         expect(name, ArchiveNamer.baseName(DateTime.now()));
+        // The job label never leaks into the archive filename.
+        expect(name, isNot(contains('Job A')));
 
         final archive = ZipDecoder().decodeBytes(zips.single.readAsBytesSync());
         final names = archive.files.map((file) => file.name).toSet();
         expect(names, containsAll(<String>{'notes.txt', 'sub/data.csv'}));
 
-        // R7/R8 — one successful archive entry, newest first.
-        final archives = await store.readArchives();
-        expect(archives, hasLength(1));
-        expect(archives.single.name, name);
-        expect(archives.single.bytes, zips.single.lengthSync());
-
-        final lastRun = await store.readLastRun();
-        expect(lastRun!.status, BackupRunStatus.succeeded);
+        // Unified run log: one successful entry with archive details.
+        final log = await store.readRunLog();
+        expect(log, hasLength(1));
+        expect(log.single.archiveName, name);
+        expect(log.single.archiveBytes, zips.single.lengthSync());
+        expect(log.single.archivePath, isNotNull);
       },
     );
 
@@ -207,7 +258,7 @@ void main() {
         job: job(),
         trigger: BackupTrigger.manual,
       );
-      expect(result, isA<Success<BackupRunRecord>>());
+      expect(result, isA<Success<BackupRunLogEntry>>());
 
       expect(prior.readAsBytesSync(), priorBytes);
       expect(prior.lastModifiedSync(), priorModified);
@@ -227,20 +278,20 @@ void main() {
           job: job(),
           trigger: BackupTrigger.manual,
         );
-        expect(first, isA<Success<BackupRunRecord>>());
-        final firstName = (await store.readArchives()).first.name;
+        expect(first, isA<Success<BackupRunLogEntry>>());
+        final firstName = (await store.readRunLog()).first.archiveName;
 
         final second = await repository.runBackup(
           job: job(),
           trigger: BackupTrigger.scheduled,
         );
-        expect(second, isA<Success<BackupRunRecord>>());
+        expect(second, isA<Success<BackupRunLogEntry>>());
 
-        final archives = await store.readArchives();
-        expect(archives, hasLength(2));
-        expect(archives.first.name, isNot(firstName));
+        final log = await store.readRunLog();
+        expect(log, hasLength(2));
+        expect(log.first.archiveName, isNot(firstName));
         expect(
-          archives.first.name,
+          log.first.archiveName,
           matches(
             RegExp(r'^OfficeToolCombo-backup-\d{4}-\d{2}-\d{2}-\d{6}.*\.zip$'),
           ),
@@ -250,7 +301,84 @@ void main() {
     );
 
     test(
-      'induced failure deletes the partial zip and adds no archive entry (R7)',
+      'two jobs: manual run of job B logs an entry with job B\'s label',
+      () async {
+        await repository.runBackup(job: job(), trigger: BackupTrigger.manual);
+        final jobB = job(id: 'job-b', label: 'Job B');
+        final result = await repository.runBackup(
+          job: jobB,
+          trigger: BackupTrigger.manual,
+        );
+        expect(result, isA<Success<BackupRunLogEntry>>());
+
+        final log = await store.readRunLog();
+        expect(log, hasLength(2));
+        // Newest first — job B's run leads and carries its label.
+        expect(log.first.jobId, 'job-b');
+        expect(log.first.jobLabel, 'Job B');
+        expect(log.last.jobId, 'job-a');
+        expect(log.last.jobLabel, 'Job A');
+      },
+    );
+
+    test('run log is capped at 50 entries, newest kept', () async {
+      final entries = List.generate(
+        55,
+        (i) => BackupRunLogEntry(
+          jobId: 'job-a',
+          jobLabel: 'Job A',
+          finishedAt: DateTime.utc(2026, 8, 1).add(Duration(minutes: i)),
+          status: BackupRunStatus.succeeded,
+          archiveName: 'a$i.zip',
+        ),
+      );
+      // Stored newest-first, as the repository maintains it.
+      await store.writeRunLog(entries.reversed.toList());
+
+      final result = await repository.runBackup(
+        job: job(),
+        trigger: BackupTrigger.manual,
+      );
+      expect(result, isA<Success<BackupRunLogEntry>>());
+
+      final log = await repository.readRunLog();
+      expect(log, hasLength(50));
+      // The fresh entry leads; the oldest seeded entry dropped off.
+      expect(log.first.archiveName, isNot('a0.zip'));
+      expect(log.any((entry) => entry.archiveName == 'a0.zip'), isFalse);
+      expect(log.any((entry) => entry.archiveName == 'a54.zip'), isTrue);
+    });
+
+    test(
+      'lastRunAt reads the newest entry per job for scheduler due-ness',
+      () async {
+        final earlier = DateTime.utc(2026, 8, 1, 2);
+        final later = DateTime.utc(2026, 8, 2, 2);
+        await store.writeRunLog(<BackupRunLogEntry>[
+          BackupRunLogEntry(
+            jobId: 'job-b',
+            jobLabel: 'Job B',
+            finishedAt: later,
+            status: BackupRunStatus.succeeded,
+            archiveName: 'b.zip',
+          ),
+          BackupRunLogEntry(
+            jobId: 'job-a',
+            jobLabel: 'Job A',
+            finishedAt: earlier,
+            status: BackupRunStatus.failed,
+            messageCode: BackupFailureCodes.run,
+          ),
+        ]);
+
+        expect(await repository.lastRunAt('job-a'), earlier);
+        expect(await repository.lastRunAt('job-b'), later);
+        expect(await repository.lastRunAt('job-c'), isNull);
+      },
+    );
+
+    test(
+      'induced failure deletes the partial zip and logs without archive (R7)',
       () async {
         // A directory occupying today's archive name makes the final rename
         // fail after the zip content was written to the partial file.
@@ -263,18 +391,18 @@ void main() {
           trigger: BackupTrigger.manual,
         );
 
-        expect(result, isA<Err<BackupRunRecord>>());
-        final lastRun = await store.readLastRun();
-        expect(lastRun!.status, BackupRunStatus.failed);
+        expect(result, isA<Err<BackupRunLogEntry>>());
+        final log = await store.readRunLog();
+        expect(log.single.status, BackupRunStatus.failed);
+        expect(log.single.archiveName, isNull);
 
-        // No partial file left behind, no archive entry recorded (R7).
+        // No partial file left behind (SPEC §9).
         final leftovers = destination
             .listSync()
             .whereType<File>()
             .where((file) => file.path.endsWith(ArchiveNamer.partialSuffix))
             .toList();
         expect(leftovers, isEmpty);
-        expect(await store.readArchives(), isEmpty);
       },
     );
 
@@ -299,12 +427,12 @@ void main() {
           },
         );
 
-        expect(result, isA<Err<BackupRunRecord>>());
-        final lastRun = await store.readLastRun();
-        expect(lastRun, isNotNull);
-        expect(lastRun!.status, isNot(BackupRunStatus.succeeded));
-        expect(lastRun.messageCode, BackupFailureCodes.interrupted);
-        expect(await store.readArchives(), isEmpty);
+        expect(result, isA<Err<BackupRunLogEntry>>());
+        final log = await store.readRunLog();
+        expect(log, isNotEmpty);
+        expect(log.first.status, isNot(BackupRunStatus.succeeded));
+        expect(log.first.messageCode, BackupFailureCodes.interrupted);
+        expect(log.first.archiveName, isNull);
         expect(
           destination.listSync().whereType<File>().where(
             (f) => f.path.endsWith(ArchiveNamer.partialSuffix),
@@ -322,7 +450,7 @@ void main() {
         onProgress: events.add,
       );
 
-      expect(result, isA<Success<BackupRunRecord>>());
+      expect(result, isA<Success<BackupRunLogEntry>>());
       expect(events, isNotEmpty);
       expect(events.last.processedFiles, events.last.totalFiles);
       expect(events.last.totalFiles, 2);
@@ -343,11 +471,11 @@ void main() {
         return;
       }
       final second = await repository.runBackup(
-        job: job(),
+        job: job(id: 'job-b', label: 'Job B'),
         trigger: BackupTrigger.scheduled,
       );
       expect(
-        (second as Err<BackupRunRecord>).failure.message,
+        (second as Err<BackupRunLogEntry>).failure.message,
         BackupFailureCodes.busy,
       );
       await first;
