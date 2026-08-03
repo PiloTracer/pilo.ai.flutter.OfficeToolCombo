@@ -71,6 +71,37 @@ void main() {
       expect(batch.files.single.parseStatus, SpreadsheetParseStatus.success);
     });
 
+    test('streams per-file progress from the merge isolate', () async {
+      for (var i = 0; i < 3; i++) {
+        await ConsolidatorTestFixtures.writeWorkbook(
+          directory: tempDir,
+          fileName: 'report_$i.xlsx',
+          rows: [
+            ['Name', 'Amount'],
+            ['Alpha $i', '${i + 1}'],
+          ],
+        );
+      }
+
+      final progress = <double>[];
+      final result = await repository.consolidateFolder(
+        folderPath: tempDir.path,
+        onProgress: progress.add,
+      );
+
+      expect(result, isA<Success<WorkbookBatch>>());
+      // 0 from the repository, then per-file isolate events
+      // (1/3, 2/3, 3/3), then the repository's closing 1.
+      expect(progress.first, 0);
+      expect(progress.last, 1);
+      expect(progress.length, 5);
+      expect(progress[1], closeTo(1 / 3, 0.001));
+      expect(progress[2], closeTo(2 / 3, 0.001));
+      expect(progress[3], 1);
+      final sorted = List<double>.from(progress)..sort();
+      expect(progress, sorted);
+    });
+
     test(
       'saved output folder writes consolidated file outside source folder',
       () async {
