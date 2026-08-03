@@ -20,6 +20,13 @@
       "title": { "type": "String" }
     }
   },
+  "toolRowSemantics": "{title}, {subtitle}",
+  "@toolRowSemantics": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "subtitle": { "type": "String" }
+    }
+  },
   "backToHomeTooltip": "Back to home",
   "placeholderHeadline": "Coming in the next milestone",
   "placeholderMessage": "{tool} is on the roadmap. The navigation shell is ready; full workflow for {toolId} ships in a later release.",
@@ -42,6 +49,13 @@
   "inventorySearchStockLabel": "Search stock",
   "inventorySearchStockHint": "Name, barcode, notes — typos & accents OK",
   "inventoryClearSearchTooltip": "Clear search",
+  "inventoryMoreActionsTooltip": "More actions",
+  "inventoryItemActionsTooltip": "Actions for {name}",
+  "@inventoryItemActionsTooltip": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "inventorySearchMatchCount": "{count, plural, =1{1 match} other{{count} matches}}",
   "@inventorySearchMatchCount": {
     "placeholders": {
@@ -247,6 +261,12 @@
     }
   },
   "consolidatorPreparing": "Preparing merge…",
+  "consolidatorMergeProgressSemantics": "Merge progress {percent} percent",
+  "@consolidatorMergeProgressSemantics": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
   "consolidatorMergingHint": "Large folders may take a minute. You can keep this window open.",
   "consolidatorSavedAs": "Saved as {fileName}",
   "@consolidatorSavedAs": {
@@ -277,5 +297,338 @@
   "warningSemanticLabel": "Warning",
   "routerPageNotFoundTitle": "Page not found",
   "routerPageNotFoundHeading": "This page does not exist",
-  "routerPageNotFoundFallback": "Check the address or return home."
+  "routerPageNotFoundFallback": "Check the address or return home.",
+  "documentFactoryHeadline": "Batch personalized PDFs",
+  "documentFactoryDescription": "Choose an HTML template with {token} tokens, pick a data sheet, map fields, and generate one PDF per row.",
+  "@documentFactoryDescription": {
+    "placeholders": {
+      "token": { "type": "String" }
+    }
+  },
+  "documentFactoryTemplateSection": "Template",
+  "documentFactoryDataSection": "Data sheet",
+  "documentFactoryMappingSection": "Map fields",
+  "documentFactoryOutputSection": "Output folder",
+  "documentFactoryChooseTemplate": "Choose template",
+  "documentFactoryChooseDataSheet": "Choose data sheet",
+  "documentFactorySaveMapping": "Save mapping",
+  "documentFactoryChooseOutputFolder": "Choose output folder",
+  "documentFactoryGenerate": "Generate PDFs",
+  "documentFactoryOpenOutputFolder": "Open output folder",
+  "documentFactoryMappingSaved": "Mapping saved",
+  "documentFactoryMapAllHint": "Map all placeholders before generating",
+  "documentFactoryNoTemplate": "No template selected",
+  "documentFactoryNoDataSheet": "No data sheet selected",
+  "documentFactoryNoOutput": "No output folder selected",
+  "documentFactoryMappingEmptyHint": "Select a template and data sheet to map fields",
+  "documentFactoryZeroPlaceholders": "No placeholders found in this template. Use a template with {token} tokens.",
+  "@documentFactoryZeroPlaceholders": {
+    "placeholders": {
+      "token": { "type": "String" }
+    }
+  },
+  "documentFactoryPartialTitle": "Generated with some errors",
+  "documentFactoryPartialCounts": "{success} PDFs created, {failed} rows failed",
+  "@documentFactoryPartialCounts": {
+    "placeholders": {
+      "success": { "type": "int" },
+      "failed": { "type": "int" }
+    }
+  },
+  "documentFactorySuccessTitle": "PDFs generated",
+  "documentFactorySuccessSummary": "{count, plural, =1{1 PDF saved to {folderBasename}} other{{count} PDFs saved to {folderBasename}}}",
+  "@documentFactorySuccessSummary": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "folderBasename": { "type": "String" }
+    }
+  },
+  "documentFactoryErrorBatchTitle": "Batch failed",
+  "documentFactoryErrorTemplate": "Could not read the template file. Choose a different file.",
+  "documentFactoryErrorSheet": "Could not read the data sheet. Choose a different .xlsx file.",
+  "documentFactoryErrorOutput": "Cannot write to the output folder. Choose a folder where you have permission to save files.",
+  "documentFactoryErrorGeneric": "Something went wrong during PDF generation.",
+  "documentFactoryDuplicateHeaders": "The data sheet has duplicate column headers. Fix the sheet and try again.",
+  "documentFactoryRowRenderFailure": "Could not create PDF for this row",
+  "documentFactoryEmptyRowsSkipped": "{count, plural, =1{1 empty row skipped} other{{count} empty rows skipped}}",
+  "@documentFactoryEmptyRowsSkipped": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "documentFactoryProgress": "Generating PDFs… {done} of {total}",
+  "@documentFactoryProgress": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "documentFactoryProgressAnnouncement": "{done} of {total} PDFs generated",
+  "@documentFactoryProgressAnnouncement": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "documentFactoryInterrupted": "The last job did not finish. You can start a new batch.",
+  "documentFactoryMappingSaveError": "Could not save mapping. Try again.",
+  "documentFactoryFailureRow": "Row {n}: {message}",
+  "@documentFactoryFailureRow": {
+    "placeholders": {
+      "n": { "type": "int" },
+      "message": { "type": "String" }
+    }
+  },
+  "documentFactoryTryAgain": "Try again",
+  "documentFactoryLoading": "Loading…",
+  "documentFactoryPlaceholderCount": "{count, plural, =1{1 placeholder} other{{count} placeholders}}",
+  "@documentFactoryPlaceholderCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "documentFactorySheetRowCount": "{count, plural, =1{1 data row} other{{count} data rows}}",
+  "@documentFactorySheetRowCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "documentFactorySheetColumnCount": "{count, plural, =1{1 column} other{{count} columns}}",
+  "@documentFactorySheetColumnCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "documentFactorySelectColumn": "Select column",
+  "documentFactoryColumnFor": "Column for {placeholder}",
+  "@documentFactoryColumnFor": {
+    "placeholders": {
+      "placeholder": { "type": "String" }
+    }
+  },
+  "documentFactoryRowsFailedCount": "{count, plural, =1{1 row failed} other{{count} rows failed}}",
+  "@documentFactoryRowsFailedCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "documentFactoryRevealError": "Could not open the output folder on this desktop.",
+  "priceMonitorIntro": "Track product prices and get notified when one crosses your threshold.",
+  "@priceMonitorIntro": {
+    "description": "Intro line under the price monitor title"
+  },
+  "priceMonitorAddWatch": "Add watch",
+  "@priceMonitorAddWatch": {},
+  "priceMonitorLoading": "Loading watches…",
+  "@priceMonitorLoading": {},
+  "priceMonitorEmptyTitle": "No price watches yet",
+  "@priceMonitorEmptyTitle": {},
+  "priceMonitorEmptyMessage": "Add a watch to get notified when a price crosses your threshold.",
+  "@priceMonitorEmptyMessage": {},
+  "priceMonitorNotFetched": "Not fetched yet",
+  "@priceMonitorNotFetched": {},
+  "priceMonitorFetchFailed": "Fetch failed",
+  "@priceMonitorFetchFailed": {},
+  "priceMonitorParseFailed": "Could not read price from page",
+  "@priceMonitorParseFailed": {},
+  "priceMonitorRetryNow": "Retry now",
+  "@priceMonitorRetryNow": {},
+  "priceMonitorLoadErrorTitle": "Could not load watches",
+  "@priceMonitorLoadErrorTitle": {},
+  "priceMonitorLoadErrorMessage": "Try closing and reopening the app.",
+  "@priceMonitorLoadErrorMessage": {},
+  "priceMonitorTryAgain": "Try again",
+  "@priceMonitorTryAgain": {},
+  "priceMonitorOfflineBadge": "Offline — price checks paused",
+  "@priceMonitorOfflineBadge": {},
+  "priceMonitorOfflineSemantics": "Offline, price checks paused",
+  "@priceMonitorOfflineSemantics": {},
+  "priceMonitorOfflineChip": "Offline",
+  "@priceMonitorOfflineChip": {},
+  "priceMonitorUpdated": "Updated {time}",
+  "@priceMonitorUpdated": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "priceMonitorAlertLine": "Alert {direction} {threshold}",
+  "@priceMonitorAlertLine": {
+    "placeholders": {
+      "direction": { "type": "String" },
+      "threshold": { "type": "String" }
+    }
+  },
+  "priceMonitorAbove": "Above",
+  "@priceMonitorAbove": {},
+  "priceMonitorBelow": "Below",
+  "@priceMonitorBelow": {},
+  "priceMonitorThresholdError": "Enter a threshold greater than zero",
+  "@priceMonitorThresholdError": {},
+  "priceMonitorUrlError": "Enter a valid web address starting with http:// or https://",
+  "@priceMonitorUrlError": {},
+  "priceMonitorLabelError": "Enter a label",
+  "@priceMonitorLabelError": {},
+  "priceMonitorLabelTooLongError": "Keep the label under 120 characters",
+  "@priceMonitorLabelTooLongError": {},
+  "priceMonitorDeleteConfirmTitle": "Delete this watch?",
+  "@priceMonitorDeleteConfirmTitle": {},
+  "priceMonitorDeleteConfirmMessage": "The watch stops being polled and its last-known price is removed.",
+  "@priceMonitorDeleteConfirmMessage": {},
+  "priceMonitorDelete": "Delete",
+  "@priceMonitorDelete": {},
+  "priceMonitorCancel": "Cancel",
+  "@priceMonitorCancel": {},
+  "priceMonitorSave": "Save",
+  "@priceMonitorSave": {},
+  "priceMonitorDiscardTitle": "Discard unsaved changes?",
+  "@priceMonitorDiscardTitle": {},
+  "priceMonitorDiscard": "Discard",
+  "@priceMonitorDiscard": {},
+  "priceMonitorKeepEditing": "Keep editing",
+  "@priceMonitorKeepEditing": {},
+  "priceMonitorAlertTitle": "Price alert: {label}",
+  "@priceMonitorAlertTitle": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "priceMonitorAlertBody": "Price is {price} (threshold {threshold})",
+  "@priceMonitorAlertBody": {
+    "placeholders": {
+      "price": { "type": "String" },
+      "threshold": { "type": "String" }
+    }
+  },
+  "priceMonitorDismiss": "Dismiss",
+  "@priceMonitorDismiss": {},
+  "priceMonitorMacNotifyHint": "Allow notifications in System Settings to get price alerts on the desktop.",
+  "@priceMonitorMacNotifyHint": {},
+  "priceMonitorEditorTitleNew": "Add watch",
+  "@priceMonitorEditorTitleNew": {},
+  "priceMonitorEditorTitleEdit": "Edit watch",
+  "@priceMonitorEditorTitleEdit": {},
+  "priceMonitorFieldLabel": "Label",
+  "@priceMonitorFieldLabel": {},
+  "priceMonitorFieldUrl": "URL",
+  "@priceMonitorFieldUrl": {},
+  "priceMonitorFieldThreshold": "Threshold",
+  "@priceMonitorFieldThreshold": {},
+  "priceMonitorNotifyWhen": "Notify when",
+  "@priceMonitorNotifyWhen": {},
+  "priceMonitorEnabled": "Enabled",
+  "@priceMonitorEnabled": {},
+  "priceMonitorToggleSemantics": "Enable watch {label}",
+  "@priceMonitorToggleSemantics": {
+    "placeholders": {
+      "label": { "type": "String" }
+    }
+  },
+  "priceMonitorRowSemantics": "{label}, last price {price}, updated {time}, alert {direction} {threshold}, {state}",
+  "@priceMonitorRowSemantics": {
+    "placeholders": {
+      "label": { "type": "String" },
+      "price": { "type": "String" },
+      "time": { "type": "String" },
+      "direction": { "type": "String" },
+      "threshold": { "type": "String" },
+      "state": { "type": "String" }
+    }
+  },
+  "priceMonitorStateEnabled": "enabled",
+  "@priceMonitorStateEnabled": {},
+  "priceMonitorStateDisabled": "disabled",
+  "@priceMonitorStateDisabled": {},
+  "priceMonitorEdit": "Edit",
+  "@priceMonitorEdit": {},
+  "priceMonitorSaveError": "Could not save the watch. Try again.",
+  "@priceMonitorSaveError": {},
+  "priceMonitorErrorGeneric": "Something went wrong. Try again.",
+  "@priceMonitorErrorGeneric": {},
+  "backupLoading": "Loading…",
+  "@backupLoading": {},
+  "backupSettingsSection": "Backup settings",
+  "@backupSettingsSection": {},
+  "backupSourceFolderLabel": "Source folder",
+  "@backupSourceFolderLabel": {},
+  "backupDestinationFolderLabel": "Destination folder",
+  "@backupDestinationFolderLabel": {},
+  "backupChooseSource": "Choose source folder",
+  "@backupChooseSource": {},
+  "backupChooseDestination": "Choose destination folder",
+  "@backupChooseDestination": {},
+  "backupNoSourceSelected": "No source folder selected",
+  "@backupNoSourceSelected": {},
+  "backupNoDestinationSelected": "No destination folder selected",
+  "@backupNoDestinationSelected": {},
+  "backupDailyRunHour": "Daily run hour",
+  "@backupDailyRunHour": {},
+  "backupEnableSchedule": "Enable daily schedule",
+  "@backupEnableSchedule": {},
+  "backupRunNow": "Back up now",
+  "@backupRunNow": {},
+  "backupRunning": "Creating backup…",
+  "@backupRunning": {},
+  "backupProgressFiles": "{processed} of {total} files",
+  "@backupProgressFiles": {
+    "placeholders": {
+      "processed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "backupLastRunSection": "Last run",
+  "@backupLastRunSection": {},
+  "backupLastRunSucceeded": "Last backup: succeeded",
+  "@backupLastRunSucceeded": {},
+  "backupLastRunFailed": "Last backup: failed",
+  "@backupLastRunFailed": {},
+  "backupLastRunUnknown": "Last backup: unknown",
+  "@backupLastRunUnknown": {},
+  "backupNoBackupsYet": "No backups yet",
+  "@backupNoBackupsYet": {},
+  "backupArchivesSection": "Recent archives",
+  "@backupArchivesSection": {},
+  "backupNoArchivesYet": "No archives yet",
+  "@backupNoArchivesYet": {},
+  "backupNoArchivesHelper": "Run a backup to see archives here.",
+  "@backupNoArchivesHelper": {},
+  "backupComplete": "Backup complete",
+  "@backupComplete": {},
+  "backupDismiss": "Dismiss",
+  "@backupDismiss": {},
+  "backupOfflineNote": "Backups use local folders only. No internet required.",
+  "@backupOfflineNote": {},
+  "backupLoadErrorTitle": "Could not load backup settings",
+  "@backupLoadErrorTitle": {},
+  "backupLoadError": "Could not load backup settings. Try again.",
+  "@backupLoadError": {},
+  "backupRetry": "Retry",
+  "@backupRetry": {},
+  "backupFolderSelectionCancelled": "Folder selection cancelled.",
+  "@backupFolderSelectionCancelled": {},
+  "backupShowInFolder": "Show in file manager",
+  "@backupShowInFolder": {},
+  "backupArchiveRowSemantics": "{name}, {date}, {size}",
+  "@backupArchiveRowSemantics": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "date": { "type": "String" },
+      "size": { "type": "String" }
+    }
+  },
+  "backupErrorSourceMissing": "Source folder not found. Choose the folder again.",
+  "@backupErrorSourceMissing": {},
+  "backupErrorDestinationNotWritable": "Cannot write to the destination folder. Choose a different folder or check permissions.",
+  "@backupErrorDestinationNotWritable": {},
+  "backupErrorSourceNotReadable": "Cannot read the source folder. Check permissions.",
+  "@backupErrorSourceNotReadable": {},
+  "backupErrorDiskFull": "Not enough space in the destination folder.",
+  "@backupErrorDiskFull": {},
+  "backupErrorSameFolders": "Source and destination must be different folders.",
+  "@backupErrorSameFolders": {},
+  "backupErrorInterrupted": "Backup was interrupted.",
+  "@backupErrorInterrupted": {},
+  "backupErrorPathTooLong": "Path is too long for this system. Choose a shorter destination.",
+  "@backupErrorPathTooLong": {},
+  "backupErrorGeneric": "Backup failed. Try again or check the folders.",
+  "@backupErrorGeneric": {}
 }

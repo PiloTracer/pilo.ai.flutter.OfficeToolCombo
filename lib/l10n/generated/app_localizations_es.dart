@@ -62,6 +62,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String toolRowSemantics(String title, String subtitle) {
+    return '$title, $subtitle';
+  }
+
+  @override
   String get backToHomeTooltip => 'Volver al inicio';
 
   @override
@@ -112,6 +117,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get inventoryClearSearchTooltip => 'Borrar búsqueda';
+
+  @override
+  String get inventoryMoreActionsTooltip => 'Más acciones';
+
+  @override
+  String inventoryItemActionsTooltip(String name) {
+    return 'Acciones para $name';
+  }
 
   @override
   String inventorySearchMatchCount(int count) {
@@ -549,6 +562,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get consolidatorPreparing => 'Preparando la combinación…';
 
   @override
+  String consolidatorMergeProgressSemantics(int percent) {
+    return 'Progreso de combinación: $percent por ciento';
+  }
+
+  @override
   String get consolidatorMergingHint =>
       'Las carpetas grandes pueden tardar un minuto. Puedes dejar esta ventana abierta.';
 
@@ -603,4 +621,522 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get routerPageNotFoundFallback =>
       'Comprueba la dirección o vuelve al inicio.';
+
+  @override
+  String get documentFactoryHeadline => 'PDF personalizados por lote';
+
+  @override
+  String documentFactoryDescription(String token) {
+    return 'Elija una plantilla HTML con marcadores $token, seleccione una hoja de datos, mapee los campos y genere un PDF por fila.';
+  }
+
+  @override
+  String get documentFactoryTemplateSection => 'Plantilla';
+
+  @override
+  String get documentFactoryDataSection => 'Hoja de datos';
+
+  @override
+  String get documentFactoryMappingSection => 'Mapear campos';
+
+  @override
+  String get documentFactoryOutputSection => 'Carpeta de salida';
+
+  @override
+  String get documentFactoryChooseTemplate => 'Elegir plantilla';
+
+  @override
+  String get documentFactoryChooseDataSheet => 'Elegir hoja de datos';
+
+  @override
+  String get documentFactorySaveMapping => 'Guardar mapeo';
+
+  @override
+  String get documentFactoryChooseOutputFolder => 'Elegir carpeta de salida';
+
+  @override
+  String get documentFactoryGenerate => 'Generar PDFs';
+
+  @override
+  String get documentFactoryOpenOutputFolder => 'Abrir carpeta de salida';
+
+  @override
+  String get documentFactoryMappingSaved => 'Mapeo guardado';
+
+  @override
+  String get documentFactoryMapAllHint =>
+      'Mapee todos los marcadores antes de generar';
+
+  @override
+  String get documentFactoryNoTemplate => 'Ninguna plantilla seleccionada';
+
+  @override
+  String get documentFactoryNoDataSheet => 'Ninguna hoja de datos seleccionada';
+
+  @override
+  String get documentFactoryNoOutput =>
+      'Ninguna carpeta de salida seleccionada';
+
+  @override
+  String get documentFactoryMappingEmptyHint =>
+      'Seleccione plantilla y hoja de datos para mapear campos';
+
+  @override
+  String documentFactoryZeroPlaceholders(String token) {
+    return 'No se encontraron marcadores en esta plantilla. Use marcadores $token.';
+  }
+
+  @override
+  String get documentFactoryPartialTitle => 'Generados con algunos errores';
+
+  @override
+  String documentFactoryPartialCounts(int success, int failed) {
+    return '$success PDFs creados, $failed filas fallaron';
+  }
+
+  @override
+  String get documentFactorySuccessTitle => 'PDFs generados';
+
+  @override
+  String documentFactorySuccessSummary(int count, String folderBasename) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count PDFs guardados en $folderBasename',
+      one: '1 PDF guardado en $folderBasename',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactoryErrorBatchTitle => 'Lote fallido';
+
+  @override
+  String get documentFactoryErrorTemplate =>
+      'No se pudo leer la plantilla. Elija otro archivo.';
+
+  @override
+  String get documentFactoryErrorSheet =>
+      'No se pudo leer la hoja de datos. Elija otro archivo .xlsx.';
+
+  @override
+  String get documentFactoryErrorOutput =>
+      'No se puede escribir en la carpeta de salida. Elija una carpeta con permiso de escritura.';
+
+  @override
+  String get documentFactoryErrorGeneric =>
+      'Algo salió mal al generar los PDFs.';
+
+  @override
+  String get documentFactoryDuplicateHeaders =>
+      'La hoja tiene encabezados duplicados. Corrija la hoja e intente de nuevo.';
+
+  @override
+  String get documentFactoryRowRenderFailure =>
+      'No se pudo crear el PDF para esta fila';
+
+  @override
+  String documentFactoryEmptyRowsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filas vacías omitidas',
+      one: '1 fila vacía omitida',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactoryProgress(int done, int total) {
+    return 'Generando PDFs… $done de $total';
+  }
+
+  @override
+  String documentFactoryProgressAnnouncement(int done, int total) {
+    return '$done de $total PDFs generados';
+  }
+
+  @override
+  String get documentFactoryInterrupted =>
+      'El último trabajo no terminó. Puede iniciar un nuevo lote.';
+
+  @override
+  String get documentFactoryMappingSaveError =>
+      'No se pudo guardar el mapeo. Intente de nuevo.';
+
+  @override
+  String documentFactoryFailureRow(int n, String message) {
+    return 'Fila $n: $message';
+  }
+
+  @override
+  String get documentFactoryTryAgain => 'Intentar de nuevo';
+
+  @override
+  String get documentFactoryLoading => 'Cargando…';
+
+  @override
+  String documentFactoryPlaceholderCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count marcadores',
+      one: '1 marcador',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactorySheetRowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filas de datos',
+      one: '1 fila de datos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactorySheetColumnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count columnas',
+      one: '1 columna',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactorySelectColumn => 'Seleccionar columna';
+
+  @override
+  String documentFactoryColumnFor(String placeholder) {
+    return 'Columna para $placeholder';
+  }
+
+  @override
+  String documentFactoryRowsFailedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filas fallaron',
+      one: '1 fila falló',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactoryRevealError =>
+      'No se pudo abrir la carpeta de salida en este escritorio.';
+
+  @override
+  String get priceMonitorIntro =>
+      'Supervise precios de productos y reciba avisos cuando uno cruce su umbral.';
+
+  @override
+  String get priceMonitorAddWatch => 'Agregar seguimiento';
+
+  @override
+  String get priceMonitorLoading => 'Cargando seguimientos…';
+
+  @override
+  String get priceMonitorEmptyTitle => 'Aún no hay seguimientos de precio';
+
+  @override
+  String get priceMonitorEmptyMessage =>
+      'Agregue un seguimiento para recibir avisos cuando un precio cruce su umbral.';
+
+  @override
+  String get priceMonitorNotFetched => 'Sin consultar aún';
+
+  @override
+  String get priceMonitorFetchFailed => 'Consulta fallida';
+
+  @override
+  String get priceMonitorParseFailed =>
+      'No se pudo leer el precio de la página';
+
+  @override
+  String get priceMonitorRetryNow => 'Reintentar ahora';
+
+  @override
+  String get priceMonitorLoadErrorTitle =>
+      'No se pudieron cargar los seguimientos';
+
+  @override
+  String get priceMonitorLoadErrorMessage =>
+      'Intente cerrar y abrir la aplicación de nuevo.';
+
+  @override
+  String get priceMonitorTryAgain => 'Intente de nuevo';
+
+  @override
+  String get priceMonitorOfflineBadge =>
+      'Sin conexión — consultas de precio en pausa';
+
+  @override
+  String get priceMonitorOfflineSemantics => 'Sin conexión, consultas en pausa';
+
+  @override
+  String get priceMonitorOfflineChip => 'Sin conexión';
+
+  @override
+  String priceMonitorUpdated(String time) {
+    return 'Actualizado $time';
+  }
+
+  @override
+  String priceMonitorAlertLine(String direction, String threshold) {
+    return 'Alerta $direction $threshold';
+  }
+
+  @override
+  String get priceMonitorAbove => 'Por encima de';
+
+  @override
+  String get priceMonitorBelow => 'Por debajo de';
+
+  @override
+  String get priceMonitorThresholdError => 'Ingrese un umbral mayor que cero';
+
+  @override
+  String get priceMonitorUrlError =>
+      'Ingrese una dirección web válida que comience con http:// o https://';
+
+  @override
+  String get priceMonitorLabelError => 'Ingrese un nombre';
+
+  @override
+  String get priceMonitorLabelTooLongError =>
+      'Use un nombre de menos de 120 caracteres';
+
+  @override
+  String get priceMonitorDeleteConfirmTitle => '¿Eliminar este seguimiento?';
+
+  @override
+  String get priceMonitorDeleteConfirmMessage =>
+      'El seguimiento dejará de consultarse y se eliminará su último precio conocido.';
+
+  @override
+  String get priceMonitorDelete => 'Eliminar';
+
+  @override
+  String get priceMonitorCancel => 'Cancelar';
+
+  @override
+  String get priceMonitorSave => 'Guardar';
+
+  @override
+  String get priceMonitorDiscardTitle => '¿Descartar los cambios sin guardar?';
+
+  @override
+  String get priceMonitorDiscard => 'Descartar';
+
+  @override
+  String get priceMonitorKeepEditing => 'Seguir editando';
+
+  @override
+  String priceMonitorAlertTitle(String label) {
+    return 'Alerta de precio: $label';
+  }
+
+  @override
+  String priceMonitorAlertBody(String price, String threshold) {
+    return 'El precio es $price (umbral $threshold)';
+  }
+
+  @override
+  String get priceMonitorDismiss => 'Descartar';
+
+  @override
+  String get priceMonitorMacNotifyHint =>
+      'Permita notificaciones en Ajustes del sistema para recibir alertas de precio en el escritorio.';
+
+  @override
+  String get priceMonitorEditorTitleNew => 'Agregar seguimiento';
+
+  @override
+  String get priceMonitorEditorTitleEdit => 'Editar seguimiento';
+
+  @override
+  String get priceMonitorFieldLabel => 'Etiqueta';
+
+  @override
+  String get priceMonitorFieldUrl => 'URL';
+
+  @override
+  String get priceMonitorFieldThreshold => 'Umbral';
+
+  @override
+  String get priceMonitorNotifyWhen => 'Avisar cuando';
+
+  @override
+  String get priceMonitorEnabled => 'Activado';
+
+  @override
+  String priceMonitorToggleSemantics(String label) {
+    return 'Activar seguimiento $label';
+  }
+
+  @override
+  String priceMonitorRowSemantics(
+    String label,
+    String price,
+    String time,
+    String direction,
+    String threshold,
+    String state,
+  ) {
+    return '$label, último precio $price, actualizado $time, alerta $direction $threshold, $state';
+  }
+
+  @override
+  String get priceMonitorStateEnabled => 'activado';
+
+  @override
+  String get priceMonitorStateDisabled => 'desactivado';
+
+  @override
+  String get priceMonitorEdit => 'Editar';
+
+  @override
+  String get priceMonitorSaveError =>
+      'No se pudo guardar el seguimiento. Intente de nuevo.';
+
+  @override
+  String get priceMonitorErrorGeneric => 'Algo salió mal. Intente de nuevo.';
+
+  @override
+  String get backupLoading => 'Cargando…';
+
+  @override
+  String get backupSettingsSection => 'Configuración de copia de seguridad';
+
+  @override
+  String get backupSourceFolderLabel => 'Carpeta de origen';
+
+  @override
+  String get backupDestinationFolderLabel => 'Carpeta de destino';
+
+  @override
+  String get backupChooseSource => 'Elegir carpeta de origen';
+
+  @override
+  String get backupChooseDestination => 'Elegir carpeta de destino';
+
+  @override
+  String get backupNoSourceSelected =>
+      'No se ha seleccionado carpeta de origen';
+
+  @override
+  String get backupNoDestinationSelected =>
+      'No se ha seleccionado carpeta de destino';
+
+  @override
+  String get backupDailyRunHour => 'Hora de ejecución diaria';
+
+  @override
+  String get backupEnableSchedule => 'Activar programación diaria';
+
+  @override
+  String get backupRunNow => 'Crear copia ahora';
+
+  @override
+  String get backupRunning => 'Creando copia de seguridad…';
+
+  @override
+  String backupProgressFiles(int processed, int total) {
+    return '$processed de $total archivos';
+  }
+
+  @override
+  String get backupLastRunSection => 'Última ejecución';
+
+  @override
+  String get backupLastRunSucceeded => 'Última copia: correcta';
+
+  @override
+  String get backupLastRunFailed => 'Última copia: fallida';
+
+  @override
+  String get backupLastRunUnknown => 'Última copia: desconocida';
+
+  @override
+  String get backupNoBackupsYet => 'Aún no hay copias de seguridad';
+
+  @override
+  String get backupArchivesSection => 'Archivos recientes';
+
+  @override
+  String get backupNoArchivesYet => 'Aún no hay archivos';
+
+  @override
+  String get backupNoArchivesHelper =>
+      'Ejecute una copia de seguridad para ver archivos aquí.';
+
+  @override
+  String get backupComplete => 'Copia de seguridad completada';
+
+  @override
+  String get backupDismiss => 'Descartar';
+
+  @override
+  String get backupOfflineNote =>
+      'Las copias de seguridad solo usan carpetas locales. No se requiere internet.';
+
+  @override
+  String get backupLoadErrorTitle =>
+      'No se pudo cargar la configuración de copia de seguridad';
+
+  @override
+  String get backupLoadError =>
+      'No se pudo cargar la configuración de copia de seguridad. Inténtelo de nuevo.';
+
+  @override
+  String get backupRetry => 'Reintentar';
+
+  @override
+  String get backupFolderSelectionCancelled =>
+      'Selección de carpeta cancelada.';
+
+  @override
+  String get backupShowInFolder => 'Mostrar en el gestor de archivos';
+
+  @override
+  String backupArchiveRowSemantics(String name, String date, String size) {
+    return '$name, $date, $size';
+  }
+
+  @override
+  String get backupErrorSourceMissing =>
+      'No se encontró la carpeta de origen. Elija la carpeta de nuevo.';
+
+  @override
+  String get backupErrorDestinationNotWritable =>
+      'No se puede escribir en la carpeta de destino. Elija otra carpeta o compruebe los permisos.';
+
+  @override
+  String get backupErrorSourceNotReadable =>
+      'No se puede leer la carpeta de origen. Compruebe los permisos.';
+
+  @override
+  String get backupErrorDiskFull =>
+      'No hay suficiente espacio en la carpeta de destino.';
+
+  @override
+  String get backupErrorSameFolders =>
+      'El origen y el destino deben ser carpetas diferentes.';
+
+  @override
+  String get backupErrorInterrupted => 'La copia de seguridad se interrumpió.';
+
+  @override
+  String get backupErrorPathTooLong =>
+      'La ruta es demasiado larga para este sistema. Elija un destino más corto.';
+
+  @override
+  String get backupErrorGeneric =>
+      'La copia de seguridad falló. Inténtelo de nuevo o compruebe las carpetas.';
 }

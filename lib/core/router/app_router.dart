@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:office_tool_combo/core/widgets/state_panel.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_view.dart';
+import 'package:office_tool_combo/features/document_factory/presentation/document_factory/document_factory_view.dart';
 import 'package:office_tool_combo/features/home/presentation/home/home_view.dart';
+import 'package:office_tool_combo/features/price_monitor/presentation/price_monitor/price_monitor_view.dart';
 import 'package:office_tool_combo/features/report_consolidator/presentation/consolidator/consolidator_view.dart';
-import 'package:office_tool_combo/features/shell/presentation/tool_placeholder_view.dart';
+import 'package:office_tool_combo/features/scheduled_backup/presentation/scheduled_backup/backup_view.dart';
 import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -30,29 +32,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/tools/document-factory',
         name: 'document_factory',
-        builder: (context, state) => ToolPlaceholderView(
-          title: AppLocalizations.of(context).toolDocumentFactoryTitle,
-          toolId: 'document_factory',
-          icon: Icons.picture_as_pdf_outlined,
-        ),
+        builder: (context, state) => const DocumentFactoryView(),
       ),
       GoRoute(
         path: '/tools/price-monitor',
         name: 'price_monitor',
-        builder: (context, state) => ToolPlaceholderView(
-          title: AppLocalizations.of(context).toolPriceMonitorTitle,
-          toolId: 'price_monitor',
-          icon: Icons.notifications_active_outlined,
-        ),
+        builder: (context, state) => const PriceMonitorView(),
       ),
       GoRoute(
         path: '/tools/scheduled-backup',
         name: 'scheduled_backup',
-        builder: (context, state) => ToolPlaceholderView(
-          title: AppLocalizations.of(context).toolScheduledBackupTitle,
-          toolId: 'scheduled_backup',
-          icon: Icons.backup_outlined,
-        ),
+        builder: (context, state) => const BackupView(),
       ),
     ],
     errorBuilder: (context, state) {

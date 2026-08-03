@@ -62,6 +62,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String toolRowSemantics(String title, String subtitle) {
+    return '$title, $subtitle';
+  }
+
+  @override
   String get backToHomeTooltip => 'Back to home';
 
   @override
@@ -112,6 +117,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventoryClearSearchTooltip => 'Clear search';
+
+  @override
+  String get inventoryMoreActionsTooltip => 'More actions';
+
+  @override
+  String inventoryItemActionsTooltip(String name) {
+    return 'Actions for $name';
+  }
 
   @override
   String inventorySearchMatchCount(int count) {
@@ -535,6 +548,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consolidatorPreparing => 'Preparing merge…';
 
   @override
+  String consolidatorMergeProgressSemantics(int percent) {
+    return 'Merge progress $percent percent';
+  }
+
+  @override
   String get consolidatorMergingHint =>
       'Large folders may take a minute. You can keep this window open.';
 
@@ -588,4 +606,512 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routerPageNotFoundFallback => 'Check the address or return home.';
+
+  @override
+  String get documentFactoryHeadline => 'Batch personalized PDFs';
+
+  @override
+  String documentFactoryDescription(String token) {
+    return 'Choose an HTML template with $token tokens, pick a data sheet, map fields, and generate one PDF per row.';
+  }
+
+  @override
+  String get documentFactoryTemplateSection => 'Template';
+
+  @override
+  String get documentFactoryDataSection => 'Data sheet';
+
+  @override
+  String get documentFactoryMappingSection => 'Map fields';
+
+  @override
+  String get documentFactoryOutputSection => 'Output folder';
+
+  @override
+  String get documentFactoryChooseTemplate => 'Choose template';
+
+  @override
+  String get documentFactoryChooseDataSheet => 'Choose data sheet';
+
+  @override
+  String get documentFactorySaveMapping => 'Save mapping';
+
+  @override
+  String get documentFactoryChooseOutputFolder => 'Choose output folder';
+
+  @override
+  String get documentFactoryGenerate => 'Generate PDFs';
+
+  @override
+  String get documentFactoryOpenOutputFolder => 'Open output folder';
+
+  @override
+  String get documentFactoryMappingSaved => 'Mapping saved';
+
+  @override
+  String get documentFactoryMapAllHint =>
+      'Map all placeholders before generating';
+
+  @override
+  String get documentFactoryNoTemplate => 'No template selected';
+
+  @override
+  String get documentFactoryNoDataSheet => 'No data sheet selected';
+
+  @override
+  String get documentFactoryNoOutput => 'No output folder selected';
+
+  @override
+  String get documentFactoryMappingEmptyHint =>
+      'Select a template and data sheet to map fields';
+
+  @override
+  String documentFactoryZeroPlaceholders(String token) {
+    return 'No placeholders found in this template. Use a template with $token tokens.';
+  }
+
+  @override
+  String get documentFactoryPartialTitle => 'Generated with some errors';
+
+  @override
+  String documentFactoryPartialCounts(int success, int failed) {
+    return '$success PDFs created, $failed rows failed';
+  }
+
+  @override
+  String get documentFactorySuccessTitle => 'PDFs generated';
+
+  @override
+  String documentFactorySuccessSummary(int count, String folderBasename) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count PDFs saved to $folderBasename',
+      one: '1 PDF saved to $folderBasename',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactoryErrorBatchTitle => 'Batch failed';
+
+  @override
+  String get documentFactoryErrorTemplate =>
+      'Could not read the template file. Choose a different file.';
+
+  @override
+  String get documentFactoryErrorSheet =>
+      'Could not read the data sheet. Choose a different .xlsx file.';
+
+  @override
+  String get documentFactoryErrorOutput =>
+      'Cannot write to the output folder. Choose a folder where you have permission to save files.';
+
+  @override
+  String get documentFactoryErrorGeneric =>
+      'Something went wrong during PDF generation.';
+
+  @override
+  String get documentFactoryDuplicateHeaders =>
+      'The data sheet has duplicate column headers. Fix the sheet and try again.';
+
+  @override
+  String get documentFactoryRowRenderFailure =>
+      'Could not create PDF for this row';
+
+  @override
+  String documentFactoryEmptyRowsSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count empty rows skipped',
+      one: '1 empty row skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactoryProgress(int done, int total) {
+    return 'Generating PDFs… $done of $total';
+  }
+
+  @override
+  String documentFactoryProgressAnnouncement(int done, int total) {
+    return '$done of $total PDFs generated';
+  }
+
+  @override
+  String get documentFactoryInterrupted =>
+      'The last job did not finish. You can start a new batch.';
+
+  @override
+  String get documentFactoryMappingSaveError =>
+      'Could not save mapping. Try again.';
+
+  @override
+  String documentFactoryFailureRow(int n, String message) {
+    return 'Row $n: $message';
+  }
+
+  @override
+  String get documentFactoryTryAgain => 'Try again';
+
+  @override
+  String get documentFactoryLoading => 'Loading…';
+
+  @override
+  String documentFactoryPlaceholderCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count placeholders',
+      one: '1 placeholder',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactorySheetRowCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count data rows',
+      one: '1 data row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String documentFactorySheetColumnCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count columns',
+      one: '1 column',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactorySelectColumn => 'Select column';
+
+  @override
+  String documentFactoryColumnFor(String placeholder) {
+    return 'Column for $placeholder';
+  }
+
+  @override
+  String documentFactoryRowsFailedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows failed',
+      one: '1 row failed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentFactoryRevealError =>
+      'Could not open the output folder on this desktop.';
+
+  @override
+  String get priceMonitorIntro =>
+      'Track product prices and get notified when one crosses your threshold.';
+
+  @override
+  String get priceMonitorAddWatch => 'Add watch';
+
+  @override
+  String get priceMonitorLoading => 'Loading watches…';
+
+  @override
+  String get priceMonitorEmptyTitle => 'No price watches yet';
+
+  @override
+  String get priceMonitorEmptyMessage =>
+      'Add a watch to get notified when a price crosses your threshold.';
+
+  @override
+  String get priceMonitorNotFetched => 'Not fetched yet';
+
+  @override
+  String get priceMonitorFetchFailed => 'Fetch failed';
+
+  @override
+  String get priceMonitorParseFailed => 'Could not read price from page';
+
+  @override
+  String get priceMonitorRetryNow => 'Retry now';
+
+  @override
+  String get priceMonitorLoadErrorTitle => 'Could not load watches';
+
+  @override
+  String get priceMonitorLoadErrorMessage =>
+      'Try closing and reopening the app.';
+
+  @override
+  String get priceMonitorTryAgain => 'Try again';
+
+  @override
+  String get priceMonitorOfflineBadge => 'Offline — price checks paused';
+
+  @override
+  String get priceMonitorOfflineSemantics => 'Offline, price checks paused';
+
+  @override
+  String get priceMonitorOfflineChip => 'Offline';
+
+  @override
+  String priceMonitorUpdated(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String priceMonitorAlertLine(String direction, String threshold) {
+    return 'Alert $direction $threshold';
+  }
+
+  @override
+  String get priceMonitorAbove => 'Above';
+
+  @override
+  String get priceMonitorBelow => 'Below';
+
+  @override
+  String get priceMonitorThresholdError =>
+      'Enter a threshold greater than zero';
+
+  @override
+  String get priceMonitorUrlError =>
+      'Enter a valid web address starting with http:// or https://';
+
+  @override
+  String get priceMonitorLabelError => 'Enter a label';
+
+  @override
+  String get priceMonitorLabelTooLongError =>
+      'Keep the label under 120 characters';
+
+  @override
+  String get priceMonitorDeleteConfirmTitle => 'Delete this watch?';
+
+  @override
+  String get priceMonitorDeleteConfirmMessage =>
+      'The watch stops being polled and its last-known price is removed.';
+
+  @override
+  String get priceMonitorDelete => 'Delete';
+
+  @override
+  String get priceMonitorCancel => 'Cancel';
+
+  @override
+  String get priceMonitorSave => 'Save';
+
+  @override
+  String get priceMonitorDiscardTitle => 'Discard unsaved changes?';
+
+  @override
+  String get priceMonitorDiscard => 'Discard';
+
+  @override
+  String get priceMonitorKeepEditing => 'Keep editing';
+
+  @override
+  String priceMonitorAlertTitle(String label) {
+    return 'Price alert: $label';
+  }
+
+  @override
+  String priceMonitorAlertBody(String price, String threshold) {
+    return 'Price is $price (threshold $threshold)';
+  }
+
+  @override
+  String get priceMonitorDismiss => 'Dismiss';
+
+  @override
+  String get priceMonitorMacNotifyHint =>
+      'Allow notifications in System Settings to get price alerts on the desktop.';
+
+  @override
+  String get priceMonitorEditorTitleNew => 'Add watch';
+
+  @override
+  String get priceMonitorEditorTitleEdit => 'Edit watch';
+
+  @override
+  String get priceMonitorFieldLabel => 'Label';
+
+  @override
+  String get priceMonitorFieldUrl => 'URL';
+
+  @override
+  String get priceMonitorFieldThreshold => 'Threshold';
+
+  @override
+  String get priceMonitorNotifyWhen => 'Notify when';
+
+  @override
+  String get priceMonitorEnabled => 'Enabled';
+
+  @override
+  String priceMonitorToggleSemantics(String label) {
+    return 'Enable watch $label';
+  }
+
+  @override
+  String priceMonitorRowSemantics(
+    String label,
+    String price,
+    String time,
+    String direction,
+    String threshold,
+    String state,
+  ) {
+    return '$label, last price $price, updated $time, alert $direction $threshold, $state';
+  }
+
+  @override
+  String get priceMonitorStateEnabled => 'enabled';
+
+  @override
+  String get priceMonitorStateDisabled => 'disabled';
+
+  @override
+  String get priceMonitorEdit => 'Edit';
+
+  @override
+  String get priceMonitorSaveError => 'Could not save the watch. Try again.';
+
+  @override
+  String get priceMonitorErrorGeneric => 'Something went wrong. Try again.';
+
+  @override
+  String get backupLoading => 'Loading…';
+
+  @override
+  String get backupSettingsSection => 'Backup settings';
+
+  @override
+  String get backupSourceFolderLabel => 'Source folder';
+
+  @override
+  String get backupDestinationFolderLabel => 'Destination folder';
+
+  @override
+  String get backupChooseSource => 'Choose source folder';
+
+  @override
+  String get backupChooseDestination => 'Choose destination folder';
+
+  @override
+  String get backupNoSourceSelected => 'No source folder selected';
+
+  @override
+  String get backupNoDestinationSelected => 'No destination folder selected';
+
+  @override
+  String get backupDailyRunHour => 'Daily run hour';
+
+  @override
+  String get backupEnableSchedule => 'Enable daily schedule';
+
+  @override
+  String get backupRunNow => 'Back up now';
+
+  @override
+  String get backupRunning => 'Creating backup…';
+
+  @override
+  String backupProgressFiles(int processed, int total) {
+    return '$processed of $total files';
+  }
+
+  @override
+  String get backupLastRunSection => 'Last run';
+
+  @override
+  String get backupLastRunSucceeded => 'Last backup: succeeded';
+
+  @override
+  String get backupLastRunFailed => 'Last backup: failed';
+
+  @override
+  String get backupLastRunUnknown => 'Last backup: unknown';
+
+  @override
+  String get backupNoBackupsYet => 'No backups yet';
+
+  @override
+  String get backupArchivesSection => 'Recent archives';
+
+  @override
+  String get backupNoArchivesYet => 'No archives yet';
+
+  @override
+  String get backupNoArchivesHelper => 'Run a backup to see archives here.';
+
+  @override
+  String get backupComplete => 'Backup complete';
+
+  @override
+  String get backupDismiss => 'Dismiss';
+
+  @override
+  String get backupOfflineNote =>
+      'Backups use local folders only. No internet required.';
+
+  @override
+  String get backupLoadErrorTitle => 'Could not load backup settings';
+
+  @override
+  String get backupLoadError => 'Could not load backup settings. Try again.';
+
+  @override
+  String get backupRetry => 'Retry';
+
+  @override
+  String get backupFolderSelectionCancelled => 'Folder selection cancelled.';
+
+  @override
+  String get backupShowInFolder => 'Show in file manager';
+
+  @override
+  String backupArchiveRowSemantics(String name, String date, String size) {
+    return '$name, $date, $size';
+  }
+
+  @override
+  String get backupErrorSourceMissing =>
+      'Source folder not found. Choose the folder again.';
+
+  @override
+  String get backupErrorDestinationNotWritable =>
+      'Cannot write to the destination folder. Choose a different folder or check permissions.';
+
+  @override
+  String get backupErrorSourceNotReadable =>
+      'Cannot read the source folder. Check permissions.';
+
+  @override
+  String get backupErrorDiskFull =>
+      'Not enough space in the destination folder.';
+
+  @override
+  String get backupErrorSameFolders =>
+      'Source and destination must be different folders.';
+
+  @override
+  String get backupErrorInterrupted => 'Backup was interrupted.';
+
+  @override
+  String get backupErrorPathTooLong =>
+      'Path is too long for this system. Choose a shorter destination.';
+
+  @override
+  String get backupErrorGeneric =>
+      'Backup failed. Try again or check the folders.';
 }
