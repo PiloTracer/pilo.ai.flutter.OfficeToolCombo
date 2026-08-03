@@ -50,6 +50,10 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 **Open**
 - ~~Operator: ratify SPEC-005 amendment-02~~ → **RATIFIED 2026-08-02** · commit batch FLT-14 on request
 
+**Session close (2026-08-02)**
+- `git commit` → `334158b FLT-14: add multi-job backups with rich schedules and run log` (25 files, +2939/−938)
+- `git push` → `ee086d1..334158b main -> main` (pre-push: flutter test → **417/417 passed**)
+
 ## 2026-08-02 — @flutter-verify milestone pass (F1–F5 + F6 partial) — verdict: pass with gaps
 
 **Skills:** @flutter-director, @flutter-verify (milestone), @flutter-repair, @flutter-test, @flutter-a11y
