@@ -39,6 +39,9 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 - `flutter analyze --fatal-infos` → No issues found!
 - `flutter test` (LD_LIBRARY_PATH=`build/linux/x64/debug/bundle/lib`) → 91/91 passed, 0 skipped
 - `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+- `git commit` → `7ecb633 FLT-10: add en/es l10n with locale persistence and audit fixes`
+- `git push` → `4453655..7ecb633 main -> main` (pre-push: flutter test → 91/91 passed)
+- Left uncommitted: stray `thresholds_new.pnm` at repo root (debug artifact, not from this session)
 
 **Decisions**
 - `PopupMenuItem(value: null)` can never fire `onSelected` (null = dismissal) → language menu uses a `'system'` string sentinel
