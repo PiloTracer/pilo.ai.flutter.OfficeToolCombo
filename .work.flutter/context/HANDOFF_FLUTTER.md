@@ -16,12 +16,45 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 | stack-locked | — | `@flutter-stack set` | |
 | foundation-complete | — | `@flutter-foundation status` | |
 | plan-ready | yes | `@flutter-foundation certify` | 2026-08-02 |
-| implementation-ready | no | master plan `status: Draft` after Revision 2 — needs re-approval | 2026-08-02 |
+| implementation-ready | yes | operator approved plan Rev 2–3 + SPECs via `@flutter-director` | 2026-08-02 |
 | release-ready | — | `@flutter-release certify` | |
 
 ---
 
 <!-- New entries go directly below this line. -->
+
+## 2026-08-02 — Plan/SPEC approvals, router l10n, FL10N-T3/T6, LOW audit fixes
+
+**Skills:** @flutter-director, @flutter-feature-spec (approve), @flutter-implementation, @flutter-test
+**Scope:** "complete and resolve all of the following" — router l10n (protected, approved in-message), operator approvals, FL10N-T3/T6, LOW audit findings
+
+**Done**
+- FLT-11: **Master plan Approved** (Revisions 2–3, operator directive) + **SPEC-000…006 Approved** (structural review 16/16 sections each); readiness `implementation-ready: yes`
+- FLT-11: **Router l10n** (protected surface, explicit operator approval in-message) — placeholder tool titles + 404 page now localized (`routerPageNotFound*` ARB keys); last hardcoded UI English removed
+- FLT-11: **FL10N-T3** — `integration_test/locale_persist_test.dart`: real restart simulation (boot → pick Español → teardown → fresh boot asserts Spanish; system-default switch also persists). Added `integration_test` SDK dev-dep (pubspec, covered by the same in-message approval)
+- FLT-11: **FL10N-T6** — `tool/pseudo_l10n_check.sh` CI gate; PASS on current code, negative-tested against planted violations
+- FLT-11: LOW fixes — merger footer width now covers extra-wide data rows (totals for headerless columns); **per-file merge progress streams from the isolate** (`IsolateRunner.runWithProgress` via `Isolate.spawn` + SendPort, replacing silent `onProgress: null`); `QuantityStepperField` key handling chains around external `onKeyEvent` instead of clobbering, re-attaches on `focusNode` change, restores on dispose
+- Tests: +4 (extra-wide totals, isolate progress sequence, stepper chaining, stepper node switch) + integration_test 1
+
+**Verified**
+- `master-plan-verify.sh` → failures: 0 · PASS · `traceability-verify.sh` → failures: 0 · PASS
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` → 95/95 passed · `flutter test integration_test/` → 1/1 passed
+- `tool/pseudo_l10n_check.sh` → PASS
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+
+**Decisions**
+- Headerless extra columns classify as `amount` → totals render with 2 decimals (classifier fallback heuristic, recorded in test)
+- pseudo-l10n gate scans presentation/router/core-widgets only; domain/data English technical messages remain allowed by design
+- F-L10N milestone now code-complete (T1–T6 all landed)
+
+**Open / blocked**
+- F1-T2 drift migration (protected — migrations), F1-T8 typed header-mismatch failure, F1-T6/F2-T5 on-device integration tests, NFR10 100-file profile — unchanged
+- Remaining reported-not-fixed: drift `upsertItem` DoUpdate re-applies id on barcode conflict (LOW)
+- Stray `thresholds_new.pnm` at repo root still uncommitted (debug artifact)
+
+**Next**
+- `@flutter-verify milestone - F2` → `@flutter-implementation - F3` (document factory) — all gates now green
 
 ## 2026-08-02 — F-L10N bilingual foundation + full-codebase verify/audit fixes
 

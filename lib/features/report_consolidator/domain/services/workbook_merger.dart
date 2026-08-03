@@ -58,7 +58,14 @@ class WorkbookMerger {
     }
 
     if (mergedRows.isNotEmpty) {
-      final width = header?.length ?? mergedRows.first.length;
+      // Width covers the widest row, not just the header, so columns that
+      // only exist in data rows still get totals.
+      var width = 0;
+      for (final row in mergedRows) {
+        if (row.length > width) {
+          width = row.length;
+        }
+      }
       final dataRows = header == null
           ? List<List<String?>>.from(mergedRows)
           : mergedRows.skip(1).toList(growable: false);

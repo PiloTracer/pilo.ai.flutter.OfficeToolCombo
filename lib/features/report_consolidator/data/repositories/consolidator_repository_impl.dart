@@ -116,12 +116,17 @@ class ConsolidatorRepositoryImpl implements ConsolidatorRepository {
     onProgress?.call(0);
 
     final response = await _isolateRunner
-        .run<ConsolidatorIsolateRequest, ConsolidatorIsolateResponse>(
+        .runWithProgress<
+          ConsolidatorIsolateRequest,
+          ConsolidatorIsolateResponse,
+          double
+        >(
           ConsolidatorIsolateRequest(
             folderPath: folderPath,
             outputFolderPath: resolvedOutputFolder,
           ),
-          runConsolidationIsolate,
+          runConsolidationIsolateWithProgress,
+          onProgress: onProgress,
         );
 
     onProgress?.call(1);

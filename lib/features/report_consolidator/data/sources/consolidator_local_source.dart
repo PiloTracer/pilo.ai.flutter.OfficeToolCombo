@@ -254,12 +254,22 @@ class ConsolidatorIsolateResponse {
 
 Future<ConsolidatorIsolateResponse> runConsolidationIsolate(
   ConsolidatorIsolateRequest request,
+) {
+  return runConsolidationIsolateWithProgress(request, null);
+}
+
+/// Variant of [runConsolidationIsolate] that reports per-file progress
+/// (0..1) through [emitProgress] so callers can stream it out of the
+/// isolate.
+Future<ConsolidatorIsolateResponse> runConsolidationIsolateWithProgress(
+  ConsolidatorIsolateRequest request,
+  void Function(double progress)? emitProgress,
 ) async {
   const source = ConsolidatorLocalSource();
   try {
     final data = await source.consolidate(
       folderPath: request.folderPath,
-      onProgress: null,
+      onProgress: emitProgress,
     );
     if (data.fileResults.isEmpty && data.rows.isEmpty) {
       return ConsolidatorIsolateResponse(

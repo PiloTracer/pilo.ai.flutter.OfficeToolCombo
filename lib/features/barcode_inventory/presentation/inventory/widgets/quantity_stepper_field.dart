@@ -33,27 +33,68 @@ class QuantityStepperField extends StatefulWidget {
 }
 
 class _QuantityStepperFieldState extends State<QuantityStepperField> {
-  late final FocusNode _focusNode;
-  bool _ownsFocusNode = false;
+  FocusNode? _ownedNode;
+  FocusNode? _attachedNode;
+  FocusOnKeyEventCallback? _previousOnKeyEvent;
+  FocusOnKeyEventCallback? _installedHandler;
+
+  /// The node actually in use: the caller's when provided, else a lazily
+  /// created one owned (and disposed) by this state.
+  FocusNode get _effectiveNode =>
+      widget.focusNode ?? (_ownedNode ??= FocusNode());
 
   @override
   void initState() {
     super.initState();
-    if (widget.focusNode != null) {
-      _focusNode = widget.focusNode!;
-    } else {
-      _focusNode = FocusNode();
-      _ownsFocusNode = true;
+    _attach(_effectiveNode);
+  }
+
+  @override
+  void didUpdateWidget(covariant QuantityStepperField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final next = _effectiveNode;
+    if (_attachedNode != next) {
+      _detach();
+      _attach(next);
     }
-    _focusNode.onKeyEvent = _handleKeyEvent;
+    if (widget.focusNode != null && _ownedNode != null) {
+      // The previously owned node is unused now that the caller supplied one.
+      _ownedNode!.dispose();
+      _ownedNode = null;
+    }
+  }
+
+  /// Installs our key handling *around* any handler the node already has
+  /// instead of clobbering it: keys we don't consume fall through to the
+  /// previous handler.
+  void _attach(FocusNode node) {
+    _attachedNode = node;
+    _previousOnKeyEvent = node.onKeyEvent;
+    node.onKeyEvent = _installedHandler = (node, event) {
+      final result = _handleKeyEvent(node, event);
+      if (result != KeyEventResult.ignored) {
+        return result;
+      }
+      return _previousOnKeyEvent?.call(node, event) ?? KeyEventResult.ignored;
+    };
+  }
+
+  void _detach() {
+    final node = _attachedNode;
+    // Restore only when our wrapper is still the installed handler — a
+    // handler someone else installed afterwards must not be stomped.
+    if (node != null && identical(node.onKeyEvent, _installedHandler)) {
+      node.onKeyEvent = _previousOnKeyEvent;
+    }
+    _attachedNode = null;
+    _previousOnKeyEvent = null;
+    _installedHandler = null;
   }
 
   @override
   void dispose() {
-    _focusNode.onKeyEvent = null;
-    if (_ownsFocusNode) {
-      _focusNode.dispose();
-    }
+    _detach();
+    _ownedNode?.dispose();
     super.dispose();
   }
 
@@ -124,7 +165,7 @@ class _QuantityStepperFieldState extends State<QuantityStepperField> {
   Widget build(BuildContext context) {
     return TextField(
       controller: widget.controller,
-      focusNode: _focusNode,
+      focusNode: _effectiveNode,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: widget.label,

@@ -6,6 +6,7 @@ import 'package:office_tool_combo/features/barcode_inventory/presentation/invent
 import 'package:office_tool_combo/features/home/presentation/home/home_view.dart';
 import 'package:office_tool_combo/features/report_consolidator/presentation/consolidator/consolidator_view.dart';
 import 'package:office_tool_combo/features/shell/presentation/tool_placeholder_view.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -29,8 +30,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/tools/document-factory',
         name: 'document_factory',
-        builder: (context, state) => const ToolPlaceholderView(
-          title: 'Document factory',
+        builder: (context, state) => ToolPlaceholderView(
+          title: AppLocalizations.of(context).toolDocumentFactoryTitle,
           toolId: 'document_factory',
           icon: Icons.picture_as_pdf_outlined,
         ),
@@ -38,8 +39,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/tools/price-monitor',
         name: 'price_monitor',
-        builder: (context, state) => const ToolPlaceholderView(
-          title: 'Price monitor',
+        builder: (context, state) => ToolPlaceholderView(
+          title: AppLocalizations.of(context).toolPriceMonitorTitle,
           toolId: 'price_monitor',
           icon: Icons.notifications_active_outlined,
         ),
@@ -47,27 +48,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/tools/scheduled-backup',
         name: 'scheduled_backup',
-        builder: (context, state) => const ToolPlaceholderView(
-          title: 'Scheduled backup',
+        builder: (context, state) => ToolPlaceholderView(
+          title: AppLocalizations.of(context).toolScheduledBackupTitle,
           toolId: 'scheduled_backup',
           icon: Icons.backup_outlined,
         ),
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: const Text('Page not found')),
-      body: Center(
-        child: StatePanel(
-          icon: Icons.search_off_outlined,
-          title: 'This page does not exist',
-          message:
-              state.error?.toString() ?? 'Check the address or return home.',
-          action: FilledButton(
-            onPressed: () => context.go('/'),
-            child: const Text('Back to home'),
+    errorBuilder: (context, state) {
+      final l10n = AppLocalizations.of(context);
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.routerPageNotFoundTitle)),
+        body: Center(
+          child: StatePanel(
+            icon: Icons.search_off_outlined,
+            title: l10n.routerPageNotFoundHeading,
+            message: state.error?.toString() ?? l10n.routerPageNotFoundFallback,
+            action: FilledButton(
+              onPressed: () => context.go('/'),
+              child: Text(l10n.backToHomeTooltip),
+            ),
           ),
         ),
-      ),
-    ),
+      );
+    },
   );
 });

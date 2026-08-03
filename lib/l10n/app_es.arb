@@ -147,5 +147,8 @@
   "consolidatorHistoryEmpty": "Las combinaciones completadas aparecen aquí. Se conservan hasta 20.",
   "consolidatorOpenFileLocation": "Abrir ubicación del archivo",
   "consolidatorMergedSemantics": "{fileName} combinado el {time}",
-  "warningSemanticLabel": "Aviso"
+  "warningSemanticLabel": "Aviso",
+  "routerPageNotFoundTitle": "Página no encontrada",
+  "routerPageNotFoundHeading": "Esta página no existe",
+  "routerPageNotFoundFallback": "Comprueba la dirección o vuelve al inicio."
 }

@@ -274,5 +274,8 @@
       "time": { "type": "String" }
     }
   },
-  "warningSemanticLabel": "Warning"
+  "warningSemanticLabel": "Warning",
+  "routerPageNotFoundTitle": "Page not found",
+  "routerPageNotFoundHeading": "This page does not exist",
+  "routerPageNotFoundFallback": "Check the address or return home."
 }

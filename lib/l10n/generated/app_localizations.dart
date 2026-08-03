@@ -985,6 +985,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Warning'**
   String get warningSemanticLabel;
+
+  /// No description provided for @routerPageNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get routerPageNotFoundTitle;
+
+  /// No description provided for @routerPageNotFoundHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'This page does not exist'**
+  String get routerPageNotFoundHeading;
+
+  /// No description provided for @routerPageNotFoundFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the address or return home.'**
+  String get routerPageNotFoundFallback;
 }
 
 class _AppLocalizationsDelegate

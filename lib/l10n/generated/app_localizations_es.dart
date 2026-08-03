@@ -593,4 +593,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get warningSemanticLabel => 'Aviso';
+
+  @override
+  String get routerPageNotFoundTitle => 'Página no encontrada';
+
+  @override
+  String get routerPageNotFoundHeading => 'Esta página no existe';
+
+  @override
+  String get routerPageNotFoundFallback =>
+      'Comprueba la dirección o vuelve al inicio.';
 }
