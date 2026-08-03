@@ -42,6 +42,8 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 - `flutter test` → 95/95 passed · `flutter test integration_test/` → 1/1 passed
 - `tool/pseudo_l10n_check.sh` → PASS
 - `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+- `git commit` → `4088a8b FLT-11: approve plan and SPECs, finish l10n gates, fix LOW audit items`
+- `git push` → `f1ac743..4088a8b main -> main` (pre-push: flutter test → 95/95 passed)
 
 **Decisions**
 - Headerless extra columns classify as `amount` → totals render with 2 decimals (classifier fallback heuristic, recorded in test)
