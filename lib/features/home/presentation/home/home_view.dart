@@ -1,61 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/home/presentation/home/widgets/tool_card.dart';
+import 'package:office_tool_combo/features/settings/presentation/language_menu_button.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
-  static const _tools =
-      <
-        ({
-          String title,
-          String subtitle,
-          String route,
-          IconData icon,
-          bool available,
-        })
-      >[
-        (
-          title: 'Report consolidator',
-          subtitle: 'Merge a folder of Excel files into one clean workbook',
-          route: '/tools/report-consolidator',
-          icon: Icons.table_chart_outlined,
-          available: true,
-        ),
-        (
-          title: 'Barcode inventory',
-          subtitle: 'Scan products with a USB wedge reader and track stock',
-          route: '/tools/barcode-inventory',
-          icon: Icons.qr_code_scanner_outlined,
-          available: true,
-        ),
-        (
-          title: 'Document factory',
-          subtitle: 'Turn Excel rows into personalized PDFs',
-          route: '/tools/document-factory',
-          icon: Icons.picture_as_pdf_outlined,
-          available: true,
-        ),
-        (
-          title: 'Price monitor',
-          subtitle: 'Watch prices in the background and get notified',
-          route: '/tools/price-monitor',
-          icon: Icons.notifications_active_outlined,
-          available: true,
-        ),
-        (
-          title: 'Scheduled backup',
-          subtitle: 'Zip a folder on a schedule with a dated archive name',
-          route: '/tools/scheduled-backup',
-          icon: Icons.backup_outlined,
-          available: true,
-        ),
-      ];
+  static List<
+    ({String title, String subtitle, String route, IconData icon, bool available})
+  > _tools(AppLocalizations l10n) => [
+    (
+      title: l10n.toolReportConsolidatorTitle,
+      subtitle: l10n.toolReportConsolidatorSubtitle,
+      route: '/tools/report-consolidator',
+      icon: Icons.table_chart_outlined,
+      available: true,
+    ),
+    (
+      title: l10n.toolBarcodeInventoryTitle,
+      subtitle: l10n.toolBarcodeInventorySubtitle,
+      route: '/tools/barcode-inventory',
+      icon: Icons.qr_code_scanner_outlined,
+      available: true,
+    ),
+    (
+      title: l10n.toolDocumentFactoryTitle,
+      subtitle: l10n.toolDocumentFactorySubtitle,
+      route: '/tools/document-factory',
+      icon: Icons.picture_as_pdf_outlined,
+      available: true,
+    ),
+    (
+      title: l10n.toolPriceMonitorTitle,
+      subtitle: l10n.toolPriceMonitorSubtitle,
+      route: '/tools/price-monitor',
+      icon: Icons.notifications_active_outlined,
+      available: true,
+    ),
+    (
+      title: l10n.toolScheduledBackupTitle,
+      subtitle: l10n.toolScheduledBackupSubtitle,
+      route: '/tools/scheduled-backup',
+      icon: Icons.backup_outlined,
+      available: true,
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final tools = _tools(l10n);
 
     return Scaffold(
       body: Align(
@@ -71,21 +68,27 @@ class HomeView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       spacing.gapSm,
-                      Text(
-                        'OfficeToolCombo',
-                        style: Theme.of(context).textTheme.displaySmall,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              l10n.appTitle,
+                              style: Theme.of(context).textTheme.displaySmall,
+                            ),
+                          ),
+                          const LanguageMenuButton(),
+                        ],
                       ),
                       spacing.gapSm,
                       Text(
-                        'Five desk tools for everyday office work — '
-                        'no terminal, no IT ticket.',
+                        l10n.homeTagline,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
                       spacing.gapLg,
                       Text(
-                        'Choose a tool',
+                        l10n.homeChooseTool,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -103,10 +106,10 @@ class HomeView extends StatelessWidget {
                   spacing.lg,
                 ),
                 sliver: SliverList.separated(
-                  itemCount: _tools.length,
+                  itemCount: tools.length,
                   separatorBuilder: (_, _) => spacing.gapMd,
                   itemBuilder: (context, index) {
-                    final tool = _tools[index];
+                    final tool = tools[index];
                     return ToolCard(
                       title: tool.title,
                       subtitle: tool.subtitle,

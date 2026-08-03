@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WorkbookBatch {
 
- String get id; String get sourceFolderPath; String? get outputPath; WorkbookBatchStatus get status; DateTime get startedAt; DateTime? get finishedAt; List<SpreadsheetFileResult> get files;
+ String get id; String get sourceFolderPath; String? get outputPath; WorkbookBatchStatus get status; DateTime get startedAt; DateTime? get finishedAt; String? get errorMessage; List<SpreadsheetFileResult> get files;
 /// Create a copy of WorkbookBatch
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $WorkbookBatchCopyWith<WorkbookBatch> get copyWith => _$WorkbookBatchCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkbookBatch&&(identical(other.id, id) || other.id == id)&&(identical(other.sourceFolderPath, sourceFolderPath) || other.sourceFolderPath == sourceFolderPath)&&(identical(other.outputPath, outputPath) || other.outputPath == outputPath)&&(identical(other.status, status) || other.status == status)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.finishedAt, finishedAt) || other.finishedAt == finishedAt)&&const DeepCollectionEquality().equals(other.files, files));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WorkbookBatch&&(identical(other.id, id) || other.id == id)&&(identical(other.sourceFolderPath, sourceFolderPath) || other.sourceFolderPath == sourceFolderPath)&&(identical(other.outputPath, outputPath) || other.outputPath == outputPath)&&(identical(other.status, status) || other.status == status)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.finishedAt, finishedAt) || other.finishedAt == finishedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other.files, files));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,sourceFolderPath,outputPath,status,startedAt,finishedAt,const DeepCollectionEquality().hash(files));
+int get hashCode => Object.hash(runtimeType,id,sourceFolderPath,outputPath,status,startedAt,finishedAt,errorMessage,const DeepCollectionEquality().hash(files));
 
 @override
 String toString() {
-  return 'WorkbookBatch(id: $id, sourceFolderPath: $sourceFolderPath, outputPath: $outputPath, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, files: $files)';
+  return 'WorkbookBatch(id: $id, sourceFolderPath: $sourceFolderPath, outputPath: $outputPath, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, errorMessage: $errorMessage, files: $files)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $WorkbookBatchCopyWith<$Res>  {
   factory $WorkbookBatchCopyWith(WorkbookBatch value, $Res Function(WorkbookBatch) _then) = _$WorkbookBatchCopyWithImpl;
 @useResult
 $Res call({
- String id, String sourceFolderPath, String? outputPath, WorkbookBatchStatus status, DateTime startedAt, DateTime? finishedAt, List<SpreadsheetFileResult> files
+ String id, String sourceFolderPath, String? outputPath, WorkbookBatchStatus status, DateTime startedAt, DateTime? finishedAt, String? errorMessage, List<SpreadsheetFileResult> files
 });
 
 
@@ -62,7 +62,7 @@ class _$WorkbookBatchCopyWithImpl<$Res>
 
 /// Create a copy of WorkbookBatch
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sourceFolderPath = null,Object? outputPath = freezed,Object? status = null,Object? startedAt = null,Object? finishedAt = freezed,Object? files = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sourceFolderPath = null,Object? outputPath = freezed,Object? status = null,Object? startedAt = null,Object? finishedAt = freezed,Object? errorMessage = freezed,Object? files = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sourceFolderPath: null == sourceFolderPath ? _self.sourceFolderPath : sourceFolderPath // ignore: cast_nullable_to_non_nullable
@@ -70,7 +70,8 @@ as String,outputPath: freezed == outputPath ? _self.outputPath : outputPath // i
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as WorkbookBatchStatus,startedAt: null == startedAt ? _self.startedAt : startedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,finishedAt: freezed == finishedAt ? _self.finishedAt : finishedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,files: null == files ? _self.files : files // ignore: cast_nullable_to_non_nullable
+as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,files: null == files ? _self.files : files // ignore: cast_nullable_to_non_nullable
 as List<SpreadsheetFileResult>,
   ));
 }
@@ -156,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  List<SpreadsheetFileResult> files)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  String? errorMessage,  List<SpreadsheetFileResult> files)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WorkbookBatch() when $default != null:
-return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.files);case _:
+return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.errorMessage,_that.files);case _:
   return orElse();
 
 }
@@ -177,10 +178,10 @@ return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  List<SpreadsheetFileResult> files)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  String? errorMessage,  List<SpreadsheetFileResult> files)  $default,) {final _that = this;
 switch (_that) {
 case _WorkbookBatch():
-return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.files);case _:
+return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.errorMessage,_that.files);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +198,10 @@ return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  List<SpreadsheetFileResult> files)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sourceFolderPath,  String? outputPath,  WorkbookBatchStatus status,  DateTime startedAt,  DateTime? finishedAt,  String? errorMessage,  List<SpreadsheetFileResult> files)?  $default,) {final _that = this;
 switch (_that) {
 case _WorkbookBatch() when $default != null:
-return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.files);case _:
+return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_that.startedAt,_that.finishedAt,_that.errorMessage,_that.files);case _:
   return null;
 
 }
@@ -212,7 +213,7 @@ return $default(_that.id,_that.sourceFolderPath,_that.outputPath,_that.status,_t
 
 
 class _WorkbookBatch implements WorkbookBatch {
-  const _WorkbookBatch({required this.id, required this.sourceFolderPath, this.outputPath, required this.status, required this.startedAt, this.finishedAt, final  List<SpreadsheetFileResult> files = const <SpreadsheetFileResult>[]}): _files = files;
+  const _WorkbookBatch({required this.id, required this.sourceFolderPath, this.outputPath, required this.status, required this.startedAt, this.finishedAt, this.errorMessage, final  List<SpreadsheetFileResult> files = const <SpreadsheetFileResult>[]}): _files = files;
   
 
 @override final  String id;
@@ -221,6 +222,7 @@ class _WorkbookBatch implements WorkbookBatch {
 @override final  WorkbookBatchStatus status;
 @override final  DateTime startedAt;
 @override final  DateTime? finishedAt;
+@override final  String? errorMessage;
  final  List<SpreadsheetFileResult> _files;
 @override@JsonKey() List<SpreadsheetFileResult> get files {
   if (_files is EqualUnmodifiableListView) return _files;
@@ -239,16 +241,16 @@ _$WorkbookBatchCopyWith<_WorkbookBatch> get copyWith => __$WorkbookBatchCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkbookBatch&&(identical(other.id, id) || other.id == id)&&(identical(other.sourceFolderPath, sourceFolderPath) || other.sourceFolderPath == sourceFolderPath)&&(identical(other.outputPath, outputPath) || other.outputPath == outputPath)&&(identical(other.status, status) || other.status == status)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.finishedAt, finishedAt) || other.finishedAt == finishedAt)&&const DeepCollectionEquality().equals(other._files, _files));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WorkbookBatch&&(identical(other.id, id) || other.id == id)&&(identical(other.sourceFolderPath, sourceFolderPath) || other.sourceFolderPath == sourceFolderPath)&&(identical(other.outputPath, outputPath) || other.outputPath == outputPath)&&(identical(other.status, status) || other.status == status)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.finishedAt, finishedAt) || other.finishedAt == finishedAt)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&const DeepCollectionEquality().equals(other._files, _files));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,sourceFolderPath,outputPath,status,startedAt,finishedAt,const DeepCollectionEquality().hash(_files));
+int get hashCode => Object.hash(runtimeType,id,sourceFolderPath,outputPath,status,startedAt,finishedAt,errorMessage,const DeepCollectionEquality().hash(_files));
 
 @override
 String toString() {
-  return 'WorkbookBatch(id: $id, sourceFolderPath: $sourceFolderPath, outputPath: $outputPath, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, files: $files)';
+  return 'WorkbookBatch(id: $id, sourceFolderPath: $sourceFolderPath, outputPath: $outputPath, status: $status, startedAt: $startedAt, finishedAt: $finishedAt, errorMessage: $errorMessage, files: $files)';
 }
 
 
@@ -259,7 +261,7 @@ abstract mixin class _$WorkbookBatchCopyWith<$Res> implements $WorkbookBatchCopy
   factory _$WorkbookBatchCopyWith(_WorkbookBatch value, $Res Function(_WorkbookBatch) _then) = __$WorkbookBatchCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String sourceFolderPath, String? outputPath, WorkbookBatchStatus status, DateTime startedAt, DateTime? finishedAt, List<SpreadsheetFileResult> files
+ String id, String sourceFolderPath, String? outputPath, WorkbookBatchStatus status, DateTime startedAt, DateTime? finishedAt, String? errorMessage, List<SpreadsheetFileResult> files
 });
 
 
@@ -276,7 +278,7 @@ class __$WorkbookBatchCopyWithImpl<$Res>
 
 /// Create a copy of WorkbookBatch
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sourceFolderPath = null,Object? outputPath = freezed,Object? status = null,Object? startedAt = null,Object? finishedAt = freezed,Object? files = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sourceFolderPath = null,Object? outputPath = freezed,Object? status = null,Object? startedAt = null,Object? finishedAt = freezed,Object? errorMessage = freezed,Object? files = null,}) {
   return _then(_WorkbookBatch(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sourceFolderPath: null == sourceFolderPath ? _self.sourceFolderPath : sourceFolderPath // ignore: cast_nullable_to_non_nullable
@@ -284,7 +286,8 @@ as String,outputPath: freezed == outputPath ? _self.outputPath : outputPath // i
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as WorkbookBatchStatus,startedAt: null == startedAt ? _self.startedAt : startedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,finishedAt: freezed == finishedAt ? _self.finishedAt : finishedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,files: null == files ? _self._files : files // ignore: cast_nullable_to_non_nullable
+as DateTime?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as String?,files: null == files ? _self._files : files // ignore: cast_nullable_to_non_nullable
 as List<SpreadsheetFileResult>,
   ));
 }

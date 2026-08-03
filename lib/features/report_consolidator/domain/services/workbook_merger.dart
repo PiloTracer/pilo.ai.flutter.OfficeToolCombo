@@ -222,7 +222,9 @@ bool _rowsEqual(List<String?> a, List<String?> b) {
     return false;
   }
   for (var i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) {
+    final left = a[i]?.trim().toLowerCase() ?? '';
+    final right = b[i]?.trim().toLowerCase() ?? '';
+    if (left != right) {
       return false;
     }
   }

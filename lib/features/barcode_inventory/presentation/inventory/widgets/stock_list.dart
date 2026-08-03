@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class StockList extends StatelessWidget {
   const StockList({
@@ -19,6 +20,7 @@ class StockList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
+    final l10n = AppLocalizations.of(context);
 
     if (items.isEmpty) {
       return Center(
@@ -37,8 +39,11 @@ class StockList extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = items[index];
         return Semantics(
-          label:
-              '${item.name}, barcode ${item.barcode}, quantity ${item.quantityOnHand}',
+          label: l10n.inventoryItemSemantics(
+            item.name,
+            item.barcode,
+            item.quantityOnHand,
+          ),
           child: Card(
             child: ListTile(
               title: Text(item.name),
@@ -50,7 +55,7 @@ class StockList extends StatelessWidget {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Chip(label: Text('Qty: ${item.quantityOnHand}')),
+                  Chip(label: Text(l10n.inventoryQuantityChip(item.quantityOnHand))),
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       if (value == 'edit') {
@@ -59,11 +64,14 @@ class StockList extends StatelessWidget {
                         onDelete(item);
                       }
                     },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit item')),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Text(l10n.inventoryEditItem),
+                      ),
                       PopupMenuItem(
                         value: 'delete',
-                        child: Text('Delete item'),
+                        child: Text(l10n.inventoryDeleteItem),
                       ),
                     ],
                   ),

@@ -14,6 +14,7 @@ abstract class WorkbookBatch with _$WorkbookBatch {
     required WorkbookBatchStatus status,
     required DateTime startedAt,
     DateTime? finishedAt,
+    String? errorMessage,
     @Default(<SpreadsheetFileResult>[]) List<SpreadsheetFileResult> files,
   }) = _WorkbookBatch;
 }

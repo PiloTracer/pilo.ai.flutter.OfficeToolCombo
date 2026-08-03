@@ -1,4 +1,5 @@
 import 'package:office_tool_combo/core/result/result.dart';
+import 'package:office_tool_combo/features/barcode_inventory/domain/entities/csv_import_summary.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/multi_image_decode_outcome.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
@@ -32,7 +33,7 @@ abstract class InventoryRepository {
 
   Future<Result<List<String>>> decodeBarcodesFromImagePath(String path);
 
-  Future<Result<List<String>>> pickBarcodeImagePaths();
+  Future<Result<List<String>>> pickBarcodeImagePaths({String? dialogTitle});
 
   Future<Result<MultiImageDecodeOutcome>> decodeBarcodeImagePaths(
     List<String> paths,
@@ -40,9 +41,12 @@ abstract class InventoryRepository {
 
   Future<Result<MultiImageDecodeOutcome>> pickAndDecodeBarcodeImages();
 
-  Future<Result<String?>> exportInventoryCsv({String? outputPath});
+  Future<Result<String?>> exportInventoryCsv({
+    String? outputPath,
+    String? dialogTitle,
+  });
 
-  Future<Result<int>> importInventoryCsv(String path);
+  Future<Result<CsvImportSummary>> importInventoryCsv(String path);
 
   Future<Result<void>> purgeExpiredScanEvents();
 }

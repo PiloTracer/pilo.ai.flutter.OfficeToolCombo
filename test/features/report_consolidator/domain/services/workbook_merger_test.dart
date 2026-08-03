@@ -148,6 +148,32 @@ void main() {
       expect(outcome.rows.last, ['Totals', '30.00']);
     });
 
+    test('case-variant or padded headers are still treated as duplicates', () {
+      final outcome = merger.merge([
+        const WorkbookFileInput(
+          fileName: 'report_a.xlsx',
+          rows: [
+            ['Name', 'Amount'],
+            ['Alpha', '10'],
+          ],
+        ),
+        const WorkbookFileInput(
+          fileName: 'report_b.xlsx',
+          rows: [
+            [' NAME ', 'amount'],
+            ['Beta', '20'],
+          ],
+        ),
+      ]);
+
+      // The variant header must not land in the output as a data row.
+      expect(
+        outcome.rows.where((row) => row.first == ' NAME ').length,
+        isZero,
+      );
+      expect(outcome.rows.last, ['Totals', '30.00']);
+    });
+
     test('totals row sums every numeric column in wide sheets', () {
       final outcome = merger.merge([
         const WorkbookFileInput(

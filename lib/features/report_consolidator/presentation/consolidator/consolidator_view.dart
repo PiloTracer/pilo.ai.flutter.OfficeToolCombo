@@ -12,6 +12,7 @@ import 'package:office_tool_combo/features/report_consolidator/presentation/cons
 import 'package:office_tool_combo/features/report_consolidator/presentation/consolidator/widgets/failure_list.dart';
 import 'package:office_tool_combo/features/report_consolidator/presentation/consolidator/widgets/merge_history_list.dart';
 import 'package:office_tool_combo/features/shell/presentation/tool_shell_scaffold.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class ConsolidatorView extends ConsumerStatefulWidget {
   const ConsolidatorView({super.key});
@@ -40,21 +41,21 @@ class _ConsolidatorViewState extends ConsumerState<ConsolidatorView> {
     final viewModel = ref.read(consolidatorViewModelProvider.notifier);
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final isLoading = state.phase == ConsolidatorPhase.loading;
 
     return ToolShellScaffold(
-      title: 'Report consolidator',
+      title: l10n.consolidatorTitle,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Merge Excel reports',
+            l10n.consolidatorHeadline,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           spacing.gapSm,
           Text(
-            'Pick a folder of .xlsx files. The app combines them into one '
-            'workbook and lists any files that could not be read.',
+            l10n.consolidatorDescription,
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
@@ -70,7 +71,7 @@ class _ConsolidatorViewState extends ConsumerState<ConsolidatorView> {
           FilledButton.icon(
             onPressed: isLoading ? null : viewModel.pickFolderAndMerge,
             icon: const Icon(Icons.folder_open),
-            label: const Text('Choose folder and merge'),
+            label: Text(l10n.consolidatorChooseAndMerge),
           ),
           spacing.gapLg,
           Expanded(
@@ -118,6 +119,7 @@ class _OutputFolderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final usesDefault = outputFolderPath == null || outputFolderPath!.isEmpty;
 
     return Card(
@@ -127,13 +129,13 @@ class _OutputFolderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Output folder',
+              l10n.consolidatorOutputFolderTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             spacing.gapSm,
             Text(
               usesDefault
-                  ? 'Same as the source folder (default)'
+                  ? l10n.consolidatorOutputFolderDefault
                   : outputFolderPath!,
               style: Theme.of(
                 context,
@@ -147,12 +149,12 @@ class _OutputFolderCard extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onChooseOutputFolder,
                   icon: const Icon(Icons.drive_file_move_outline),
-                  label: const Text('Choose output folder'),
+                  label: Text(l10n.consolidatorChooseOutputFolder),
                 ),
                 if (!usesDefault)
                   TextButton(
                     onPressed: isLoading ? null : onUseSourceFolder,
-                    child: const Text('Use source folder'),
+                    child: Text(l10n.consolidatorUseSourceFolder),
                   ),
               ],
             ),
@@ -171,50 +173,46 @@ class _StateBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return switch (state.phase) {
       ConsolidatorPhase.loading => _LoadingBody(progress: state.progress),
       ConsolidatorPhase.empty when state.selectedFolderPath != null =>
         StatePanel(
           icon: Icons.inbox_outlined,
-          title: 'No spreadsheets found',
-          message:
-              'That folder did not contain any .xlsx files. '
-              'Try a different folder with Excel reports inside.',
+          title: l10n.consolidatorNoSpreadsheetsTitle,
+          message: l10n.consolidatorNoSpreadsheetsMessage,
           action: OutlinedButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.folder_open),
-            label: const Text('Choose another folder'),
+            label: Text(l10n.consolidatorChooseAnotherFolder),
           ),
         ),
       ConsolidatorPhase.empty => const SizedBox.shrink(),
       ConsolidatorPhase.partial => _SuccessBody(
         state: state,
-        title: 'Merged with some failures',
+        title: l10n.consolidatorPartialTitle,
         isPartial: true,
       ),
       ConsolidatorPhase.error => StatePanel(
         icon: Icons.error_outline,
         iconColor: AppStatusTone.errorForegroundOf(context),
         iconBackgroundColor: AppStatusTone.errorBackgroundOf(context),
-        title: 'Merge could not finish',
-        message:
-            state.errorMessage ??
-            'Something went wrong while reading the files. '
-                'Check that the folder is readable and try again.',
+        title: l10n.consolidatorErrorTitle,
+        message: state.errorMessage ?? l10n.consolidatorErrorFallback,
         action: FilledButton.icon(
           onPressed: onRetry,
           icon: const Icon(Icons.refresh),
-          label: const Text('Try again'),
+          label: Text(l10n.consolidatorTryAgain),
         ),
       ),
       ConsolidatorPhase.offline => _SuccessBody(
         state: state,
-        title: 'Merge complete',
+        title: l10n.consolidatorSuccessTitle,
         isPartial: false,
       ),
       ConsolidatorPhase.success => _SuccessBody(
         state: state,
-        title: 'Merge complete',
+        title: l10n.consolidatorSuccessTitle,
         isPartial: false,
       ),
     };
@@ -229,6 +227,7 @@ class _LoadingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
+    final l10n = AppLocalizations.of(context);
     final percent = (progress * 100).round().clamp(0, 100);
 
     return Center(
@@ -241,14 +240,14 @@ class _LoadingBody extends StatelessWidget {
             spacing.gapMd,
             Text(
               progress > 0
-                  ? 'Merging spreadsheets… $percent%'
-                  : 'Preparing merge…',
+                  ? l10n.consolidatorMergingProgress(percent)
+                  : l10n.consolidatorPreparing,
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
             spacing.gapSm,
             Text(
-              'Large folders may take a minute. You can keep this window open.',
+              l10n.consolidatorMergingHint,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
@@ -275,6 +274,7 @@ class _SuccessBody extends StatelessWidget {
     final spacing = context.spacing;
     final radii = context.radii;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final failures =
         state.lastBatch?.files
             .where((f) => f.parseStatus == SpreadsheetParseStatus.failed)
@@ -322,8 +322,8 @@ class _SuccessBody extends StatelessWidget {
                       spacing.gapXs,
                       Text(
                         state.outputFileName == null
-                            ? 'Output saved in the chosen output folder.'
-                            : 'Saved as ${state.outputFileName}',
+                            ? l10n.consolidatorSavedInOutput
+                            : l10n.consolidatorSavedAs(state.outputFileName!),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
@@ -336,13 +336,12 @@ class _SuccessBody extends StatelessWidget {
         if (failures.isNotEmpty) ...[
           spacing.gapLg,
           Text(
-            'Files that need attention',
+            l10n.consolidatorFailuresTitle,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           spacing.gapSm,
           Text(
-            'These files were skipped or could not be read. '
-            'Fix or remove them and run merge again.',
+            l10n.consolidatorFailuresMessage,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),

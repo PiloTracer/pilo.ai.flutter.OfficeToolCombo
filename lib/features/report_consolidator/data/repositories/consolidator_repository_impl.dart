@@ -217,6 +217,9 @@ class ConsolidatorRepositoryImpl implements ConsolidatorRepository {
       status: status,
       startedAt: startedAt,
       finishedAt: DateTime.now().toUtc(),
+      errorMessage: status == WorkbookBatchStatus.failed
+          ? response.errorMessage
+          : null,
       files: response.fileResults,
     );
   }

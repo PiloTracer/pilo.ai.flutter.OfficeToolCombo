@@ -23,6 +23,40 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 
 <!-- New entries go directly below this line. -->
 
+## 2026-08-02 — F-L10N bilingual foundation + full-codebase verify/audit fixes
+
+**Skills:** @flutter-director, @flutter-implementation, @flutter-test, @flutter-verify
+**Scope:** "verify all the code, fix any issues/errors/gaps. Implement any improvements you may recommend."
+
+**Done**
+- FLT-10: **F-L10N code (FL10N-T1/T2/T4/T5)** — `l10n.yaml` + `flutter gen-l10n` → `lib/l10n/generated/`; en/es ARB (~130 keys); `LocaleController` + `SharedPreferencesSettingsStore` (key `app_locale_code`, survives restarts); `LanguageMenuButton` on Home (System/English/Español); `app.dart` delegates + locale; home, shell, consolidator and inventory UI strings wired
+- FLT-10: Inventory — failures carry stable `code` mapped to localized messages in presentation (`inventory_l10n.dart`); CSV hardening (UTF-8 BOM strip, CRLF/CR normalize, `_escapeCsv` quotes `\r`); invalid rows skipped + counted (`skippedRowCount` now live); duplicate barcodes last-wins + reported; **destructive CSV import gated by confirmation dialog**; unreachable banner removed, working Dismiss wired
+- FLT-10: Consolidator — `ref.mounted` guards in view model; Windows-safe `_basename`; duplicate-header detection now case/whitespace-insensitive (matches `isDuplicateHeaderRow`); typed Excel cell decode (dates `yyyy-MM-dd`, times, bools TRUE/FALSE); numeric cells written as real numbers (leading-zero identifiers like `007` stay text); isolate `errorMessage` surfaced via new `WorkbookBatch.errorMessage` (freezed regen)
+- FLT-10: Core — `DesktopFileReveal`: Windows `explorer /select,` exit 1 treated as success; blocking `which` moved off UI isolate
+- FLT-10: Tests — settings store/controller/menu (6), CSV import (8), import confirmation dialog (4), typed cell decode/write (2), case-variant header (1), locale widget tests; shared `test/helpers/l10n_test_harness.dart`
+
+**Verified**
+- `flutter analyze --fatal-infos` → No issues found!
+- `flutter test` (LD_LIBRARY_PATH=`build/linux/x64/debug/bundle/lib`) → 91/91 passed, 0 skipped
+- `flutter build linux --debug` → Built `build/linux/x64/debug/bundle/office_tool_combo`
+
+**Decisions**
+- `PopupMenuItem(value: null)` can never fire `onSelected` (null = dismissal) → language menu uses a `'system'` string sentinel
+- Formula cells keep formula text on merge (`excel` package does not evaluate) — documented in `_cellValueToString`
+- Domain/data stay locale-free: failures carry codes; presentation maps codes → localized strings
+- Numeric write-back guard: strings with leading zeros (`007`, `-01`) or non-plain formats (`1e5`) never become numeric cells
+
+**Open / blocked**
+- Master plan Draft + SPECs Review — operator gates, unchanged
+- `lib/core/router/app_router.dart` (**protected**) still hardcodes placeholder tool titles + error-page strings — needs explicit operator approval to wire l10n there
+- Remaining LOW audit findings (reported, not fixed): totals footer width comes from header length; per-file merge progress discarded in isolate; `quantity_stepper_field` clobbers `onKeyEvent` on external focus node; drift `upsertItem` DoUpdate re-applies id on conflict
+- FL10N-T3 integration test `integration_test/locale_persist_test.dart` and FL10N-T6 `tool/pseudo_l10n_check.sh` still open
+- F1-T2 drift migration (protected — migrations), F1-T6/F2-T5 integration tests, NFR10 profile — unchanged
+
+**Next**
+- Operator: re-approve plan + SPECs; approve router l10n wiring (protected surface)
+- Close FL10N-T3/T6 → `@flutter-verify milestone - F2` → F3 (unblocked now that UI strings are localized)
+
 ## 2026-08-02 — F2 manual entry fix + F-L10N chronogram gate
 
 **Skills:** @flutter-director, @flutter-implementation, @flutter-plan-master

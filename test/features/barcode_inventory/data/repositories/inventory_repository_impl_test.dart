@@ -5,6 +5,7 @@ import 'package:office_tool_combo/core/storage/app_database.dart'
 import 'package:office_tool_combo/features/barcode_inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
+import 'package:office_tool_combo/features/barcode_inventory/domain/failures/inventory_failure.dart';
 
 void main() {
   late AppDatabase database;
@@ -69,7 +70,7 @@ void main() {
     expect(scanResult, isA<Err<InventoryItem>>());
     expect(
       (scanResult as Err<InventoryItem>).failure.message,
-      'Not enough stock to ship this quantity',
+      InventoryFailureCodes.insufficientStock,
     );
   });
 
@@ -106,7 +107,7 @@ void main() {
     expect(second, isA<Err<InventoryItem>>());
     expect(
       (second as Err<InventoryItem>).failure.message,
-      'An item with this barcode already exists',
+      InventoryFailureCodes.duplicateBarcode,
     );
   });
 }

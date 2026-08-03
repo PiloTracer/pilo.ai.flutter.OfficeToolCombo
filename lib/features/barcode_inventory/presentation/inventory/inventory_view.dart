@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/core/widgets/state_panel.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
+import 'package:office_tool_combo/features/barcode_inventory/domain/entities/multi_image_decode_outcome.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
+import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_l10n.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_ui_state.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_view_model.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/widgets/inventory_dialogs.dart';
@@ -13,6 +15,7 @@ import 'package:office_tool_combo/features/barcode_inventory/presentation/invent
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/widgets/scanner_field.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/widgets/stock_list.dart';
 import 'package:office_tool_combo/features/shell/presentation/tool_shell_scaffold.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class InventoryView extends ConsumerStatefulWidget {
   const InventoryView({super.key});
@@ -96,7 +99,13 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(outcome.batchSummary(scansHandled: scansHandled)),
+          content: Text(
+            _batchSummary(
+              AppLocalizations.of(context),
+              outcome,
+              scansHandled: scansHandled,
+            ),
+          ),
         ),
       );
       _scheduleToastClear();
@@ -105,6 +114,24 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
         setState(() => _scannerCaptureFocus = true);
       }
     }
+  }
+
+  String _batchSummary(
+    AppLocalizations l10n,
+    MultiImageDecodeOutcome outcome, {
+    required int scansHandled,
+  }) {
+    final parts = <String>[];
+    if (scansHandled > 0) {
+      parts.add(l10n.inventoryBatchScansProcessed(scansHandled));
+    }
+    if (outcome.failureCount > 0) {
+      parts.add(l10n.inventoryBatchImagesNoCode(outcome.failureCount));
+    }
+    if (parts.isEmpty) {
+      return l10n.inventoryBatchNoBarcodes;
+    }
+    return parts.join(' · ');
   }
 
   Future<void> _handleScanSubmitted(String value) async {
@@ -225,27 +252,39 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
   }
 
   Future<void> _deleteItem(InventoryItem item) async {
-    final confirmed = await _showInventoryDialog<bool>(
-      (context) => AlertDialog(
-        title: const Text('Delete item?'),
-        content: Text('Remove "${item.name}" from inventory?'),
+    final confirmed = await _showInventoryDialog<bool>((context) {
+      final l10n = AppLocalizations.of(context);
+      return AlertDialog(
+        title: Text(l10n.inventoryDeleteTitle),
+        content: Text(l10n.inventoryDeleteMessage(item.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.inventoryCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.inventoryDelete),
           ),
         ],
-      ),
-    );
+      );
+    });
     if (!mounted || confirmed != true) {
       return;
     }
     await ref.read(inventoryViewModelProvider.notifier).deleteItem(item.id);
     _scheduleToastClear();
+  }
+
+  /// Importing a CSV replaces the whole inventory, so confirm first.
+  Future<void> _confirmAndImportCsv() async {
+    final confirmed = await _showInventoryDialog<bool>(
+      (context) => const ImportConfirmationDialog(),
+    );
+    if (!mounted || confirmed != true) {
+      return;
+    }
+    await ref.read(inventoryViewModelProvider.notifier).importCsv();
   }
 
   @override
@@ -259,6 +298,7 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
       }
     });
 
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(inventoryViewModelProvider);
     final viewModel = ref.read(inventoryViewModelProvider.notifier);
     final spacing = context.spacing;
@@ -269,20 +309,26 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
         !state.isDecodingImages;
 
     return ToolShellScaffold(
-      title: 'Barcode inventory',
+      title: l10n.inventoryTitle,
       actions: [
         PopupMenuButton<String>(
           onSelected: (value) async {
             switch (value) {
               case 'import':
-                await viewModel.importCsv();
+                await _confirmAndImportCsv();
               case 'export':
                 await viewModel.exportCsv();
             }
           },
-          itemBuilder: (context) => const [
-            PopupMenuItem(value: 'import', child: Text('Import CSV')),
-            PopupMenuItem(value: 'export', child: Text('Export CSV')),
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'import',
+              child: Text(l10n.inventoryImportCsv),
+            ),
+            PopupMenuItem(
+              value: 'export',
+              child: Text(l10n.inventoryExportCsv),
+            ),
           ],
         ),
       ],
@@ -292,14 +338,12 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Barcode inventory',
+                l10n.inventoryTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               spacing.gapSm,
               Text(
-                'Scan products with a USB or Bluetooth wedge reader, upload one or '
-                'more barcode images, or enter identifiers manually. Supports QR '
-                'codes, linear barcodes, and alphanumeric SKUs.',
+                l10n.inventoryIntro,
                 style: Theme.of(
                   context,
                 ).textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
@@ -312,8 +356,8 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                     .map(
                       (mode) => ButtonSegment(
                         value: mode,
-                        label: Text(mode.label),
-                        tooltip: mode.description,
+                        label: Text(mode.localizedLabel(l10n)),
+                        tooltip: mode.localizedDescription(l10n),
                       ),
                     )
                     .toList(growable: false),
@@ -329,6 +373,9 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                 enabled: isInteractive && _scannerCaptureFocus,
                 captureFocus: _scannerCaptureFocus,
                 onSubmitted: _handleScanSubmitted,
+                label: l10n.inventoryScanFieldSemantics,
+                labelText: l10n.inventoryScanFieldLabel,
+                hintText: l10n.inventoryScanFieldHint,
               ),
               spacing.gapSm,
               Wrap(
@@ -338,28 +385,28 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                   OutlinedButton.icon(
                     onPressed: isInteractive ? _showManualEntry : null,
                     icon: const Icon(Icons.keyboard_outlined),
-                    label: const Text('Manual entry'),
+                    label: Text(l10n.inventoryManualEntry),
                   ),
                   OutlinedButton.icon(
                     onPressed: isInteractive ? _scanFromImages : null,
                     icon: const Icon(Icons.image_outlined),
-                    label: const Text('Scan from images'),
+                    label: Text(l10n.inventoryScanFromImages),
                   ),
                 ],
               ),
               spacing.gapMd,
               Semantics(
-                label: 'Search stock',
+                label: l10n.inventorySearchStockLabel,
                 child: TextField(
                   controller: _searchController,
                   enabled: isInteractive,
                   decoration: InputDecoration(
-                    labelText: 'Search stock',
-                    hintText: 'Name, barcode, notes — typos & accents OK',
+                    labelText: l10n.inventorySearchStockLabel,
+                    hintText: l10n.inventorySearchStockHint,
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: viewModel.isSearchActive
                         ? IconButton(
-                            tooltip: 'Clear search',
+                            tooltip: l10n.inventoryClearSearchTooltip,
                             onPressed: isInteractive
                                 ? () {
                                     _searchController.clear();
@@ -377,9 +424,7 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
               if (viewModel.isSearchActive) ...[
                 spacing.gapXs,
                 Text(
-                  viewModel.filteredItemCount == 1
-                      ? '1 match'
-                      : '${viewModel.filteredItemCount} matches',
+                  l10n.inventorySearchMatchCount(viewModel.filteredItemCount),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),
@@ -393,6 +438,7 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                   onRetry: viewModel.retryLoad,
                   onEdit: _editItem,
                   onDelete: _deleteItem,
+                  onDismissSkipped: viewModel.dismissSkippedRows,
                 ),
               ),
             ],
@@ -411,12 +457,12 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                           const CircularProgressIndicator(),
                           spacing.gapSm,
                           Text(
-                            'Reading barcodes from images…',
+                            l10n.inventoryDecodingImagesTitle,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           spacing.gapXs,
                           Text(
-                            'You can still move the window while this runs.',
+                            l10n.inventoryDecodingImagesSubtitle,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -439,22 +485,23 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Wrap(
       spacing: 12,
       runSpacing: 8,
       children: [
         Chip(
           avatar: const Icon(Icons.inventory_2_outlined, size: 18),
-          label: Text('${state.distinctSkuCount} items'),
+          label: Text(l10n.inventoryItemsChip(state.distinctSkuCount)),
         ),
         Chip(
           avatar: const Icon(Icons.numbers_outlined, size: 18),
-          label: Text('${state.totalUnits} units on hand'),
+          label: Text(l10n.inventoryUnitsChip(state.totalUnits)),
         ),
         if (state.showOfflineBadge)
-          const Chip(
-            avatar: Icon(Icons.cloud_off_outlined, size: 18),
-            label: Text('Working offline'),
+          Chip(
+            avatar: const Icon(Icons.cloud_off_outlined, size: 18),
+            label: Text(l10n.inventoryOfflineBadge),
           ),
       ],
     );
@@ -468,6 +515,7 @@ class _InventoryBody extends StatelessWidget {
     required this.onRetry,
     required this.onEdit,
     required this.onDelete,
+    required this.onDismissSkipped,
   });
 
   final InventoryUiState state;
@@ -475,27 +523,29 @@ class _InventoryBody extends StatelessWidget {
   final VoidCallback onRetry;
   final ValueChanged<InventoryItem> onEdit;
   final ValueChanged<InventoryItem> onDelete;
+  final VoidCallback onDismissSkipped;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return switch (state.phase) {
-      InventoryPhase.loading => const Center(
+      InventoryPhase.loading => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 12),
-            Text('Loading inventory…'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 12),
+            Text(l10n.inventoryLoading),
           ],
         ),
       ),
       InventoryPhase.error => StatePanel(
         icon: Icons.error_outline,
-        title: 'Could not load inventory',
-        message: state.errorMessage ?? 'Something went wrong',
+        title: l10n.inventoryLoadErrorTitle,
+        message: state.errorMessage ?? l10n.inventoryGenericError,
         action: FilledButton(
           onPressed: onRetry,
-          child: const Text('Try again'),
+          child: Text(l10n.inventoryRetry),
         ),
       ),
       InventoryPhase.empty ||
@@ -505,12 +555,12 @@ class _InventoryBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (state.phase == InventoryPhase.empty && state.searchQuery.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
               child: StatePanel(
                 icon: Icons.qr_code_2_outlined,
-                title: 'No items yet',
-                message: 'Scan a barcode to add your first item.',
+                title: l10n.inventoryEmptyTitle,
+                message: l10n.inventoryEmptyMessage,
               ),
             ),
           if (state.phase == InventoryPhase.partial)
@@ -518,10 +568,13 @@ class _InventoryBody extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: MaterialBanner(
                 content: Text(
-                  'Some items could not be loaded (${state.skippedRowCount})',
+                  l10n.inventoryImportSkippedBanner(state.skippedRowCount),
                 ),
                 actions: [
-                  TextButton(onPressed: () {}, child: const Text('Dismiss')),
+                  TextButton(
+                    onPressed: onDismissSkipped,
+                    child: Text(l10n.inventoryDismiss),
+                  ),
                 ],
               ),
             ),
@@ -532,8 +585,8 @@ class _InventoryBody extends StatelessWidget {
               onEdit: onEdit,
               onDelete: onDelete,
               emptyMessage: state.searchQuery.isEmpty
-                  ? 'No items yet'
-                  : 'No matching items',
+                  ? l10n.inventoryEmptyTitle
+                  : l10n.inventoryNoMatchingItems,
             ),
           ),
           const SizedBox(height: 12),

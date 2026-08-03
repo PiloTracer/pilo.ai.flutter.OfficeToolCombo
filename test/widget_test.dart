@@ -5,6 +5,8 @@ import 'package:office_tool_combo/app.dart';
 import 'package:office_tool_combo/core/logging/app_logger.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/core/theme/app_theme.dart';
+import 'package:office_tool_combo/features/settings/application/locale_controller.dart';
+import 'package:office_tool_combo/features/settings/data/settings_store.dart';
 
 void main() {
   group('OfficeToolComboApp', () {
@@ -15,7 +17,12 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        ProviderScope(child: OfficeToolComboApp(logger: AppLogger())),
+        ProviderScope(
+          overrides: [
+            settingsStoreProvider.overrideWithValue(InMemorySettingsStore()),
+          ],
+          child: OfficeToolComboApp(logger: AppLogger()),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -34,7 +41,12 @@ void main() {
       await tester.pumpWidget(
         MediaQuery(
           data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-          child: ProviderScope(child: OfficeToolComboApp(logger: AppLogger())),
+          child: ProviderScope(
+            overrides: [
+              settingsStoreProvider.overrideWithValue(InMemorySettingsStore()),
+            ],
+            child: OfficeToolComboApp(logger: AppLogger()),
+          ),
         ),
       );
       await tester.pumpAndSettle();

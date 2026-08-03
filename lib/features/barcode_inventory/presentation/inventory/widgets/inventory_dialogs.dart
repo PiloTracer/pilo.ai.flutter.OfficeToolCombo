@@ -1,8 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/widgets/quantity_stepper_field.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 typedef CreateItemResult = ({String name, int quantity, String description});
+
+/// Confirmation before a CSV import, which replaces the whole inventory.
+class ImportConfirmationDialog extends StatelessWidget {
+  const ImportConfirmationDialog({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(l10n.inventoryImportConfirmTitle),
+      content: Text(l10n.inventoryImportConfirmMessage),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.inventoryCancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l10n.inventoryImportConfirmAction),
+        ),
+      ],
+    );
+  }
+}
 
 class CreateItemDialog extends StatefulWidget {
   const CreateItemDialog({super.key, required this.barcode, this.errorMessage});
@@ -51,13 +76,13 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit(AppLocalizations l10n) {
     final name = _nameController.text.trim();
     final qty = int.tryParse(_qtyController.text.trim());
     final description = _descriptionController.text.trim();
-    _nameError = name.isEmpty ? 'Enter an item name' : null;
+    _nameError = name.isEmpty ? l10n.inventoryErrorEnterName : null;
     _qtyError = qty == null || qty < 0 || qty > 999999
-        ? 'Enter a valid quantity'
+        ? l10n.inventoryErrorInvalidQuantity
         : null;
     if (_nameError != null || _qtyError != null) {
       setState(() {});
@@ -70,8 +95,12 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Semantics(label: 'New item dialog', child: const Text('New item')),
+      title: Semantics(
+        label: l10n.inventoryNewItemSemantics,
+        child: Text(l10n.inventoryNewItemTitle),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -80,7 +109,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
             TextField(
               readOnly: true,
               decoration: InputDecoration(
-                labelText: 'Barcode / identifier',
+                labelText: l10n.inventoryBarcodeIdentifierLabel,
                 helperText: widget.barcode,
               ),
             ),
@@ -89,7 +118,7 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
               controller: _nameController,
               focusNode: _nameFocusNode,
               decoration: InputDecoration(
-                labelText: 'Item name',
+                labelText: l10n.inventoryItemNameLabel,
                 errorText: _nameError,
               ),
               textInputAction: TextInputAction.next,
@@ -99,9 +128,8 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
             QuantityStepperField(
               controller: _qtyController,
               focusNode: _qtyFocusNode,
-              label: 'Starting quantity',
-              helperText:
-                  '↑/↓ or +/− to adjust · Enter for next · Shift+Enter for previous',
+              label: l10n.inventoryStartingQuantityLabel,
+              helperText: l10n.inventoryQuantityHelperNavigation,
               errorText: _qtyError,
               onEnter: () => _descriptionFocusNode.requestFocus(),
             ),
@@ -109,9 +137,9 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
             TextField(
               controller: _descriptionController,
               focusNode: _descriptionFocusNode,
-              decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'Optional notes (size, location, supplier…)',
+              decoration: InputDecoration(
+                labelText: l10n.inventoryDescriptionLabel,
+                hintText: l10n.inventoryDescriptionHint,
                 alignLabelWithHint: true,
               ),
               minLines: 2,
@@ -131,9 +159,12 @@ class _CreateItemDialogState extends State<CreateItemDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.inventoryCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Add item')),
+        FilledButton(
+          onPressed: () => _submit(l10n),
+          child: Text(l10n.inventoryAddItem),
+        ),
       ],
     );
   }
@@ -177,10 +208,10 @@ class _CountQuantityDialogState extends State<CountQuantityDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit(AppLocalizations l10n) {
     final qty = int.tryParse(_qtyController.text.trim());
     _qtyError = qty == null || qty < 0 || qty > 999999
-        ? 'Enter a valid quantity'
+        ? l10n.inventoryErrorInvalidQuantity
         : null;
     if (_qtyError != null) {
       setState(() {});
@@ -191,30 +222,34 @@ class _CountQuantityDialogState extends State<CountQuantityDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Set counted quantity'),
+      title: Text(l10n.inventoryCountQuantityTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Identifier: ${widget.barcode}'),
+          Text(l10n.inventoryIdentifierLine(widget.barcode)),
           const SizedBox(height: 12),
           QuantityStepperField(
             controller: _qtyController,
             focusNode: _qtyFocusNode,
-            label: 'Quantity on hand',
-            helperText: '↑/↓ or +/− to adjust · Enter to confirm',
+            label: l10n.inventoryQuantityOnHandLabel,
+            helperText: l10n.inventoryQuantityHelperConfirm,
             errorText: _qtyError,
-            onEnter: _submit,
+            onEnter: () => _submit(l10n),
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.inventoryCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Set quantity')),
+        FilledButton(
+          onPressed: () => _submit(l10n),
+          child: Text(l10n.inventorySetQuantity),
+        ),
       ],
     );
   }
@@ -286,8 +321,9 @@ class _EditItemDialogState extends State<EditItemDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Edit item'),
+      title: Text(l10n.inventoryEditItem),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -295,7 +331,9 @@ class _EditItemDialogState extends State<EditItemDialog> {
             TextField(
               controller: _nameController,
               focusNode: _nameFocusNode,
-              decoration: const InputDecoration(labelText: 'Item name'),
+              decoration: InputDecoration(
+                labelText: l10n.inventoryItemNameLabel,
+              ),
               textInputAction: TextInputAction.next,
               onSubmitted: (_) => _descriptionFocusNode.requestFocus(),
             ),
@@ -303,8 +341,8 @@ class _EditItemDialogState extends State<EditItemDialog> {
             TextField(
               controller: _descriptionController,
               focusNode: _descriptionFocusNode,
-              decoration: const InputDecoration(
-                labelText: 'Description',
+              decoration: InputDecoration(
+                labelText: l10n.inventoryDescriptionLabel,
                 alignLabelWithHint: true,
               ),
               minLines: 2,
@@ -316,9 +354,8 @@ class _EditItemDialogState extends State<EditItemDialog> {
             QuantityStepperField(
               controller: _qtyController,
               focusNode: _qtyFocusNode,
-              label: 'Quantity on hand',
-              helperText:
-                  '↑/↓ or +/− to adjust · Enter for next · Shift+Enter for previous',
+              label: l10n.inventoryQuantityOnHandLabel,
+              helperText: l10n.inventoryQuantityHelperNavigation,
               onEnter: () => FocusScope.of(context).nextFocus(),
             ),
           ],
@@ -327,9 +364,9 @@ class _EditItemDialogState extends State<EditItemDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.inventoryCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Save')),
+        FilledButton(onPressed: _submit, child: Text(l10n.inventorySave)),
       ],
     );
   }
@@ -364,10 +401,10 @@ class _ManualEntryDialogState extends State<ManualEntryDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  void _submit(AppLocalizations l10n) {
     final value = _controller.text.trim();
     if (value.isEmpty) {
-      setState(() => _error = 'Enter a barcode or identifier');
+      setState(() => _error = l10n.inventoryErrorEnterBarcode);
       return;
     }
     Navigator.of(context).pop(value);
@@ -375,16 +412,17 @@ class _ManualEntryDialogState extends State<ManualEntryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Enter identifier manually'),
+      title: Text(l10n.inventoryManualEntryTitle),
       content: SizedBox(
         width: 420,
         child: TextField(
           controller: _controller,
           focusNode: _focusNode,
           decoration: InputDecoration(
-            labelText: 'Barcode / SKU / alphanumeric ID',
-            hintText: 'Type or paste an identifier',
+            labelText: l10n.inventoryManualEntryLabel,
+            hintText: l10n.inventoryManualEntryHint,
             errorText: _error,
             border: const OutlineInputBorder(),
           ),
@@ -394,15 +432,18 @@ class _ManualEntryDialogState extends State<ManualEntryDialog> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[\x20-\x7E]+')),
           ],
-          onSubmitted: (_) => _submit(),
+          onSubmitted: (_) => _submit(l10n),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.inventoryCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Submit')),
+        FilledButton(
+          onPressed: () => _submit(l10n),
+          child: Text(l10n.inventorySubmit),
+        ),
       ],
     );
   }

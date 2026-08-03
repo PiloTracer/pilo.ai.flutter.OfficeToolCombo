@@ -16,7 +16,9 @@ abstract final class DesktopFileReveal {
     if (Platform.isWindows) {
       final normalized = filePath.replaceAll('/', r'\');
       final result = await Process.run('explorer', ['/select,', normalized]);
-      return result.exitCode == 0;
+      // `explorer /select,` commonly exits 1 even when it opened the window
+      // and selected the file — treat any completed launch as success.
+      return result.exitCode == 0 || result.exitCode == 1;
     }
 
     if (Platform.isLinux) {
@@ -30,7 +32,7 @@ abstract final class DesktopFileReveal {
 
       for (final command in attempts) {
         final executable = command.first;
-        if (!_commandExists(executable)) {
+        if (!await _commandExists(executable)) {
           continue;
         }
         final result = await Process.run(executable, command.sublist(1));
@@ -43,9 +45,9 @@ abstract final class DesktopFileReveal {
     return false;
   }
 
-  static bool _commandExists(String command) {
+  static Future<bool> _commandExists(String command) async {
     try {
-      final result = Process.runSync('which', [command]);
+      final result = await Process.run('which', [command]);
       return result.exitCode == 0;
     } on Object {
       return false;

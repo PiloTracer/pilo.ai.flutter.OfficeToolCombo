@@ -91,9 +91,7 @@ class ConsolidatorLocalSource {
                   rowIndex: rowIndex,
                 ),
               )
-              .value = TextCellValue(
-            value,
-          );
+              .value = _cellValueFor(value);
         }
       }
     }
@@ -122,10 +120,68 @@ class ConsolidatorLocalSource {
     return sheet.rows
         .map(
           (row) => row
-              .map((cell) => cell?.value?.toString())
+              .map((cell) => _cellValueToString(cell?.value))
               .toList(growable: false),
         )
         .toList(growable: false);
+  }
+
+  /// Converts an Excel cell to a clean string for merging.
+  ///
+  /// Formula cells keep their formula text (the `excel` package does not
+  /// evaluate formulas); date/time cells get readable ISO formats instead of
+  /// debug dumps.
+  String? _cellValueToString(CellValue? value) {
+    if (value == null) {
+      return null;
+    }
+    return switch (value) {
+      TextCellValue() => value.toString(),
+      IntCellValue() => value.value.toString(),
+      DoubleCellValue() => value.value.toString(),
+      BoolCellValue() => value.value ? 'TRUE' : 'FALSE',
+      FormulaCellValue() => value.formula,
+      DateCellValue() => _twoPartDate(value.year, value.month, value.day),
+      TimeCellValue() =>
+        '${_pad(value.hour)}:${_pad(value.minute)}:${_pad(value.second)}',
+      DateTimeCellValue() =>
+        '${_twoPartDate(value.year, value.month, value.day)}'
+            'T${_pad(value.hour)}:${_pad(value.minute)}:${_pad(value.second)}',
+    };
+  }
+
+  String _twoPartDate(int year, int month, int day) {
+    return '${year.toString().padLeft(4, '0')}-${_pad(month)}-${_pad(day)}';
+  }
+
+  String _pad(int value) => value.toString().padLeft(2, '0');
+
+  /// Writes numbers as real numeric cells so totals and quantities stay
+  /// computable in Excel; identifiers with leading zeros (`007`, `01`)
+  /// and non-plain formats (`1e5`) stay text.
+  CellValue _cellValueFor(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isNotEmpty && trimmed == raw && !_hasLeadingZero(trimmed)) {
+      final intValue = int.tryParse(trimmed);
+      if (intValue != null) {
+        return IntCellValue(intValue);
+      }
+      if (trimmed.contains('.')) {
+        final doubleValue = double.tryParse(trimmed);
+        if (doubleValue != null) {
+          return DoubleCellValue(doubleValue);
+        }
+      }
+    }
+    return TextCellValue(raw);
+  }
+
+  bool _hasLeadingZero(String digits) {
+    final start = digits.startsWith('-') ? 1 : 0;
+    return digits.length > start + 1 &&
+        digits[start] == '0' &&
+        digits.codeUnitAt(start + 1) >= 0x30 &&
+        digits.codeUnitAt(start + 1) <= 0x39;
   }
 
   String _outputPathFor(String outputFolderPath) {

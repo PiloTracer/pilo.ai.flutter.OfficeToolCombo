@@ -1,0 +1,278 @@
+{
+  "@@locale": "en",
+  "appTitle": "OfficeToolCombo",
+  "homeTagline": "Five desk tools for everyday office work — no terminal, no IT ticket.",
+  "homeChooseTool": "Choose a tool",
+  "toolReportConsolidatorTitle": "Report consolidator",
+  "toolReportConsolidatorSubtitle": "Merge a folder of Excel files into one clean workbook",
+  "toolBarcodeInventoryTitle": "Barcode inventory",
+  "toolBarcodeInventorySubtitle": "Scan products with a USB wedge reader and track stock",
+  "toolDocumentFactoryTitle": "Document factory",
+  "toolDocumentFactorySubtitle": "Turn Excel rows into personalized PDFs",
+  "toolPriceMonitorTitle": "Price monitor",
+  "toolPriceMonitorSubtitle": "Watch prices in the background and get notified",
+  "toolScheduledBackupTitle": "Scheduled backup",
+  "toolScheduledBackupSubtitle": "Zip a folder on a schedule with a dated archive name",
+  "comingSoonBadge": "Soon",
+  "toolComingSoonSemantics": "{title}, coming soon",
+  "@toolComingSoonSemantics": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "backToHomeTooltip": "Back to home",
+  "placeholderHeadline": "Coming in the next milestone",
+  "placeholderMessage": "{tool} is on the roadmap. The navigation shell is ready; full workflow for {toolId} ships in a later release.",
+  "@placeholderMessage": {
+    "placeholders": {
+      "tool": { "type": "String" },
+      "toolId": { "type": "String" }
+    }
+  },
+  "languageMenuLabel": "Language",
+  "languageSystem": "System default",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "inventoryTitle": "Barcode inventory",
+  "inventoryIntro": "Scan products with a USB or Bluetooth wedge reader, upload one or more barcode images, or enter identifiers manually. Supports QR codes, linear barcodes, and alphanumeric SKUs.",
+  "inventoryImportCsv": "Import CSV",
+  "inventoryExportCsv": "Export CSV",
+  "inventoryManualEntry": "Manual entry",
+  "inventoryScanFromImages": "Scan from images",
+  "inventorySearchStockLabel": "Search stock",
+  "inventorySearchStockHint": "Name, barcode, notes — typos & accents OK",
+  "inventoryClearSearchTooltip": "Clear search",
+  "inventorySearchMatchCount": "{count, plural, =1{1 match} other{{count} matches}}",
+  "@inventorySearchMatchCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryDecodingImagesTitle": "Reading barcodes from images…",
+  "inventoryDecodingImagesSubtitle": "You can still move the window while this runs.",
+  "inventoryItemsChip": "{count, plural, =1{1 item} other{{count} items}}",
+  "@inventoryItemsChip": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryUnitsChip": "{count, plural, =1{1 unit on hand} other{{count} units on hand}}",
+  "@inventoryUnitsChip": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryOfflineBadge": "Working offline",
+  "inventoryLoading": "Loading inventory…",
+  "inventoryLoadErrorTitle": "Could not load inventory",
+  "inventoryGenericError": "Something went wrong",
+  "inventoryRetry": "Try again",
+  "inventoryEmptyTitle": "No items yet",
+  "inventoryEmptyMessage": "Scan a barcode to add your first item.",
+  "inventoryNoMatchingItems": "No matching items",
+  "inventoryImportSkippedBanner": "{count, plural, =1{1 row from the last import was skipped or merged} other{{count} rows from the last import were skipped or merged}}",
+  "@inventoryImportSkippedBanner": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryDismiss": "Dismiss",
+  "inventoryDeleteTitle": "Delete item?",
+  "inventoryDeleteMessage": "Remove \"{name}\" from inventory?",
+  "@inventoryDeleteMessage": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "inventoryCancel": "Cancel",
+  "inventoryDelete": "Delete",
+  "inventoryImportConfirmTitle": "Replace current inventory?",
+  "inventoryImportConfirmMessage": "Importing a CSV replaces ALL current items. This cannot be undone.",
+  "inventoryImportConfirmAction": "Import",
+  "inventoryScanFieldLabel": "Scan barcode",
+  "inventoryScanFieldHint": "Scan barcode…",
+  "inventoryScanFieldSemantics": "Barcode scan field",
+  "inventoryItemSemantics": "{name}, barcode {barcode}, quantity {quantity}",
+  "@inventoryItemSemantics": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "barcode": { "type": "String" },
+      "quantity": { "type": "int" }
+    }
+  },
+  "inventoryQuantityChip": "Qty: {quantity}",
+  "@inventoryQuantityChip": {
+    "placeholders": {
+      "quantity": { "type": "int" }
+    }
+  },
+  "inventoryEditItem": "Edit item",
+  "inventoryDeleteItem": "Delete item",
+  "inventoryRecentScans": "Recent scans",
+  "inventoryNewItemTitle": "New item",
+  "inventoryNewItemSemantics": "New item dialog",
+  "inventoryBarcodeIdentifierLabel": "Barcode / identifier",
+  "inventoryItemNameLabel": "Item name",
+  "inventoryErrorEnterName": "Enter an item name",
+  "inventoryErrorInvalidQuantity": "Enter a valid quantity",
+  "inventoryStartingQuantityLabel": "Starting quantity",
+  "inventoryQuantityHelperNavigation": "↑/↓ or +/− to adjust · Enter for next · Shift+Enter for previous",
+  "inventoryDescriptionLabel": "Description",
+  "inventoryDescriptionHint": "Optional notes (size, location, supplier…)",
+  "inventoryAddItem": "Add item",
+  "inventoryCountQuantityTitle": "Set counted quantity",
+  "inventoryIdentifierLine": "Identifier: {barcode}",
+  "@inventoryIdentifierLine": {
+    "placeholders": {
+      "barcode": { "type": "String" }
+    }
+  },
+  "inventoryQuantityOnHandLabel": "Quantity on hand",
+  "inventoryQuantityHelperConfirm": "↑/↓ or +/− to adjust · Enter to confirm",
+  "inventorySetQuantity": "Set quantity",
+  "inventorySave": "Save",
+  "inventoryManualEntryTitle": "Enter identifier manually",
+  "inventoryManualEntryLabel": "Barcode / SKU / alphanumeric ID",
+  "inventoryManualEntryHint": "Type or paste an identifier",
+  "inventoryErrorEnterBarcode": "Enter a barcode or identifier",
+  "inventorySubmit": "Submit",
+  "inventoryToastAdded": "Added {name}",
+  "@inventoryToastAdded": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "inventoryToastUpdated": "Updated {name}: {quantity}",
+  "@inventoryToastUpdated": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "quantity": { "type": "int" }
+    }
+  },
+  "inventoryToastScan": "{verb} {name}: {quantity}",
+  "@inventoryToastScan": {
+    "placeholders": {
+      "verb": { "type": "String" },
+      "name": { "type": "String" },
+      "quantity": { "type": "int" }
+    }
+  },
+  "inventoryVerbReceived": "Received",
+  "inventoryVerbShipped": "Shipped",
+  "inventoryVerbUpdated": "Updated",
+  "inventoryToastDeleted": "Item deleted",
+  "inventoryToastExported": "Exported inventory to {path}",
+  "@inventoryToastExported": {
+    "placeholders": {
+      "path": { "type": "String" }
+    }
+  },
+  "inventoryToastImported": "{count, plural, =1{Imported 1 item} other{Imported {count} items}}",
+  "@inventoryToastImported": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryImportSkippedPart": "{count, plural, =1{1 row skipped} other{{count} rows skipped}}",
+  "@inventoryImportSkippedPart": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryImportDuplicatesPart": "{count, plural, =1{1 duplicate merged} other{{count} duplicates merged}}",
+  "@inventoryImportDuplicatesPart": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryErrorImport": "Could not import CSV: {error}",
+  "@inventoryErrorImport": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "inventoryBatchScansProcessed": "{count, plural, =1{1 scan processed} other{{count} scans processed}}",
+  "@inventoryBatchScansProcessed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryBatchImagesNoCode": "{count, plural, =1{1 image with no code found} other{{count} images with no code found}}",
+  "@inventoryBatchImagesNoCode": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "inventoryBatchNoBarcodes": "No barcodes found in selected images",
+  "inventoryModeReceiveLabel": "Receive",
+  "inventoryModeShipLabel": "Ship",
+  "inventoryModeCountLabel": "Count",
+  "inventoryModeReceiveDescription": "Add 1 to stock on each scan",
+  "inventoryModeShipDescription": "Remove 1 from stock on each scan",
+  "inventoryModeCountDescription": "Set exact quantity after scan",
+  "inventoryFailureLoad": "Could not load inventory",
+  "inventoryFailureSave": "Could not save the scan",
+  "inventoryFailureCreate": "Could not save the item",
+  "inventoryFailureDuplicate": "An item with this barcode already exists",
+  "inventoryFailureInsufficient": "Not enough stock to ship this quantity",
+  "inventoryFailureDecode": "No barcode or QR code found in that image",
+  "inventoryFailureExport": "Could not export inventory",
+  "inventoryFailureExportEmpty": "Nothing to export yet",
+  "inventoryFailureImport": "Could not import inventory",
+  "inventoryFailureImportEmpty": "That CSV file is empty",
+  "inventoryFailureImportColumns": "CSV must include barcode, name, and quantity_on_hand columns",
+  "inventoryFailureImportNoRows": "No valid rows found in CSV",
+  "inventoryFailureValidationDescription": "Description is too long",
+  "inventoryFailureValidationUnknown": "Unknown item — create it first or switch to Receive mode",
+  "consolidatorTitle": "Report consolidator",
+  "consolidatorHeadline": "Merge Excel reports",
+  "consolidatorDescription": "Pick a folder of .xlsx files. The app combines them into one workbook and lists any files that could not be read.",
+  "consolidatorOutputFolderTitle": "Output folder",
+  "consolidatorOutputFolderDefault": "Same as the source folder (default)",
+  "consolidatorChooseOutputFolder": "Choose output folder",
+  "consolidatorUseSourceFolder": "Use source folder",
+  "consolidatorChooseAndMerge": "Choose folder and merge",
+  "consolidatorNoSpreadsheetsTitle": "No spreadsheets found",
+  "consolidatorNoSpreadsheetsMessage": "That folder did not contain any .xlsx files. Try a different folder with Excel reports inside.",
+  "consolidatorChooseAnotherFolder": "Choose another folder",
+  "consolidatorPartialTitle": "Merged with some failures",
+  "consolidatorSuccessTitle": "Merge complete",
+  "consolidatorErrorTitle": "Merge could not finish",
+  "consolidatorErrorFallback": "Something went wrong while reading the files. Check that the folder is readable and try again.",
+  "consolidatorTryAgain": "Try again",
+  "consolidatorMergingProgress": "Merging spreadsheets… {percent}%",
+  "@consolidatorMergingProgress": {
+    "placeholders": {
+      "percent": { "type": "int" }
+    }
+  },
+  "consolidatorPreparing": "Preparing merge…",
+  "consolidatorMergingHint": "Large folders may take a minute. You can keep this window open.",
+  "consolidatorSavedAs": "Saved as {fileName}",
+  "@consolidatorSavedAs": {
+    "placeholders": {
+      "fileName": { "type": "String" }
+    }
+  },
+  "consolidatorSavedInOutput": "Output saved in the chosen output folder.",
+  "consolidatorFailuresTitle": "Files that need attention",
+  "consolidatorFailuresMessage": "These files were skipped or could not be read. Fix or remove them and run merge again.",
+  "consolidatorFailureFallback": "Could not read this workbook",
+  "consolidatorFailedFileSemantics": "Failed file {fileName}",
+  "@consolidatorFailedFileSemantics": {
+    "placeholders": {
+      "fileName": { "type": "String" }
+    }
+  },
+  "consolidatorRecentMerges": "Recent merges",
+  "consolidatorHistoryEmpty": "Completed merges appear here. Up to 20 are kept.",
+  "consolidatorOpenFileLocation": "Open file location",
+  "consolidatorMergedSemantics": "Merged {fileName} on {time}",
+  "@consolidatorMergedSemantics": {
+    "placeholders": {
+      "fileName": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
+  "warningSemanticLabel": "Warning"
+}

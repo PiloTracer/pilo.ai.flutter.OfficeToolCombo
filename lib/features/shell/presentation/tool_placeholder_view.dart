@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/core/widgets/state_panel.dart';
 import 'package:office_tool_combo/features/shell/presentation/tool_shell_scaffold.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 /// F0 placeholder for a tool route. Product behaviour arrives in F1–F5.
 class ToolPlaceholderView extends StatelessWidget {
@@ -19,6 +20,7 @@ class ToolPlaceholderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
+    final l10n = AppLocalizations.of(context);
 
     return ToolShellScaffold(
       title: title,
@@ -30,10 +32,8 @@ class ToolPlaceholderView extends StatelessWidget {
           Expanded(
             child: StatePanel(
               icon: icon,
-              title: 'Coming in the next milestone',
-              message:
-                  '$title is on the roadmap. The navigation shell is ready; '
-                  'full workflow for $toolId ships in a later release.',
+              title: l10n.placeholderHeadline,
+              message: l10n.placeholderMessage(title, toolId),
             ),
           ),
         ],

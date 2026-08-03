@@ -17,7 +17,9 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
 
   Future<void> loadInitialState() async {
     final savedPath = await _repository.readSavedOutputFolderPath();
+    if (!ref.mounted) return;
     final history = await _repository.readMergeHistory();
+    if (!ref.mounted) return;
     state = state.copyWith(outputFolderPath: savedPath, mergeHistory: history);
   }
 
@@ -25,6 +27,7 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
 
   Future<void> pickOutputFolder() async {
     final pickResult = await _repository.pickOutputFolder();
+    if (!ref.mounted) return;
     pickResult.when(
       success: (path) {
         if (path == null || path.isEmpty) {
@@ -43,11 +46,13 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
 
   Future<void> useSourceFolderForOutput() async {
     await _repository.saveOutputFolderPath(null);
+    if (!ref.mounted) return;
     state = state.copyWith(outputFolderPath: null);
   }
 
   Future<void> pickFolderAndMerge() async {
     final pickResult = await _repository.pickSourceFolder();
+    if (!ref.mounted) return;
     await pickResult.when(
       success: (path) async {
         if (path == null || path.isEmpty) {
@@ -66,6 +71,7 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
 
   Future<void> openMergeOutput(String outputPath) async {
     final result = await _repository.revealOutputFile(outputPath);
+    if (!ref.mounted) return;
     result.when(
       success: (_) {},
       failure: (failure) {
@@ -91,21 +97,25 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
       folderPath: folderPath,
       outputFolderPath: state.outputFolderPath,
       onProgress: (value) {
+        if (!ref.mounted) return;
         state = state.copyWith(progress: value);
       },
     );
+    if (!ref.mounted) return;
 
     await result.when(
       success: (batch) async {
         final history = await _repository.readMergeHistory();
+        if (!ref.mounted) return;
         state = state.copyWith(
           phase: _phaseForBatch(batch),
           progress: 1,
           lastBatch: batch,
           outputFileName: _basename(batch.outputPath),
           mergeHistory: history,
-          errorMessage: batch.status == WorkbookBatchStatus.failed
-              ? 'All spreadsheets failed to merge'
+          errorMessage:
+              batch.status == WorkbookBatchStatus.failed
+              ? batch.errorMessage
               : null,
         );
       },
@@ -139,7 +149,7 @@ class ConsolidatorViewModel extends Notifier<ConsolidatorUiState> {
     if (path == null || path.isEmpty) {
       return null;
     }
-    final segments = path.split('/');
+    final segments = path.split(RegExp(r'[/\\]'));
     return segments.isEmpty ? path : segments.last;
   }
 }

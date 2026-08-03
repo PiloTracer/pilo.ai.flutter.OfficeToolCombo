@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:office_tool_combo/core/theme/app_spacing.dart';
 import 'package:office_tool_combo/features/report_consolidator/domain/entities/merge_history_entry.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class MergeHistoryList extends StatefulWidget {
   const MergeHistoryList({
@@ -36,7 +37,9 @@ class _MergeHistoryListState extends State<MergeHistoryList> {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
-    final dateFormat = DateFormat.yMMMd().add_jm();
+    final l10n = AppLocalizations.of(context);
+    final localeName = Localizations.localeOf(context).toString();
+    final dateFormat = DateFormat.yMMMd(localeName).add_jm();
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -46,7 +49,7 @@ class _MergeHistoryListState extends State<MergeHistoryList> {
           Padding(
             padding: spacing.cardPadding,
             child: Text(
-              'Recent merges',
+              l10n.consolidatorRecentMerges,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -57,7 +60,7 @@ class _MergeHistoryListState extends State<MergeHistoryList> {
                     child: Padding(
                       padding: spacing.cardPadding,
                       child: Text(
-                        'Completed merges appear here. Up to 20 are kept.',
+                        l10n.consolidatorHistoryEmpty,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -106,10 +109,11 @@ class _MergeHistoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = context.spacing;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final isPartial = entry.status == 'partial';
 
     return Semantics(
-      label: 'Merged ${entry.fileName} on $formattedTime',
+      label: l10n.consolidatorMergedSemantics(entry.fileName, formattedTime),
       child: ListTile(
         leading: Icon(
           isPartial ? Icons.warning_amber_outlined : Icons.table_chart_outlined,
@@ -126,7 +130,7 @@ class _MergeHistoryTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
-          tooltip: 'Open file location',
+          tooltip: l10n.consolidatorOpenFileLocation,
           icon: const Icon(Icons.open_in_new),
           onPressed: onOpen,
         ),

@@ -2,17 +2,22 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:office_tool_combo/features/barcode_inventory/domain/entities/csv_import_summary.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/multi_image_decode_outcome.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/failures/inventory_failure.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/inventory_search_matcher.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/repositories/inventory_repository.dart';
+import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_l10n.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_providers.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_ui_state.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class InventoryViewModel extends Notifier<InventoryUiState> {
   InventoryRepository get _repository => ref.read(inventoryRepositoryProvider);
+
+  AppLocalizations get _l10n => ref.read(inventoryLocalizationsProvider);
 
   @override
   InventoryUiState build() {
@@ -55,7 +60,7 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
             state = state.copyWith(
               phase: InventoryPhase.error,
               items: items,
-              errorMessage: failure.message,
+              errorMessage: _l10n.inventoryFailureMessage(failure.message),
             );
           },
         );
@@ -66,7 +71,7 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
         }
         state = state.copyWith(
           phase: InventoryPhase.error,
-          errorMessage: failure.message,
+          errorMessage: _l10n.inventoryFailureMessage(failure.message),
         );
       },
     );
@@ -94,6 +99,16 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     if (state.toastMessage != null) {
       state = state.copyWith(toastMessage: null);
     }
+  }
+
+  void dismissSkippedRows() {
+    if (state.skippedRowCount == 0) {
+      return;
+    }
+    state = state.copyWith(
+      skippedRowCount: 0,
+      phase: _phaseForItems(state.items, 0),
+    );
   }
 
   Future<ScanSubmissionResult> submitScan(String rawBarcode) async {
@@ -143,14 +158,15 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     return result.when(
       success: (item) async {
         await _refreshAfterMutation(
-          toast: 'Added ${item.name}',
+          toast: _l10n.inventoryToastAdded(item.name),
           clearPending: true,
         );
         return const ScanSubmissionResult.handled();
       },
       failure: (failure) {
-        state = state.copyWith(errorMessage: failure.message);
-        return ScanSubmissionResult.failed(failure.message);
+        final message = _l10n.inventoryFailureMessage(failure.message);
+        state = state.copyWith(errorMessage: message);
+        return ScanSubmissionResult.failed(message);
       },
     );
   }
@@ -168,17 +184,18 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     return result.when(
       success: (item) async {
         await _refreshAfterMutation(
-          toast: 'Updated ${item.name}: ${item.quantityOnHand}',
+          toast: _l10n.inventoryToastUpdated(item.name, item.quantityOnHand),
           clearPending: true,
         );
         return const ScanSubmissionResult.handled();
       },
       failure: (failure) {
+        final message = _l10n.inventoryFailureMessage(failure.message);
         state = state.copyWith(
-          errorMessage: failure.message,
+          errorMessage: message,
           pendingCountBarcode: null,
         );
-        return ScanSubmissionResult.failed(failure.message);
+        return ScanSubmissionResult.failed(message);
       },
     );
   }
@@ -195,7 +212,9 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
       return null;
     }
 
-    final pickResult = await _repository.pickBarcodeImagePaths();
+    final pickResult = await _repository.pickBarcodeImagePaths(
+      dialogTitle: _l10n.inventoryScanFromImages,
+    );
     if (!ref.mounted) {
       return null;
     }
@@ -203,7 +222,9 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     final paths = pickResult.when(
       success: (value) => value,
       failure: (failure) {
-        state = state.copyWith(toastMessage: failure.message);
+        state = state.copyWith(
+          toastMessage: _l10n.inventoryFailureMessage(failure.message),
+        );
         return null;
       },
     );
@@ -220,7 +241,9 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
       return decodeResult.when(
         success: (outcome) => outcome.isEmpty ? null : outcome,
         failure: (failure) {
-          state = state.copyWith(toastMessage: failure.message);
+          state = state.copyWith(
+            toastMessage: _l10n.inventoryFailureMessage(failure.message),
+          );
           return null;
         },
       );
@@ -245,10 +268,14 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     );
     await result.when(
       success: (item) async {
-        await _refreshAfterMutation(toast: 'Updated ${item.name}');
+        await _refreshAfterMutation(
+          toast: _l10n.inventoryToastUpdated(item.name, item.quantityOnHand),
+        );
       },
       failure: (failure) {
-        state = state.copyWith(errorMessage: failure.message);
+        state = state.copyWith(
+          errorMessage: _l10n.inventoryFailureMessage(failure.message),
+        );
       },
     );
   }
@@ -257,36 +284,43 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
     final result = await _repository.deleteItem(id);
     await result.when(
       success: (_) async {
-        await _refreshAfterMutation(toast: 'Item deleted');
+        await _refreshAfterMutation(toast: _l10n.inventoryToastDeleted);
       },
       failure: (failure) {
-        state = state.copyWith(errorMessage: failure.message);
+        state = state.copyWith(
+          errorMessage: _l10n.inventoryFailureMessage(failure.message),
+        );
       },
     );
   }
 
   Future<void> exportCsv() async {
-    final result = await _repository.exportInventoryCsv();
+    final result = await _repository.exportInventoryCsv(
+      dialogTitle: _l10n.inventoryExportCsv,
+    );
     result.when(
       success: (path) {
         if (path == null) {
           return;
         }
         state = state.copyWith(
-          toastMessage: 'Exported inventory to $path',
+          toastMessage: _l10n.inventoryToastExported(path),
           lastExportPath: path,
         );
       },
       failure: (failure) {
-        state = state.copyWith(errorMessage: failure.message);
+        state = state.copyWith(
+          errorMessage: _l10n.inventoryFailureMessage(failure.message),
+        );
       },
     );
   }
 
   Future<void> importCsv() async {
+    final l10n = _l10n;
     try {
       final pick = await FilePicker.pickFiles(
-        dialogTitle: 'Import inventory CSV',
+        dialogTitle: l10n.inventoryImportCsv,
         type: FileType.custom,
         allowedExtensions: const ['csv'],
       );
@@ -297,18 +331,41 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
       if (path == null || path.isEmpty) {
         return;
       }
-      final result = await _repository.importInventoryCsv(path);
-      await result.when(
-        success: (count) async {
-          await _refreshAfterMutation(toast: 'Imported $count items');
-        },
-        failure: (failure) {
-          state = state.copyWith(errorMessage: failure.message);
-        },
-      );
+      await importCsvFile(path);
     } on Object catch (error) {
-      state = state.copyWith(errorMessage: 'Could not import CSV: $error');
+      state = state.copyWith(errorMessage: l10n.inventoryErrorImport('$error'));
     }
+  }
+
+  /// Imports [path] after the file was picked. Split from [importCsv] so the
+  /// flow past the platform file picker stays testable.
+  Future<void> importCsvFile(String path) async {
+    final l10n = _l10n;
+    final result = await _repository.importInventoryCsv(path);
+    await result.when(
+      success: (summary) async {
+        state = state.copyWith(
+          skippedRowCount: summary.skippedCount + summary.duplicateCount,
+        );
+        await _refreshAfterMutation(toast: _importToast(l10n, summary));
+      },
+      failure: (failure) {
+        state = state.copyWith(
+          errorMessage: l10n.inventoryFailureMessage(failure.message),
+        );
+      },
+    );
+  }
+
+  String _importToast(AppLocalizations l10n, CsvImportSummary summary) {
+    final parts = <String>[l10n.inventoryToastImported(summary.importedCount)];
+    if (summary.skippedCount > 0) {
+      parts.add(l10n.inventoryImportSkippedPart(summary.skippedCount));
+    }
+    if (summary.duplicateCount > 0) {
+      parts.add(l10n.inventoryImportDuplicatesPart(summary.duplicateCount));
+    }
+    return parts.join(' · ');
   }
 
   Future<ScanSubmissionResult> _applyScan(String barcode) async {
@@ -319,25 +376,26 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
 
     return result.when(
       success: (item) async {
+        final l10n = _l10n;
         final verb = switch (state.scanMode) {
-          ScanMode.receive => 'Received',
-          ScanMode.ship => 'Shipped',
-          ScanMode.count => 'Updated',
+          ScanMode.receive => l10n.inventoryVerbReceived,
+          ScanMode.ship => l10n.inventoryVerbShipped,
+          ScanMode.count => l10n.inventoryVerbUpdated,
         };
         await _refreshAfterMutation(
-          toast: '$verb ${item.name}: ${item.quantityOnHand}',
+          toast: l10n.inventoryToastScan(verb, item.name, item.quantityOnHand),
           clearPending: true,
         );
         return const ScanSubmissionResult.handled();
       },
       failure: (failure) {
-        if (failure.message ==
-            const InventoryInsufficientStockFailure().message) {
-          state = state.copyWith(toastMessage: failure.message);
+        final message = _l10n.inventoryFailureMessage(failure.message);
+        if (failure.message == InventoryFailureCodes.insufficientStock) {
+          state = state.copyWith(toastMessage: message);
         } else {
-          state = state.copyWith(errorMessage: failure.message);
+          state = state.copyWith(errorMessage: message);
         }
-        return ScanSubmissionResult.failed(failure.message);
+        return ScanSubmissionResult.failed(message);
       },
     );
   }
@@ -373,7 +431,9 @@ class InventoryViewModel extends Notifier<InventoryUiState> {
         );
       },
       failure: (failure) {
-        state = state.copyWith(errorMessage: failure.message);
+        state = state.copyWith(
+          errorMessage: _l10n.inventoryFailureMessage(failure.message),
+        );
       },
     );
   }

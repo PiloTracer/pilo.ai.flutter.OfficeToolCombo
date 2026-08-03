@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
+import 'package:office_tool_combo/l10n/generated/app_localizations.dart';
 
 class RecentScansList extends StatelessWidget {
   const RecentScansList({
@@ -24,7 +25,7 @@ class RecentScansList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Recent scans',
+              AppLocalizations.of(context).inventoryRecentScans,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),

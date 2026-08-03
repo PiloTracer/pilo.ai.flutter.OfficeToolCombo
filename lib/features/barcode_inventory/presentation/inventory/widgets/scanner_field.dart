@@ -14,6 +14,8 @@ class ScannerField extends StatefulWidget {
     required this.onSubmitted,
     this.captureFocus = true,
     this.label = 'Barcode scan field',
+    this.labelText = 'Scan barcode',
+    this.hintText = 'Scan barcode…',
   });
 
   final TextEditingController controller;
@@ -22,6 +24,8 @@ class ScannerField extends StatefulWidget {
   final bool captureFocus;
   final Future<void> Function(String value) onSubmitted;
   final String label;
+  final String labelText;
+  final String hintText;
 
   @override
   State<ScannerField> createState() => _ScannerFieldState();
@@ -129,11 +133,11 @@ class _ScannerFieldState extends State<ScannerField> {
         focusNode: widget.focusNode,
         enabled: widget.enabled,
         autofocus: widget.captureFocus,
-        decoration: const InputDecoration(
-          labelText: 'Scan barcode',
-          hintText: 'Scan barcode…',
-          prefixIcon: Icon(Icons.qr_code_scanner_outlined),
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: widget.labelText,
+          hintText: widget.hintText,
+          prefixIcon: const Icon(Icons.qr_code_scanner_outlined),
+          border: const OutlineInputBorder(),
         ),
         textInputAction: TextInputAction.done,
         onSubmitted: _handleSubmit,

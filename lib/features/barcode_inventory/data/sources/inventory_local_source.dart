@@ -188,7 +188,10 @@ class InventoryLocalSource {
   }
 
   String _escapeCsv(String value) {
-    if (value.contains(',') || value.contains('"') || value.contains('\n')) {
+    if (value.contains(',') ||
+        value.contains('"') ||
+        value.contains('\n') ||
+        value.contains('\r')) {
       return '"${value.replaceAll('"', '""')}"';
     }
     return value;

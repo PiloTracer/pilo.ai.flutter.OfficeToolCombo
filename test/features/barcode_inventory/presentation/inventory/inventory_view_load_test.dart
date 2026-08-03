@@ -5,8 +5,15 @@ import 'package:office_tool_combo/core/storage/app_database.dart';
 import 'package:office_tool_combo/core/storage/database_provider.dart';
 import 'package:office_tool_combo/core/theme/app_theme.dart';
 import 'package:office_tool_combo/features/barcode_inventory/presentation/inventory/inventory_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../helpers/l10n_test_harness.dart';
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('InventoryView leaves loading state with in-memory db', (
     tester,
   ) async {
@@ -21,7 +28,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(theme: AppTheme.dark(), home: const InventoryView()),
+        child: buildL10nTestApp(
+          theme: AppTheme.dark(),
+          home: const InventoryView(),
+        ),
       ),
     );
 

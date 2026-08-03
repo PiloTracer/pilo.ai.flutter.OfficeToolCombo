@@ -8,6 +8,7 @@ import 'package:office_tool_combo/core/storage/app_database.dart'
     hide InventoryItem, ScanEvent;
 import 'package:office_tool_combo/features/barcode_inventory/data/mappers/inventory_failure_mapper.dart';
 import 'package:office_tool_combo/features/barcode_inventory/data/sources/inventory_local_source.dart';
+import 'package:office_tool_combo/features/barcode_inventory/domain/entities/csv_import_summary.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/inventory_item.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/multi_image_decode_outcome.dart';
 import 'package:office_tool_combo/features/barcode_inventory/domain/entities/scan_event.dart';
@@ -65,7 +66,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (normalized.isEmpty) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter a barcode or identifier'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationBarcode,
+            message: 'Enter a barcode or identifier',
+          ),
         ),
       );
     }
@@ -77,7 +81,8 @@ class InventoryRepositoryImpl implements InventoryRepository {
           return Err(
             mapInventoryFailure(
               const InventoryValidationFailure(
-                'Unknown item — create it first or switch to Receive mode',
+                code: InventoryFailureCodes.validationUnknownItem,
+                message: 'Unknown item — create it first or switch to Receive mode',
               ),
             ),
           );
@@ -121,28 +126,40 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (normalizedBarcode.isEmpty) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter a barcode or identifier'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationBarcode,
+            message: 'Enter a barcode or identifier',
+          ),
         ),
       );
     }
     if (normalizedName.isEmpty || normalizedName.length > 120) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter an item name'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationName,
+            message: 'Enter an item name',
+          ),
         ),
       );
     }
     if (normalizedDescription.length > 500) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Description is too long'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationDescription,
+            message: 'Description is too long',
+          ),
         ),
       );
     }
     if (startingQuantity < 0 || startingQuantity > 999999) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter a valid quantity'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationQuantity,
+            message: 'Enter a valid quantity',
+          ),
         ),
       );
     }
@@ -182,21 +199,30 @@ class InventoryRepositoryImpl implements InventoryRepository {
     if (normalizedName.isEmpty || normalizedName.length > 120) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter an item name'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationName,
+            message: 'Enter an item name',
+          ),
         ),
       );
     }
     if (normalizedDescription.length > 500) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Description is too long'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationDescription,
+            message: 'Description is too long',
+          ),
         ),
       );
     }
     if (quantityOnHand < 0 || quantityOnHand > 999999) {
       return Err(
         mapInventoryFailure(
-          const InventoryValidationFailure('Enter a valid quantity'),
+          const InventoryValidationFailure(
+            code: InventoryFailureCodes.validationQuantity,
+            message: 'Enter a valid quantity',
+          ),
         ),
       );
     }
@@ -254,10 +280,12 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Result<List<String>>> pickBarcodeImagePaths() async {
+  Future<Result<List<String>>> pickBarcodeImagePaths({
+    String? dialogTitle,
+  }) async {
     try {
       final result = await FilePicker.pickFiles(
-        dialogTitle: 'Select product label or barcode images',
+        dialogTitle: dialogTitle ?? 'Select product label or barcode images',
         type: FileType.custom,
         allowedExtensions: const ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'],
         allowMultiple: true,
@@ -332,13 +360,19 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Result<String?>> exportInventoryCsv({String? outputPath}) async {
+  Future<Result<String?>> exportInventoryCsv({
+    String? outputPath,
+    String? dialogTitle,
+  }) async {
     try {
       final items = await _localSource.loadAllItems();
       if (items.isEmpty) {
         return Err(
           mapInventoryFailure(
-            const InventoryExportFailure('Nothing to export yet'),
+            const InventoryExportFailure(
+              code: InventoryFailureCodes.exportEmpty,
+              message: 'Nothing to export yet',
+            ),
           ),
         );
       }
@@ -346,7 +380,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
       var path = outputPath;
       if (path == null || path.isEmpty) {
         path = await FilePicker.saveFile(
-          dialogTitle: 'Export inventory CSV',
+          dialogTitle: dialogTitle ?? 'Export inventory CSV',
           fileName: 'inventory_export.csv',
           type: FileType.custom,
           allowedExtensions: const ['csv'],
@@ -363,27 +397,37 @@ class InventoryRepositoryImpl implements InventoryRepository {
     } on Object catch (error) {
       return Err(
         mapInventoryFailure(
-          InventoryExportFailure('Could not export inventory: $error'),
+          InventoryExportFailure(message: 'Could not export inventory: $error'),
         ),
       );
     }
   }
 
   @override
-  Future<Result<int>> importInventoryCsv(String path) async {
+  Future<Result<CsvImportSummary>> importInventoryCsv(String path) async {
     try {
-      final content = await File(path).readAsString();
-      final rows = const CsvToListConverter().convert(content);
+      var content = await File(path).readAsString();
+      // Excel-saved CSVs often start with a UTF-8 BOM; strip it or the header
+      // becomes "﻿barcode" and column lookup fails.
+      if (content.startsWith('\uFEFF')) {
+        content = content.substring(1);
+      }
+      // Normalize CRLF and lone-CR line endings so exports from any OS parse.
+      content = content.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+      final rows = const CsvToListConverter(eol: '\n').convert(content);
       if (rows.isEmpty) {
         return Err(
           mapInventoryFailure(
-            const InventoryImportFailure('That CSV file is empty'),
+            const InventoryImportFailure(
+              code: InventoryFailureCodes.importEmpty,
+              message: 'That CSV file is empty',
+            ),
           ),
         );
       }
 
       final header = rows.first
-          .map((cell) => cell.toString().toLowerCase())
+          .map((cell) => cell.toString().trim().toLowerCase())
           .toList();
       final barcodeIndex = header.indexOf('barcode');
       final nameIndex = header.indexOf('name');
@@ -395,20 +439,42 @@ class InventoryRepositoryImpl implements InventoryRepository {
         return Err(
           mapInventoryFailure(
             const InventoryImportFailure(
-              'CSV must include barcode, name, and quantity_on_hand columns',
+              code: InventoryFailureCodes.importMissingColumns,
+              message:
+                  'CSV must include barcode, name, and quantity_on_hand columns',
             ),
           ),
         );
       }
 
-      final imported = <InventoryItem>[];
+      final requiredIndexMax = [
+        barcodeIndex,
+        nameIndex,
+        qtyIndex,
+      ].reduce((a, b) => a > b ? a : b);
+      final itemsByBarcode = <String, InventoryItem>{};
+      var skippedCount = 0;
+      var duplicateCount = 0;
       for (final row in rows.skip(1)) {
-        if (row.length <= barcodeIndex) {
+        final isBlankRow = row.every(
+          (cell) => cell.toString().trim().isEmpty,
+        );
+        if (isBlankRow) {
+          continue;
+        }
+        if (row.length <= requiredIndexMax) {
+          skippedCount++;
           continue;
         }
         final barcode = row[barcodeIndex].toString().trim();
         final name = row[nameIndex].toString().trim();
-        if (barcode.isEmpty || name.isEmpty) {
+        final qty = int.tryParse(row[qtyIndex].toString().trim());
+        if (barcode.isEmpty ||
+            name.isEmpty ||
+            qty == null ||
+            qty < 0 ||
+            qty > 999999) {
+          skippedCount++;
           continue;
         }
         final sku = skuIndex >= 0 && row.length > skuIndex
@@ -418,34 +484,45 @@ class InventoryRepositoryImpl implements InventoryRepository {
             descriptionIndex >= 0 && row.length > descriptionIndex
             ? row[descriptionIndex].toString().trim()
             : '';
-        final qty = int.tryParse(row[qtyIndex].toString().trim()) ?? 0;
-        imported.add(
-          InventoryItem(
-            id: barcode,
-            sku: sku.isEmpty ? barcode : sku,
-            barcode: barcode,
-            name: name,
-            description: description,
-            quantityOnHand: qty.clamp(0, 999999),
-            updatedAt: DateTime.now(),
-          ),
+        if (itemsByBarcode.containsKey(barcode)) {
+          duplicateCount++;
+        }
+        // Last row wins for duplicate barcodes within one file.
+        itemsByBarcode[barcode] = InventoryItem(
+          id: barcode,
+          sku: sku.isEmpty ? barcode : sku,
+          barcode: barcode,
+          name: name,
+          description: description,
+          quantityOnHand: qty,
+          updatedAt: DateTime.now(),
         );
       }
 
+      final imported = itemsByBarcode.values.toList(growable: false);
       if (imported.isEmpty) {
         return Err(
           mapInventoryFailure(
-            const InventoryImportFailure('No valid rows found in CSV'),
+            const InventoryImportFailure(
+              code: InventoryFailureCodes.importNoValidRows,
+              message: 'No valid rows found in CSV',
+            ),
           ),
         );
       }
 
       await _localSource.replaceAllItems(imported);
-      return Success(imported.length);
+      return Success(
+        CsvImportSummary(
+          importedCount: imported.length,
+          skippedCount: skippedCount,
+          duplicateCount: duplicateCount,
+        ),
+      );
     } on Object catch (error) {
       return Err(
         mapInventoryFailure(
-          InventoryImportFailure('Could not import inventory: $error'),
+          InventoryImportFailure(message: 'Could not import inventory: $error'),
         ),
       );
     }
