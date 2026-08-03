@@ -74,6 +74,12 @@ Rules: every *Done* item names a task id or a file · every *Verified* line quot
 **Next**
 - `@flutter-release certify` once operator items land · commit this batch (FLT-13) on operator request
 
+**Session close (2026-08-02)**
+- Operator decisions recorded (plan Revision 4): amendments ratified, F1-T2 superseded, signing/manual/NFR3 deferred to operator
+- `git commit` → FLT-12 (tools) + `f3b9e0d FLT-13: verify milestone pass, coverage repair, NFR benchmarks` (51 files)
+- Pre-commit: print() blockers fixed via `stdout.writeln`; high blast radius acknowledged above
+- `git push` → `2175927..f3b9e0d main -> main` (pre-push: flutter test → **388/388 passed**)
+
 ## 2026-08-02 — F3 Document factory + F4 Price monitor + F5 Scheduled backup (all five tools shipped)
 
 **Skills:** @flutter-director, @flutter-implementation ×3, @flutter-test
