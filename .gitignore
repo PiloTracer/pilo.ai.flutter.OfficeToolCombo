@@ -21,7 +21,10 @@ coverage/
 *.g.dart.bak
 symbols/
 debug-info/
-**/failures/
+test/**/failures/
+integration_test/**/failures/
+# Desktop build outputs (downloaded from CI): releases/<version>/<os>/
+releases/
 ios/Pods/
 ios/.symlinks/
 ios/Flutter/Flutter.framework
