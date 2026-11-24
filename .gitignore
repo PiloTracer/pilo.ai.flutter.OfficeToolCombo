@@ -40,6 +40,7 @@ android/app/release/
 android/captures/
 .work.flutter/analysis/tmp/
 .work.flutter/commit-ref-pending/
+.work.flutter/reports/last-gate.json
 .idea/
 .vscode/
 *.iml
